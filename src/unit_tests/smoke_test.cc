@@ -34,6 +34,9 @@ namespace ci = common_installer;
 
 namespace {
 
+const bf::path kSmokePackagesDirectory =
+    "/usr/share/wgt-backend-ut/test_samples/smoke/";
+
 const char kApplicationDir[] = ".applications";
 const char kApplicationDirBackup[] = ".applications.bck";
 const char KUserAppsDir[] = "apps_rw";
@@ -324,7 +327,7 @@ class SmokeTest : public testing::Test {
 };
 
 TEST_F(SmokeTest, InstallationMode) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/InstallationMode.wgt";  // NOLINT
+  bf::path path = kSmokePackagesDirectory / "InstallationMode.wgt";
   std::string pkgid = "smokeapp03";
   std::string appid = "smokeapp03.InstallationMode";
   ASSERT_EQ(Install(path), ci::AppInstaller::Result::OK);
@@ -332,8 +335,8 @@ TEST_F(SmokeTest, InstallationMode) {
 }
 
 TEST_F(SmokeTest, UpdateMode) {
-  bf::path path_old = "/usr/share/app-installers-ut/test_samples/smoke/UpdateMode.wgt";  // NOLINT
-  bf::path path_new = "/usr/share/app-installers-ut/test_samples/smoke/UpdateMode_2.wgt";  // NOLINT
+  bf::path path_old = kSmokePackagesDirectory / "UpdateMode.wgt";
+  bf::path path_new = kSmokePackagesDirectory / "UpdateMode_2.wgt";
   std::string pkgid = "smokeapp04";
   std::string appid = "smokeapp04.UpdateMode";
   ASSERT_EQ(Update(path_old, path_new), ci::AppInstaller::Result::OK);
@@ -343,7 +346,7 @@ TEST_F(SmokeTest, UpdateMode) {
 }
 
 TEST_F(SmokeTest, DeinstallationMode) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/DeinstallationMode.wgt";  // NOLINT
+  bf::path path = kSmokePackagesDirectory / "DeinstallationMode.wgt";
   std::string pkgid = "smokeapp05";
   std::string appid = "smokeapp05.DeinstallationMode";
   ASSERT_EQ(Install(path),
@@ -353,8 +356,8 @@ TEST_F(SmokeTest, DeinstallationMode) {
 }
 
 TEST_F(SmokeTest, RDSMode) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/RDSMode.wgt";  // NOLINT
-  std::string delta_directory = "/usr/share/app-installers-ut/test_samples/smoke/delta_dir/"; // NOLINT
+  bf::path path = kSmokePackagesDirectory / "RDSMode.wgt";
+  bf::path delta_directory = kSmokePackagesDirectory / "delta_dir/";
   std::string pkgid = "smokeapp11";
   std::string appid = "smokeapp11.RDSMode";
   ASSERT_EQ(Reinstall(path, delta_directory),
@@ -369,8 +372,8 @@ TEST_F(SmokeTest, RDSMode) {
 }
 
 TEST_F(SmokeTest, DeltaMode) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/DeltaMode.wgt";  // NOLINT
-  std::string delta_package = "/usr/share/app-installers-ut/test_samples/smoke/DeltaMode.delta"; // NOLINT
+  bf::path path = kSmokePackagesDirectory / "DeltaMode.wgt";
+  bf::path delta_package = kSmokePackagesDirectory / "DeltaMode.delta";
   std::string pkgid = "smokeapp17";
   std::string appid = "smokeapp17.DeltaMode";
   ASSERT_EQ(DeltaInstall(path, delta_package),
@@ -388,7 +391,7 @@ TEST_F(SmokeTest, DeltaMode) {
 }
 
 TEST_F(SmokeTest, RecoveryMode_ForInstallation) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/RecoveryMode_ForInstallation.wgt";  // NOLINT
+  bf::path path = kSmokePackagesDirectory / "RecoveryMode_ForInstallation.wgt";
   ASSERT_DEATH(Install(path, RequestResult::CRASH), ".*");
 
   std::string pkgid = "smokeapp09";
@@ -401,8 +404,8 @@ TEST_F(SmokeTest, RecoveryMode_ForInstallation) {
 }
 
 TEST_F(SmokeTest, RecoveryMode_ForUpdate) {
-  bf::path path_old = "/usr/share/app-installers-ut/test_samples/smoke/RecoveryMode_ForUpdate.wgt";  // NOLINT
-  bf::path path_new = "/usr/share/app-installers-ut/test_samples/smoke/RecoveryMode_ForUpdate_2.wgt";  // NOLINT
+  bf::path path_old = kSmokePackagesDirectory / "RecoveryMode_ForUpdate.wgt";
+  bf::path path_new = kSmokePackagesDirectory / "RecoveryMode_ForUpdate_2.wgt";
   RemoveAllRecoveryFiles();
   ASSERT_DEATH(Update(path_old, path_new, RequestResult::CRASH), ".*");
 
@@ -418,17 +421,17 @@ TEST_F(SmokeTest, RecoveryMode_ForUpdate) {
 }
 
 TEST_F(SmokeTest, InstallationMode_GoodSignature) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/InstallationMode_GoodSignature.wgt";  // NOLINT
+  bf::path path = kSmokePackagesDirectory / "InstallationMode_GoodSignature.wgt";  // NOLINT
   ASSERT_EQ(Install(path), ci::AppInstaller::Result::OK);
 }
 
 TEST_F(SmokeTest, InstallationMode_WrongSignature) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/InstallationMode_WrongSignature.wgt";  // NOLINT
+  bf::path path = kSmokePackagesDirectory / "InstallationMode_WrongSignature.wgt";  // NOLINT
   ASSERT_EQ(Install(path), ci::AppInstaller::Result::ERROR);
 }
 
 TEST_F(SmokeTest, InstallationMode_Rollback) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/InstallationMode_Rollback.wgt";  // NOLINT
+  bf::path path = kSmokePackagesDirectory / "InstallationMode_Rollback.wgt";
   std::string pkgid = "smokeapp06";
   std::string appid = "smokeapp06.InstallationModeRollback";
   ASSERT_EQ(Install(path, RequestResult::FAIL),
@@ -437,8 +440,8 @@ TEST_F(SmokeTest, InstallationMode_Rollback) {
 }
 
 TEST_F(SmokeTest, UpdateMode_Rollback) {
-  bf::path path_old = "/usr/share/app-installers-ut/test_samples/smoke/UpdateMode_Rollback.wgt";  // NOLINT
-  bf::path path_new = "/usr/share/app-installers-ut/test_samples/smoke/UpdateMode_Rollback_2.wgt";  // NOLINT
+  bf::path path_old = kSmokePackagesDirectory / "UpdateMode_Rollback.wgt";
+  bf::path path_new = kSmokePackagesDirectory / "UpdateMode_Rollback_2.wgt";
   std::string pkgid = "smokeapp07";
   std::string appid = "smokeapp07.UpdateModeRollback";
   ASSERT_EQ(Update(path_old, path_new, RequestResult::FAIL),
@@ -449,7 +452,7 @@ TEST_F(SmokeTest, UpdateMode_Rollback) {
 }
 
 TEST_F(SmokeTest, DeinstallationMode_Rollback) {
-  bf::path path = "/usr/share/app-installers-ut/test_samples/smoke/DeinstallationMode_Rollback.wgt";  // NOLINT
+  bf::path path = kSmokePackagesDirectory / "DeinstallationMode_Rollback.wgt";
   std::string pkgid = "smokeapp08";
   std::string appid = "smokeapp08.DeinstallationModeRollback";
   ASSERT_EQ(Install(path), ci::AppInstaller::Result::OK);
