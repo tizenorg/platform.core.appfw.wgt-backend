@@ -26,6 +26,17 @@ class WgtAppQueryInterface : public common_installer::AppQueryInterface {
    * \return true if package is installed
    */
   bool IsAppInstalledByArgv(int argc, char** argv) override;
+
+  /**
+   * \brief This method is workaround for detecting installation of hybrid
+   *        application.
+   *
+   * \param argc main() argc argument passed to the backend
+   * \param argv main() argv argument passed to the backend
+   *
+   * \return true if package is hybrid
+   */
+  bool IsHybridApplication(int argc, char** argv);
 };
 
 }  // namespace wgt

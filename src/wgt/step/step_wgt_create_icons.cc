@@ -17,6 +17,10 @@ boost::filesystem::path StepWgtCreateIcons::GetIconRoot() const {
   return context_->pkg_path.get() / kResWgt;
 }
 
+std::string StepWgtCreateIcons::GetAppTypeForIcons() const {
+  return "webapp";
+}
+
 }  // namespace filesystem
 }  // namespace wgt
 
