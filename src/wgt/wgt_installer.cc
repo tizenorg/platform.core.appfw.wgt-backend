@@ -9,7 +9,6 @@
 #include <common/pkgmgr_interface.h>
 #include <common/step/step_configure.h>
 #include <common/step/step_backup_manifest.h>
-#include <common/step/step_backup_icons.h>
 #include <common/step/step_copy.h>
 #include <common/step/step_copy_backup.h>
 #include <common/step/step_copy_storage_directories.h>
@@ -52,6 +51,7 @@
 #include "wgt/step/step_rds_modify.h"
 #include "wgt/step/step_rds_parse.h"
 #include "wgt/step/step_remove_encryption_data.h"
+#include "wgt/step/step_wgt_backup_icons.h"
 #include "wgt/step/step_wgt_copy_storage_directories.h"
 #include "wgt/step/step_wgt_create_icons.h"
 #include "wgt/step/step_wgt_create_storage_directories.h"
@@ -98,7 +98,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepOldManifest>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
-      AddStep<ci::backup::StepBackupIcons>();
+      AddStep<wgt::backup::StepWgtBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -147,7 +147,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepOldManifest>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
-      AddStep<ci::backup::StepBackupIcons>();
+      AddStep<wgt::backup::StepWgtBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
