@@ -53,14 +53,20 @@ class StepEncryptResources : public common_installer::Step {
    */
   Status precheck() override;
 
+ protected:
+  boost::filesystem::path input_;
+
  private:
+  virtual void SetEncryptionRoot();
+
   bool Encrypt(const boost::filesystem::path &src);
   bool EncryptFile(const boost::filesystem::path &src);
   bool ToBeEncrypted(const boost::filesystem::path &file);
   WgtBackendData* backend_data_;
-  boost::filesystem::path input_;
   SCOPE_LOG_TAG(EncryptResources)
 };
+
 }  // namespace encrypt
 }  // namespace wgt
+
 #endif  // WGT_STEP_STEP_ENCRYPT_RESOURCES_H_

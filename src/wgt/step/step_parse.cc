@@ -526,7 +526,8 @@ common_installer::Step::Status StepParse::process() {
   if (perm_info)
      permissions = perm_info->GetAPIPermissions();
 
-  std::unique_ptr<WgtBackendData> backend_data(new WgtBackendData());
+  WgtBackendData* backend_data =
+      static_cast<WgtBackendData*>(context_->backend_data.get());
 
   std::shared_ptr<const SettingInfo> settings_info =
       std::static_pointer_cast<const SettingInfo>(
@@ -534,8 +535,6 @@ common_installer::Step::Status StepParse::process() {
               wgt::application_widget_keys::kTizenSettingKey));
   if (settings_info)
     backend_data->settings.set(*settings_info);
-
-  context_->backend_data.set(backend_data.release());
 
   LOG(DEBUG) << " Read data -[ ";
   LOG(DEBUG) << "App id: " << info->id();
@@ -553,13 +552,16 @@ common_installer::Step::Status StepParse::process() {
   LOG(DEBUG) << "  ]-";
   LOG(DEBUG) << "]-";
 
+  // TODO(t.iwanek): In delta mode this step is running two times
+  if (context_->manifest_data.get())
+    pkgmgr_parser_free_manifest_xml(context_->manifest_data.get());
+
   context_->manifest_data.set(manifest);
   return common_installer::Step::Status::OK;
 }
 
 bool StepParse::Check(const boost::filesystem::path& widget_path) {
-  boost::filesystem::path config = widget_path;
-  config /= "config.xml";
+  boost::filesystem::path config = widget_path / "config.xml";
 
   LOG(DEBUG) << "config.xml path: " << config;
 

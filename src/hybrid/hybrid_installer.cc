@@ -2,101 +2,95 @@
 // Use of this source code is governed by an apache-2.0 license that can be
 // found in the LICENSE file.
 
-#include "wgt/wgt_installer.h"
+#include "hybrid/hybrid_installer.h"
 
-#include <manifest_handlers/widget_config_parser.h>
-
-#include <common/pkgmgr_interface.h>
-#include <common/step/step_configure.h>
-#include <common/step/step_backup_manifest.h>
+#include <common/step/step_check_signature.h>
 #include <common/step/step_backup_icons.h>
+#include <common/step/step_backup_manifest.h>
+#include <common/step/step_configure.h>
 #include <common/step/step_copy.h>
 #include <common/step/step_copy_backup.h>
-#include <common/step/step_copy_storage_directories.h>
+#include <common/step/step_create_icons.h>
 #include <common/step/step_delta_patch.h>
 #include <common/step/step_fail.h>
 #include <common/step/step_kill_apps.h>
-#include <common/step/step_open_recovery_file.h>
+#include <common/step/step_old_manifest.h>
 #include <common/step/step_parse.h>
 #include <common/step/step_privilege_compatibility.h>
 #include <common/step/step_register_app.h>
-#include <common/step/step_recover_application.h>
-#include <common/step/step_recover_files.h>
-#include <common/step/step_recover_icons.h>
-#include <common/step/step_recover_manifest.h>
-#include <common/step/step_recover_security.h>
-#include <common/step/step_recover_storage_directories.h>
-#include <common/step/step_remove_icons.h>
-#include <common/step/step_remove_files.h>
-#include <common/step/step_remove_temporary_directory.h>
-#include <common/step/step_revoke_security.h>
 #include <common/step/step_register_security.h>
+#include <common/step/step_remove_files.h>
+#include <common/step/step_remove_icons.h>
+#include <common/step/step_revoke_security.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
-#include <common/step/step_old_manifest.h>
-#include <common/step/step_check_signature.h>
 #include <common/step/step_unregister_app.h>
 #include <common/step/step_unzip.h>
 #include <common/step/step_update_app.h>
 #include <common/step/step_update_security.h>
-#include <common/step/step_check_old_certificate.h>
 
-#include "wgt/step/step_add_default_privileges.h"
+#include <tpk/step/step_create_symbolic_link.h>
+#include <tpk/step/step_parse.h>
+
+#include "hybrid_backend_data.h"
+#include "hybrid/step/step_encrypt_resources.h"
+#include "hybrid/step/step_merge_tpk_config.h"
+#include "hybrid/step/step_stash_tpk_config.h"
+#include "hybrid/step/step_parse.h"
 #include "wgt/step/step_check_settings_level.h"
 #include "wgt/step/step_check_wgt_background_category.h"
 #include "wgt/step/step_create_symbolic_link.h"
-#include "wgt/step/step_encrypt_resources.h"
 #include "wgt/step/step_generate_xml.h"
-#include "wgt/step/step_parse.h"
-#include "wgt/step/step_parse_recovery.h"
-#include "wgt/step/step_rds_modify.h"
-#include "wgt/step/step_rds_parse.h"
 #include "wgt/step/step_remove_encryption_data.h"
-#include "wgt/step/step_wgt_copy_storage_directories.h"
 #include "wgt/step/step_wgt_create_icons.h"
 #include "wgt/step/step_wgt_create_storage_directories.h"
-#include "wgt/step/step_wgt_resource_directory.h"
+#include "wgt/step/step_wgt_copy_storage_directories.h"
 
 namespace ci = common_installer;
 
-namespace wgt {
+namespace hybrid {
 
-WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
-    : AppInstaller("wgt", pkgrmgr) {
-  context_->backend_data.set(new WgtBackendData());
+HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
+    : AppInstaller("wgt", pkgmgr) {
+  context_->backend_data.set(new HybridBackendData());
 
-  /* treat the request */
   switch (pkgmgr_->GetRequestType()) {
-    case ci::RequestType::Install : {
+    case ci::RequestType::Install:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
-      AddStep<wgt::parse::StepParse>(true);
+      AddStep<tpk::parse::StepParse>();
+      AddStep<hybrid::parse::StepStashTpkConfig>();
+      AddStep<hybrid::parse::StepParse>(true);
+      AddStep<hybrid::parse::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
-      AddStep<wgt::encrypt::StepEncryptResources>();
-      AddStep<wgt::filesystem::StepWgtResourceDirectory>();
+      AddStep<hybrid::encrypt::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::filesystem::StepCopy>();
       AddStep<wgt::filesystem::StepWgtCreateStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
+      AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       break;
-    }
-    case ci::RequestType::Update: {
+    case ci::RequestType::Update:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
-      AddStep<wgt::parse::StepParse>(true);
+      AddStep<tpk::parse::StepParse>();
+      AddStep<hybrid::parse::StepStashTpkConfig>();
+      AddStep<hybrid::parse::StepParse>(true);
+      AddStep<hybrid::parse::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
-      AddStep<ci::security::StepCheckOldCertificate>();
-      AddStep<wgt::filesystem::StepWgtResourceDirectory>();
+      AddStep<hybrid::encrypt::StepEncryptResources>();
+      AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::backup::StepOldManifest>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
@@ -104,14 +98,18 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
+      AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
-    }
-    case ci::RequestType::Uninstall: {
+    case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      // TODO(t.iwanek): this parses both configuration files
+      // tpk and wgt, removing pkgmgr-parser should change this code
+      // that it will still support parsing both files
       AddStep<ci::parse::StepParse>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
@@ -122,30 +120,26 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::encrypt::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
       break;
-    }
-    case ci::RequestType::Reinstall: {
-      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
-      AddStep<wgt::parse::StepParse>(false);
-      AddStep<ci::pkgmgr::StepKillApps>();
-      AddStep<ci::backup::StepOldManifest>();
-      AddStep<wgt::rds::StepRDSParse>();
-      AddStep<wgt::rds::StepRDSModify>();
-      AddStep<ci::security::StepUpdateSecurity>();
+    case ci::RequestType::Reinstall:
+      // TODO(t.iwanek): support RDS for hybrid application if possible
+      AddStep<ci::configuration::StepFail>();
       break;
-    }
-    case ci::RequestType::Delta: {
+    case ci::RequestType::Delta:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
       // TODO(t.iwanek): manifest is parsed twice...
-      AddStep<wgt::parse::StepParse>(false);  // start file may not have changed
-      AddStep<ci::filesystem::StepDeltaPatch>("res/wgt/");
+      AddStep<tpk::parse::StepParse>();
+      AddStep<hybrid::parse::StepStashTpkConfig>();
+      AddStep<hybrid::parse::StepParse>(false);
+      AddStep<hybrid::parse::StepMergeTpkConfig>();
+      AddStep<ci::filesystem::StepDeltaPatch>();
       AddStep<wgt::parse::StepParse>(true);
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
-      AddStep<ci::security::StepCheckOldCertificate>();
-      AddStep<wgt::filesystem::StepWgtResourceDirectory>();
+      AddStep<hybrid::encrypt::StepEncryptResources>();
+      AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::backup::StepOldManifest>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
@@ -153,29 +147,22 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
+      AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
-    }
-    case ci::RequestType::Recovery: {
-      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
-      AddStep<ci::recovery::StepOpenRecoveryFile>();
-      AddStep<wgt::parse::StepParseRecovery>();
-      AddStep<ci::pkgmgr::StepRecoverApplication>();
-      AddStep<ci::filesystem::StepRemoveTemporaryDirectory>();
-      AddStep<ci::filesystem::StepRecoverIcons>();
-      AddStep<ci::filesystem::StepRecoverManifest>();
-      AddStep<ci::filesystem::StepRecoverStorageDirectories>();
-      AddStep<ci::filesystem::StepRecoverFiles>();
-      AddStep<ci::security::StepRecoverSecurity>();
-      break;
-    }
-    default: {
+    case ci::RequestType::Recovery:
+      // TODO(t.iwanek): implement recovery for hybrid apps if possible
       AddStep<ci::configuration::StepFail>();
-    }
+      break;
+    default:
+      AddStep<ci::configuration::StepFail>();
+      break;
   }
 }
 
-}  // namespace wgt
+}  // namespace hybrid
+

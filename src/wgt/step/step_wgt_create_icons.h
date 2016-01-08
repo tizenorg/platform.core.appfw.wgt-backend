@@ -27,6 +27,13 @@ class StepWgtCreateIcons
    */
   boost::filesystem::path GetIconRoot() const override;
 
+  /**
+   * \brief Return type of application for which icons should be created
+   *
+   * \return application type
+   */
+  std::string GetAppTypeForIcons() const override;
+
   SCOPE_LOG_TAG(WgtCreateIcons)
 };
 
