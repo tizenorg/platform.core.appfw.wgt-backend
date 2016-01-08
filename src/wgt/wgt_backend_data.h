@@ -21,6 +21,8 @@ namespace wgt {
  */
 class WgtBackendData : public common_installer::BackendData {
  public:
+  WgtBackendData() : is_hybrid(false) { }
+
   /**
    * \brief Property of vector of files to add
    */
@@ -40,6 +42,11 @@ class WgtBackendData : public common_installer::BackendData {
    * \brief Property of SettingInfo
    */
   Property<parse::SettingInfo> settings;
+
+  /**
+   * \brief Indicates that webapplication is hybrid package
+   */
+  bool is_hybrid;
 };
 
 }  // namespace wgt
