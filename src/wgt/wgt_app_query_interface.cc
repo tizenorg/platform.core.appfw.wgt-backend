@@ -32,10 +32,14 @@ namespace ci = common_installer;
 
 namespace {
 
-std::string GetInstallationPackagePath(int argc, char** argv) {
+const char kHybridConfigLocation[] = "res/wgt/config.xml";
+const char kTizenManifestLocation[] = "tizen-manifest.xml";
+
+std::string GetInstallationRequestInfo(int argc, char** argv) {
   std::string path;
   for (int i = 0; i < argc; ++i) {
-    if (!strcmp(argv[i], "-i")) {
+    if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "-r") ||
+        !strcmp(argv[i], "-d") || !strcmp(argv[i], "-b")) {
       if (i + 1 < argc) {
         path = argv[i + 1];
         break;
@@ -46,6 +50,8 @@ std::string GetInstallationPackagePath(int argc, char** argv) {
 }
 
 std::string GetPkgIdFromPath(const std::string& path) {
+  if (!bf::exists(path))
+    return {};
   bf::path tmp_path = common_installer::GenerateTmpDir("/tmp");
   bs::error_code code;
   bf::create_directories(tmp_path, code);
@@ -87,15 +93,35 @@ std::string GetPkgIdFromPath(const std::string& path) {
 namespace wgt {
 
 bool WgtAppQueryInterface::IsAppInstalledByArgv(int argc, char** argv) {
-  std::string path = GetInstallationPackagePath(argc, argv);
-  if (path.empty()) {
-    // not the installaton
+  std::string path = GetInstallationRequestInfo(argc, argv);
+  if (path.empty())
     return false;
-  }
   std::string pkg_id = GetPkgIdFromPath(path);
   if (pkg_id.empty())
     return false;
   return ci::IsPackageInstalled(pkg_id, ci::GetRequestMode());
+}
+
+bool WgtAppQueryInterface::IsHybridApplication(int argc, char** argv) {
+  std::string arg = GetInstallationRequestInfo(argc, argv);
+  if (ci::IsPackageInstalled(arg, ci::GetRequestMode())) {
+    bf::path package_directory(ci::GetRootAppPath());
+    if (bf::exists(package_directory / kTizenManifestLocation) &&
+        bf::exists(package_directory / kHybridConfigLocation))
+      return true;
+  } else {
+    bool tizen_manifest_found = false;
+    bool config_xml_found = false;
+    if (!ci::CheckPathInZipArchive(arg.c_str(), kTizenManifestLocation,
+                                   &tizen_manifest_found))
+      return false;
+    if (!ci::CheckPathInZipArchive(arg.c_str(), kHybridConfigLocation,
+                                   &config_xml_found))
+      return false;
+    if (tizen_manifest_found && config_xml_found)
+      return true;
+  }
+  return false;
 }
 
 }  // namespace wgt

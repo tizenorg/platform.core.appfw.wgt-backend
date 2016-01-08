@@ -20,6 +20,7 @@ BuildRequires:  pkgconfig(manifest-parser)
 BuildRequires:  pkgconfig(manifest-handlers)
 BuildRequires:  pkgconfig(pkgmgr-installer)
 BuildRequires:  pkgconfig(libwebappenc)
+BuildRequires:  pkgconfig(tpk-installer)
 
 %description
 This is a package that installs the WGT backend of pkgmgr.
