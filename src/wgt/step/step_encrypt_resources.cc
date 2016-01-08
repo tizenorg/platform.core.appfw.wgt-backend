@@ -19,7 +19,6 @@
 #include <set>
 #include <string>
 
-
 namespace {
 
 const std::set<std::string> encryptSet { ".html", ".htm", ".css", ".js"};
@@ -40,7 +39,7 @@ common_installer::Step::Status StepEncryptResources::precheck() {
     return common_installer::Step::Status::ERROR;
   }
 
-  input_ = context_->unpacked_dir_path.get();
+  SetEncryptionRoot();
 
   if (input_.empty()) {
     LOG(ERROR) << "unpacked_dir_path attribute is empty";
@@ -198,6 +197,10 @@ bool StepEncryptResources::EncryptFile(const bf::path &src) {
   fclose(output);
   free(encrypted_data);
   return true;
+}
+
+void StepEncryptResources::SetEncryptionRoot() {
+  input_ = context_->unpacked_dir_path.get();
 }
 
 bool StepEncryptResources::ToBeEncrypted(const bf::path &file) {
