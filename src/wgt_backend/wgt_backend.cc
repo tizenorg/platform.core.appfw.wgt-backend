@@ -6,6 +6,7 @@
 #include <common/pkgmgr_interface.h>
 #include <cerrno>
 
+#include "hybrid/hybrid_installer.h"
 #include "wgt/wgt_app_query_interface.h"
 #include "wgt/wgt_installer.h"
 
@@ -18,6 +19,15 @@ int main(int argc, char** argv) {
     LOG(ERROR) << "Options of pkgmgr installer cannot be parsed";
     return EINVAL;
   }
-  wgt::WgtInstaller installer(pkgmgr);
-  return (installer.Run() == ci::AppInstaller::Result::OK) ? 0 : 1;
+
+  // This is workaround for hybrid apps as they requires much different flow
+  // but installer does not branch at all in current design
+  if (query_interface.IsHybridApplication(argc, argv)) {
+    LOG(INFO) << "Hybrid package detected";
+    hybrid::HybridInstaller installer(pkgmgr);
+    return (installer.Run() == ci::AppInstaller::Result::OK) ? 0 : 1;
+  } else {
+    wgt::WgtInstaller installer(pkgmgr);
+    return (installer.Run() == ci::AppInstaller::Result::OK) ? 0 : 1;
+  }
 }
