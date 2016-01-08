@@ -22,6 +22,8 @@ class StepWgtCreateIcons
  public:
   using StepCreateIcons::StepCreateIcons;
 
+  Status process() override;
+
   /**
    * \brief Return path to widget icon
    *
