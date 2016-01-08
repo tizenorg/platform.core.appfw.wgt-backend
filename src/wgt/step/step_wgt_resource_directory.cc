@@ -8,6 +8,8 @@
 
 #include <common/utils/file_util.h>
 
+#include "wgt/wgt_backend_data.h"
+
 namespace bf = boost::filesystem;
 namespace bs = boost::system;
 
@@ -15,6 +17,10 @@ namespace wgt {
 namespace filesystem {
 
 common_installer::Step::Status StepWgtResourceDirectory::process() {
+  if (static_cast<WgtBackendData*>(context_->backend_data.get())->is_hybrid) {
+    // hybrid web application has its files moved to res/wgt already
+    return Status::OK;
+  }
   bf::path temp_path = context_->unpacked_dir_path.get();
   temp_path += ".temp";
   bf::path resource_path = context_->unpacked_dir_path.get() / "res/wgt";

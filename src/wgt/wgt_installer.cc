@@ -45,8 +45,11 @@
 #include "wgt/step/step_check_settings_level.h"
 #include "wgt/step/step_check_wgt_background_category.h"
 #include "wgt/step/step_create_symbolic_link.h"
+#include "wgt/step/step_check_hybrid.h"
 #include "wgt/step/step_encrypt_resources.h"
+#include "wgt/step/step_fail_hybrid.h"
 #include "wgt/step/step_generate_xml.h"
+#include "wgt/step/step_install_hybrid.h"
 #include "wgt/step/step_parse.h"
 #include "wgt/step/step_parse_recovery.h"
 #include "wgt/step/step_rds_modify.h"
@@ -63,11 +66,14 @@ namespace wgt {
 
 WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     : AppInstaller("wgt", pkgrmgr) {
+  context_->backend_data.set(new WgtBackendData());
+
   /* treat the request */
   switch (pkgmgr_->GetRequestType()) {
     case ci::RequestType::Install : {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
+      AddStep<wgt::hybrid::StepCheckHybrid>();
       AddStep<wgt::parse::StepParse>(true);
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -83,11 +89,13 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
+      AddStep<wgt::hybrid::StepInstallHybrid>();
       break;
     }
     case ci::RequestType::Update: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
+      AddStep<wgt::hybrid::StepCheckHybrid>();
       AddStep<wgt::parse::StepParse>(true);
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -106,10 +114,12 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<wgt::hybrid::StepInstallHybrid>();
       break;
     }
     case ci::RequestType::Uninstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<wgt::hybrid::StepCheckHybrid>();
       AddStep<ci::parse::StepParse>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
@@ -123,6 +133,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::Reinstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<wgt::hybrid::StepCheckHybrid>();
+      AddStep<wgt::configuration::StepFailHybrid>();
       AddStep<wgt::parse::StepParse>(false);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepOldManifest>();
@@ -134,6 +146,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     case ci::RequestType::Delta: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
+      AddStep<wgt::hybrid::StepCheckHybrid>();
       // TODO(t.iwanek): manifest is parsed twice...
       AddStep<wgt::parse::StepParse>(false);  // start file may not have changed
       AddStep<ci::filesystem::StepDeltaPatch>("res/wgt/");
@@ -155,6 +168,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<wgt::hybrid::StepInstallHybrid>();
       break;
     }
     case ci::RequestType::Recovery: {
@@ -168,6 +182,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepRecoverStorageDirectories>();
       AddStep<ci::filesystem::StepRecoverFiles>();
       AddStep<ci::security::StepRecoverSecurity>();
+      AddStep<wgt::hybrid::StepCheckHybrid>();
+      AddStep<wgt::hybrid::StepInstallHybrid>();
       break;
     }
     default: {

@@ -40,7 +40,12 @@ common_installer::Step::Status StepEncryptResources::precheck() {
     return common_installer::Step::Status::ERROR;
   }
 
-  input_ = context_->unpacked_dir_path.get();
+  if (static_cast<WgtBackendData*>(context_->backend_data.get())->is_hybrid) {
+    // we should not encrypt all files but only webapp's ones
+    input_ = context_->unpacked_dir_path.get() / "res/wgt";
+  } else {
+    input_ = context_->unpacked_dir_path.get();
+  }
 
   if (input_.empty()) {
     LOG(ERROR) << "unpacked_dir_path attribute is empty";
