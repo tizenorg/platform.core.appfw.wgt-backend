@@ -37,7 +37,7 @@ common_installer::Step::Status StepCheckSettingsLevel::process() {
   if (!ValidateSettingsForLevel(context_->privilege_level.get(),
       static_cast<WgtBackendData*>(
           context_->backend_data.get())->settings.get())) {
-    return Status::ERROR;
+    return Status::PRIVILEGE_ERROR;
   }
   LOG(INFO) << "Settings privilege level checked";
   return Status::OK;

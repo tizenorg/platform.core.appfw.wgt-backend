@@ -252,7 +252,7 @@ common_installer::Step::Status StepGenerateXml::precheck() {
   }
   if (context_->pkgid.get().empty()) {
     LOG(ERROR) << "pkgid attribute is empty";
-    return Step::Status::INVALID_VALUE;   }
+    return Step::Status::PACKAGE_NOT_FOUND;   }
 
   if (!context_->manifest_data.get()->application) {
     LOG(ERROR) << "No application in package";
@@ -274,7 +274,7 @@ common_installer::Step::Status StepGenerateXml::process() {
     if (!common_installer::CreateDir(xml_path.parent_path())) {
       LOG(ERROR) <<
           "Directory for manifest xml is missing and cannot be created";
-      return Status::ERROR;
+      return Status::MANIFEST_ERROR;
     }
   }
 
@@ -283,7 +283,7 @@ common_installer::Step::Status StepGenerateXml::process() {
   writer = xmlNewTextWriterFilename(context_->xml_path.get().c_str(), 0);
   if (!writer) {
     LOG(ERROR) << "Failed to create new file";
-    return Step::Status::ERROR;
+    return Step::Status::MANIFEST_ERROR;
   }
 
   xmlTextWriterStartDocument(writer, nullptr, nullptr, nullptr);
@@ -475,7 +475,7 @@ common_installer::Step::Status StepGenerateXml::process() {
   if (pkgmgr_parser_check_manifest_validation(
       context_->xml_path.get().c_str()) != 0) {
     LOG(ERROR) << "Manifest is not valid";
-    return Step::Status::ERROR;
+    return Step::Status::MANIFEST_ERROR;
   }
 
   LOG(DEBUG) << "Successfully create manifest xml "

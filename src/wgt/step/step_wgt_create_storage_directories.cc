@@ -26,28 +26,28 @@ namespace filesystem {
 
 common_installer::Step::Status StepWgtCreateStorageDirectories::process() {
   if (!PrivateDir())
-    return Status::ERROR;
+    return Status::APP_DIR_ERROR;
 
   char version = context_->manifest_data.get()->api_version[0];
 
   if ((version-'0') < 3) {
     LOG(DEBUG) << "Shared directory preparation for tizen 2.x";
     if (!ShareDir())
-      return Status::ERROR;
+      return Status::APP_DIR_ERROR;
   } else {
     LOG(DEBUG) << "Shared directory preparation for tizen 3.x";
     if (!ShareDirFor3x())
-      return Status::ERROR;
+      return Status::APP_DIR_ERROR;
   }
 
   if (!SubShareDir())
-    return Status::ERROR;
+    return Status::APP_DIR_ERROR;
 
   if (!CreatePrivateTmpDir())
-    return Status::ERROR;
+    return Status::APP_DIR_ERROR;
 
   if (!CacheDir())
-    return Status::ERROR;
+    return Status::APP_DIR_ERROR;
 
   return Status::OK;
 }

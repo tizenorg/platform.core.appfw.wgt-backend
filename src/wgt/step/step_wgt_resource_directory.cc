@@ -23,17 +23,17 @@ common_installer::Step::Status StepWgtResourceDirectory::process() {
                                         temp_path)) {
     LOG(ERROR) << "Failed to move: " << context_->unpacked_dir_path.get()
                << " to: " << temp_path;
-    return Status::ERROR;
+    return Status::APP_DIR_ERROR;
   }
   bs::error_code error;
   bf::create_directories(resource_path.parent_path(), error);
   if (error) {
     LOG(ERROR) << "Failed to create proper directory structure in widget";
-    return Status::ERROR;
+    return Status::APP_DIR_ERROR;
   }
   if (!common_installer::MoveDir(temp_path, resource_path)) {
     LOG(ERROR) << "Failed to move: " << temp_path << " to: " << resource_path;
-    return Status::ERROR;
+    return Status::APP_DIR_ERROR;
   }
 
   LOG(INFO) << "Widget content moved to res/wgt subdirectory";

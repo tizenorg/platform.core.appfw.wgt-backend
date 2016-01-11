@@ -455,22 +455,22 @@ bool StepParse::LocateConfigFile() {
 common_installer::Step::Status StepParse::process() {
   if (!LocateConfigFile()) {
     LOG(ERROR) << "No config.xml";
-    return common_installer::Step::Status::ERROR;
+    return common_installer::Step::Status::MANIFEST_NOT_FOUND;
   }
 
   parser_.reset(new wgt::parse::WidgetConfigParser());
   if (!parser_->ParseManifest(config_)) {
     LOG(ERROR) << "[Parse] Parse failed. " <<  parser_->GetErrorMessage();
-    return common_installer::Step::Status::ERROR;
+    return common_installer::Step::Status::PARSE_ERROR;
   }
   if (check_start_file_) {
     if (!parser_->HasValidStartFile()) {
       LOG(ERROR) << parser_->GetErrorMessage();
-      return common_installer::Step::Status::ERROR;
+      return common_installer::Step::Status::PARSE_ERROR;
     }
     if (!parser_->HasValidServicesStartFiles()) {
       LOG(ERROR) << parser_->GetErrorMessage();
-      return common_installer::Step::Status::ERROR;
+      return common_installer::Step::Status::PARSE_ERROR;
     }
   }
 
@@ -479,7 +479,7 @@ common_installer::Step::Status StepParse::process() {
   if (!FillManifestX(manifest)) {
     LOG(ERROR) << "[Parse] Storing manifest_x failed. "
                <<  parser_->GetErrorMessage();
-    return common_installer::Step::Status::ERROR;
+    return common_installer::Step::Status::PARSE_ERROR;
   }
 
   // Copy data from ManifestData to InstallerContext

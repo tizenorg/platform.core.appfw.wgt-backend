@@ -31,7 +31,7 @@ common_installer::Step::Status StepWgtCopyStorageDirectories::process() {
   if (status != Status::OK)
     return status;
   if (!CacheDir())
-    return Status::ERROR;
+    return Status::APP_DIR_ERROR;
 
   int version = context_->manifest_data.get()->api_version[0] - '0';
   if (version < 3) {

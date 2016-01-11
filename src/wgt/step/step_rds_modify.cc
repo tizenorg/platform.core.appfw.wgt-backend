@@ -24,21 +24,21 @@ StepRDSModify::StepRDSModify(common_installer::InstallerContext* context)
 common_installer::Step::Status StepRDSModify::precheck() {
   if (context_->unpacked_dir_path.get().empty()) {
     LOG(ERROR) << "unpacked dir path is not set";
-    return common_installer::Step::Status::ERROR;
+    return common_installer::Step::Status::INVALID_VALUE;
   }
   if (!bf::exists(context_->unpacked_dir_path.get())) {
     LOG(ERROR) << "unpacked_dir_path ("
                << context_->unpacked_dir_path.get()
                << ") path does not exist";
-    return common_installer::Step::Status::ERROR;
+    return common_installer::Step::Status::INVALID_VALUE;
   }
   if (context_->pkgid.get().empty()) {
     LOG(ERROR) << "pkgid is not set";
-    return common_installer::Step::Status::ERROR;
+    return common_installer::Step::Status::PACKAGE_NOT_FOUND;
   }
   if (!context_->manifest_data.get()) {
     LOG(ERROR) << "no manifest info available";
-    return common_installer::Step::Status::ERROR;
+    return common_installer::Step::Status::INVALID_VALUE;
   }
   // TODO(w.kosowicz): check if config of installed app was encrypted
   backend_data_ = static_cast<WgtBackendData*>(context_->backend_data.get());

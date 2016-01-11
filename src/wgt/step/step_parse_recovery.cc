@@ -29,7 +29,7 @@ common_installer::Step::Status StepParseRecovery::process() {
 common_installer::Step::Status StepParseRecovery::precheck() {
   if (context_->root_application_path.get().empty()) {
     LOG(ERROR) << "Root path of packages in not set";
-    return Status::ERROR;
+    return Status::INVALID_VALUE;
   }
   if (context_->pkgid.get().empty()) {
     LOG(WARNING) << "Pkgid is not set. Parsing skipped";
