@@ -10,7 +10,6 @@
 #include <common/step/step_configure.h>
 #include <common/step/step_copy.h>
 #include <common/step/step_copy_backup.h>
-#include <common/step/step_create_icons.h>
 #include <common/step/step_delta_patch.h>
 #include <common/step/step_fail.h>
 #include <common/step/step_kill_apps.h>
@@ -30,6 +29,7 @@
 #include <common/step/step_update_security.h>
 
 #include <tpk/step/step_create_symbolic_link.h>
+#include <tpk/step/step_tpk_create_icons.h>
 #include <tpk/step/step_parse.h>
 
 #include "hybrid/hybrid_backend_data.h"
@@ -72,7 +72,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::filesystem::StepWgtCreateStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<tpk::filesystem::StepCreateSymbolicLink>();
-      AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<tpk::filesystem::StepTpkCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
@@ -99,7 +99,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<tpk::filesystem::StepCreateSymbolicLink>();
-      AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<tpk::filesystem::StepTpkCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
@@ -148,7 +148,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<tpk::filesystem::StepCreateSymbolicLink>();
-      AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<tpk::filesystem::StepTpkCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
