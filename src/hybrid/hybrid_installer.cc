@@ -10,7 +10,9 @@
 #include <common/step/step_configure.h>
 #include <common/step/step_copy.h>
 #include <common/step/step_copy_backup.h>
+#include <common/step/step_copy_storage_directories.h>
 #include <common/step/step_create_icons.h>
+#include <common/step/step_create_storage_directories.h>
 #include <common/step/step_delta_patch.h>
 #include <common/step/step_fail.h>
 #include <common/step/step_kill_apps.h>
@@ -43,8 +45,7 @@
 #include "wgt/step/step_generate_xml.h"
 #include "wgt/step/step_remove_encryption_data.h"
 #include "wgt/step/step_wgt_create_icons.h"
-#include "wgt/step/step_wgt_create_storage_directories.h"
-#include "wgt/step/step_wgt_copy_storage_directories.h"
+#include "wgt/step/step_wgt_patch_storage_directories.h"
 
 namespace ci = common_installer;
 
@@ -69,11 +70,12 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<hybrid::encrypt::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::filesystem::StepCopy>();
-      AddStep<wgt::filesystem::StepWgtCreateStorageDirectories>();
-      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
-      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateStorageDirectories>();
+      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
@@ -96,11 +98,12 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
-      AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
-      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
-      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<ci::filesystem::StepCopyStorageDirectories>();
+      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
@@ -145,11 +148,12 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
-      AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
-      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
-      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<ci::filesystem::StepCopyStorageDirectories>();
+      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
