@@ -9,6 +9,8 @@
 
 #include <common/step/step_create_icons.h>
 
+#include <string>
+
 namespace wgt {
 namespace filesystem {
 
@@ -26,6 +28,13 @@ class StepWgtCreateIcons
    * \return path to widget icon
    */
   boost::filesystem::path GetIconRoot() const override;
+
+  /**
+   * \brief Return type of application for which icons should be created
+   *
+   * \return application type
+   */
+  std::string GetAppTypeForIcons() const override;
 
   SCOPE_LOG_TAG(WgtCreateIcons)
 };
