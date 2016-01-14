@@ -9,6 +9,7 @@
 #include <common/pkgmgr_interface.h>
 #include <common/step/step_configure.h>
 #include <common/step/step_backup_manifest.h>
+#include <common/step/step_create_storage_directories.h>
 #include <common/step/step_copy.h>
 #include <common/step/step_copy_backup.h>
 #include <common/step/step_copy_storage_directories.h>
@@ -51,9 +52,8 @@
 #include "wgt/step/step_rds_parse.h"
 #include "wgt/step/step_remove_encryption_data.h"
 #include "wgt/step/step_wgt_backup_icons.h"
-#include "wgt/step/step_wgt_copy_storage_directories.h"
 #include "wgt/step/step_wgt_create_icons.h"
-#include "wgt/step/step_wgt_create_storage_directories.h"
+#include "wgt/step/step_wgt_patch_storage_directories.h"
 #include "wgt/step/step_wgt_recover_icons.h"
 #include "wgt/step/step_wgt_resource_directory.h"
 
@@ -79,7 +79,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::filesystem::StepCopy>();
-      AddStep<wgt::filesystem::StepWgtCreateStorageDirectories>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
@@ -102,7 +103,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<wgt::backup::StepWgtBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
-      AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<ci::security::StepUpdateSecurity>();
@@ -151,7 +153,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<wgt::backup::StepWgtBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
-      AddStep<wgt::filesystem::StepWgtCopyStorageDirectories>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<ci::security::StepUpdateSecurity>();
