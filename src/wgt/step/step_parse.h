@@ -11,9 +11,9 @@
 #include <common/installer_context.h>
 #include <common/step/step.h>
 
-#include <manifest_handlers/permissions_handler.h>
-#include <manifest_handlers/widget_config_parser.h>
 #include <manifest_parser/utils/logging.h>
+#include <wgt_manifest_handlers/permissions_handler.h>
+#include <wgt_manifest_handlers/widget_config_parser.h>
 
 #include <memory>
 #include <set>

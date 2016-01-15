@@ -6,9 +6,9 @@
 #define HYBRID_HYBRID_BACKEND_DATA_H_
 
 #include <common/utils/property.h>
-#include <manifest_handlers/setting_handler.h>
 #include <pkgmgrinfo_basic.h>
 #include <pkgmgr_parser.h>
+#include <wgt_manifest_handlers/setting_handler.h>
 
 #include <string>
 #include <vector>

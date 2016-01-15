@@ -8,7 +8,7 @@
 #include <common/installer_context.h>
 #include <common/utils/property.h>
 
-#include <manifest_handlers/setting_handler.h>
+#include <wgt_manifest_handlers/setting_handler.h>
 
 #include <string>
 #include <vector>
