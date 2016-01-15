@@ -5,6 +5,7 @@
 #include "wgt/step/step_wgt_create_icons.h"
 
 #include <pkgmgr-info.h>
+#include <vector>
 
 #include "common/utils/glist_range.h"
 
@@ -19,7 +20,7 @@ namespace wgt {
 namespace filesystem {
 
 common_installer::Step::Status StepWgtCreateIcons::process() {
-  // TODO (l.wysocki): As a temporary solution this will copy icons into two
+  // TODO(l.wysocki): As a temporary solution this will copy icons into two
   // destinations respectively {HOME}/.applications/icons,
   // and {APP_ROOT}/shared/res, when some project will stop using old
   // location ({HOME}/.applications/icons) then it can be removed from here.
@@ -35,7 +36,7 @@ common_installer::Step::Status StepWgtCreateIcons::process() {
       icon_x* icon = reinterpret_cast<icon_x*>(app->icon->data);
       bf::path icon_path = StepCreateIcons::GetIconRoot() / icon->text;
       if (icon->text)
-        free((void *)icon->text);
+        free(const_cast<char *>(icon->text));
       icon->text = strdup(icon_path.c_str());
     }
   }

@@ -6,6 +6,7 @@
 #define WGT_STEP_STEP_WGT_RECOVER_ICONS_H_
 
 #include <common/step/step_recover_icons.h>
+#include <vector>
 
 namespace wgt {
 namespace filesystem {

@@ -16,7 +16,7 @@ namespace wgt {
 namespace filesystem {
 
 std::vector<boost::filesystem::path> StepWgtRecoverIcons::GetIconsPaths() {
-  // TODO (l.wysocki): As a temporary solution this will move icons into two
+  // TODO(l.wysocki): As a temporary solution this will move icons into two
   // destinations respectively {HOME}/.applications/icons,
   // and {APP_ROOT}/shared/res, when some project will stop using old
   // location ({HOME}/.applications/icons) then it can be removed from here.
