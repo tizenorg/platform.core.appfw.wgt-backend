@@ -63,6 +63,8 @@ class StepCrash : public ci::Step {
 
 void RemoveAllRecoveryFiles() {
   bf::path root_path = ci::GetRootAppPath();
+  if (!bf::exists(root_path))
+    return;
   for (auto& dir_entry : boost::make_iterator_range(
          bf::directory_iterator(root_path), bf::directory_iterator())) {
     if (bf::is_regular_file(dir_entry)) {
@@ -275,7 +277,7 @@ ci::AppInstaller::Result DeltaInstall(const bf::path& path,
 
 ci::AppInstaller::Result Recover(const bf::path& recovery_file,
                                  RequestResult mode = RequestResult::NORMAL) {
-  const char* argv[] = {"", "-e", recovery_file.c_str()};
+  const char* argv[] = {"", "-b", recovery_file.c_str()};
   std::unique_ptr<ci::AppQueryInterface> query_interface =
       CreateQueryInterface();
   auto pkgmgr =
