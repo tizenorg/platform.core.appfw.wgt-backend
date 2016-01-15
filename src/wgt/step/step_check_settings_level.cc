@@ -4,8 +4,8 @@
 
 #include "wgt/step/step_check_settings_level.h"
 
-#include <manifest_handlers/setting_handler.h>
 #include <manifest_parser/utils/logging.h>
+#include <wgt_manifest_handlers/setting_handler.h>
 
 #include <map>
 

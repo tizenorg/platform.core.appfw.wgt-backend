@@ -5,7 +5,7 @@
 #include "wgt/step/step_check_wgt_background_category.h"
 
 #include <common/installer_context.h>
-#include <manifest_handlers/setting_handler.h>
+#include <wgt_manifest_handlers/setting_handler.h>
 
 #include "wgt/wgt_backend_data.h"
 

@@ -9,18 +9,18 @@
 #include <common/installer_context.h>
 #include <common/step/step.h>
 #include <common/utils/glist_range.h>
-#include <manifest_handlers/account_handler.h>
-#include <manifest_handlers/app_control_handler.h>
-#include <manifest_handlers/application_icons_handler.h>
-#include <manifest_handlers/application_manifest_constants.h>
-#include <manifest_handlers/background_category_handler.h>
-#include <manifest_handlers/category_handler.h>
-#include <manifest_handlers/content_handler.h>
-#include <manifest_handlers/metadata_handler.h>
-#include <manifest_handlers/service_handler.h>
-#include <manifest_handlers/setting_handler.h>
-#include <manifest_handlers/tizen_application_handler.h>
-#include <manifest_handlers/widget_handler.h>
+#include <wgt_manifest_handlers/account_handler.h>
+#include <wgt_manifest_handlers/app_control_handler.h>
+#include <wgt_manifest_handlers/application_icons_handler.h>
+#include <wgt_manifest_handlers/application_manifest_constants.h>
+#include <wgt_manifest_handlers/background_category_handler.h>
+#include <wgt_manifest_handlers/category_handler.h>
+#include <wgt_manifest_handlers/content_handler.h>
+#include <wgt_manifest_handlers/metadata_handler.h>
+#include <wgt_manifest_handlers/service_handler.h>
+#include <wgt_manifest_handlers/setting_handler.h>
+#include <wgt_manifest_handlers/tizen_application_handler.h>
+#include <wgt_manifest_handlers/widget_handler.h>
 
 #include <pkgmgr/pkgmgr_parser.h>
 

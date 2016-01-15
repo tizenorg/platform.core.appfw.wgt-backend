@@ -15,11 +15,11 @@
 #include <common/request.h>
 #include <common/utils/file_util.h>
 
-#include <manifest_handlers/application_manifest_constants.h>
-#include <manifest_handlers/tizen_application_handler.h>
-#include <manifest_handlers/widget_handler.h>
 #include <manifest_parser/manifest_parser.h>
 #include <manifest_parser/utils/logging.h>
+#include <wgt_manifest_handlers/application_manifest_constants.h>
+#include <wgt_manifest_handlers/tizen_application_handler.h>
+#include <wgt_manifest_handlers/widget_handler.h>
 
 #include <memory>
 #include <string>

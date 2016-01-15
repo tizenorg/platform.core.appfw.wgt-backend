@@ -4,8 +4,6 @@
 
 #include "wgt/wgt_installer.h"
 
-#include <manifest_handlers/widget_config_parser.h>
-
 #include <common/pkgmgr_interface.h>
 #include <common/step/step_configure.h>
 #include <common/step/step_backup_manifest.h>
@@ -39,6 +37,8 @@
 #include <common/step/step_update_app.h>
 #include <common/step/step_update_security.h>
 #include <common/step/step_check_old_certificate.h>
+
+#include <wgt_manifest_handlers/widget_config_parser.h>
 
 #include "wgt/step/step_add_default_privileges.h"
 #include "wgt/step/step_check_settings_level.h"
