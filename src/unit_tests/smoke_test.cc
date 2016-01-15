@@ -275,7 +275,7 @@ ci::AppInstaller::Result DeltaInstall(const bf::path& path,
 
 ci::AppInstaller::Result Recover(const bf::path& recovery_file,
                                  RequestResult mode = RequestResult::NORMAL) {
-  const char* argv[] = {"", "-e", recovery_file.c_str()};
+  const char* argv[] = {"", "-b", recovery_file.c_str()};
   std::unique_ptr<ci::AppQueryInterface> query_interface =
       CreateQueryInterface();
   auto pkgmgr =
