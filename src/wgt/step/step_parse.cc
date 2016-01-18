@@ -5,6 +5,8 @@
 
 #include "wgt/step/step_parse.h"
 
+#include <boost/filesystem/path.hpp>
+
 #include <common/app_installer.h>
 #include <common/installer_context.h>
 #include <common/step/step.h>
@@ -35,6 +37,8 @@
 #include <vector>
 
 #include "wgt/wgt_backend_data.h"
+
+namespace bf = boost::filesystem;
 
 namespace {
 
@@ -108,13 +112,22 @@ bool StepParse::FillInstallationInfo(manifest_x* manifest) {
 }
 
 bool StepParse::FillIconPaths(manifest_x* manifest) {
+  std::shared_ptr<const TizenApplicationInfo> app_info =
+      std::static_pointer_cast<const TizenApplicationInfo>(
+          parser_->GetManifestData(app_keys::kTizenApplicationKey));
+  if (!app_info) {
+    LOG(ERROR) << "Application info manifest data has not been found.";
+    return false;
+  }
   std::shared_ptr<const ApplicationIconsInfo> icons_info =
       std::static_pointer_cast<const ApplicationIconsInfo>(
           parser_->GetManifestData(app_keys::kIconsKey));
   if (icons_info.get()) {
     for (auto& application_icon : icons_info->icons()) {
       icon_x* icon = reinterpret_cast<icon_x*> (calloc(1, sizeof(icon_x)));
-      icon->text = strdup(application_icon.path().c_str());
+      bf::path icon_path = context_->root_application_path.get()
+          / app_info->package() / "res" / "wgt" / application_icon.path();
+      icon->text = strdup(icon_path.c_str());
       icon->lang = strdup(DEFAULT_LOCALE);
       manifest->icon = g_list_append(manifest->icon, icon);
     }

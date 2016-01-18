@@ -130,6 +130,10 @@ void ValidatePackageFS(const std::string& pkgid, const std::string& appid) {
   ASSERT_TRUE(bf::exists(manifest_path));
   ASSERT_TRUE(bf::exists(icon_path));
 
+  bf::path common_icon_path =
+      package_path / "shared" / "res" / (appid + ".png");
+  ASSERT_TRUE(bf::exists(common_icon_path));
+
   bf::path widget_root_path = package_path / "res" / "wgt";
   bf::path config_path = widget_root_path / "config.xml";
   ASSERT_TRUE(bf::exists(widget_root_path));
