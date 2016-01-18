@@ -11,10 +11,8 @@ SET(SRCS
   step/step_parse_recovery.cc
   step/step_rds_parse.cc
   step/step_rds_modify.cc
-  step/step_wgt_backup_icons.cc
-  step/step_wgt_create_icons.cc
+  step/step_wgt_patch_icons.cc
   step/step_wgt_patch_storage_directories.cc
-  step/step_wgt_recover_icons.cc
   step/step_wgt_resource_directory.cc
   step/step_add_default_privileges.cc
   wgt_app_query_interface.cc
