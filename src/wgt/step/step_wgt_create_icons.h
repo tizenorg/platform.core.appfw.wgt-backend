@@ -25,13 +25,6 @@ class StepWgtCreateIcons
   Status process() override;
 
   /**
-   * \brief Return path to widget icon
-   *
-   * \return path to widget icon
-   */
-  boost::filesystem::path GetIconRoot() const override;
-
-  /**
    * \brief Return type of application for which icons should be created
    *
    * \return application type
