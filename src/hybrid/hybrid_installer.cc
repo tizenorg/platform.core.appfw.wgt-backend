@@ -24,6 +24,14 @@
 #include <common/step/step_remove_files.h>
 #include <common/step/step_remove_icons.h>
 #include <common/step/step_revoke_security.h>
+#include <common/step/step_open_recovery_file.h>
+#include <common/step/step_recover_application.h>
+#include <common/step/step_recover_files.h>
+#include <common/step/step_recover_icons.h>
+#include <common/step/step_recover_manifest.h>
+#include <common/step/step_recover_security.h>
+#include <common/step/step_recover_storage_directories.h>
+#include <common/step/step_remove_temporary_directory.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
 #include <common/step/step_unregister_app.h>
@@ -33,6 +41,8 @@
 
 #include <tpk/step/step_create_symbolic_link.h>
 #include <tpk/step/step_parse.h>
+#include <tpk/step/step_parse_recovery.h>
+#include <tpk/step/step_tpk_patch_icons.h>
 
 #include "hybrid/hybrid_backend_data.h"
 #include "hybrid/step/step_encrypt_resources.h"
@@ -43,8 +53,9 @@
 #include "wgt/step/step_check_wgt_background_category.h"
 #include "wgt/step/step_create_symbolic_link.h"
 #include "wgt/step/step_generate_xml.h"
+#include "wgt/step/step_parse_recovery.h"
 #include "wgt/step/step_remove_encryption_data.h"
-#include "wgt/step/step_wgt_create_icons.h"
+#include "wgt/step/step_wgt_patch_icons.h"
 #include "wgt/step/step_wgt_patch_storage_directories.h"
 
 namespace ci = common_installer;
@@ -70,8 +81,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<hybrid::encrypt::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::filesystem::StepCopy>();
+      AddStep<tpk::filesystem::StepTpkPatchIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
-      AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<ci::filesystem::StepCreateStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -98,8 +110,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
+      AddStep<tpk::filesystem::StepTpkPatchIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
-      AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -148,8 +161,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
+      AddStep<tpk::filesystem::StepTpkPatchIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
-      AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -159,8 +173,19 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
     case ci::RequestType::Recovery:
-      // TODO(t.iwanek): implement recovery for hybrid apps if possible
-      AddStep<ci::configuration::StepFail>();
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::recovery::StepOpenRecoveryFile>();
+      AddStep<tpk::parse::StepParseRecovery>();
+      AddStep<hybrid::parse::StepStashTpkConfig>();
+      AddStep<wgt::parse::StepParseRecovery>();
+      AddStep<hybrid::parse::StepMergeTpkConfig>();
+      AddStep<ci::pkgmgr::StepRecoverApplication>();
+      AddStep<ci::filesystem::StepRemoveTemporaryDirectory>();
+      AddStep<ci::filesystem::StepRecoverIcons>();
+      AddStep<ci::filesystem::StepRecoverManifest>();
+      AddStep<ci::filesystem::StepRecoverStorageDirectories>();
+      AddStep<ci::filesystem::StepRecoverFiles>();
+      AddStep<ci::security::StepRecoverSecurity>();
       break;
     default:
       AddStep<ci::configuration::StepFail>();

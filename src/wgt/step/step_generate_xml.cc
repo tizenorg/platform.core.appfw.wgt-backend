@@ -132,30 +132,13 @@ common_installer::Step::Status StepGenerateXml::GenerateApplicationCommonXml(
     xmlTextWriterEndElement(writer);
   }
 
-  // icon is renamed to <appid.png>
   if (app->icon) {
     icon_x* iconx = reinterpret_cast<icon_x*>(app->icon->data);
-    bf::path app_icon = context_->pkg_path.get();
-    // TODO(t.iwanek): type should not be used here
-    if (context_->pkg_type.get() == "wgt") {
-      app_icon /= "res/wgt";
-    } else {
-      app_icon /= "shared/res";
-    }
-    app_icon /= iconx->text;
-    bf::path icon = app->appid;
-    if (app_icon.has_extension())
-      icon += app_icon.extension();
-    else
-      icon += bf::path(".png");
-
-    if (bf::exists(app_icon)) {
-      xmlTextWriterWriteFormatElement(writer, BAD_CAST "icon",
-                                          "%s", BAD_CAST icon.c_str());
-    }
+    xmlTextWriterWriteFormatElement(
+        writer, BAD_CAST "icon", "%s", BAD_CAST iconx->text);
   } else {
     // Default icon setting is role of the platform
-    LOG(DEBUG) << "Icon was not found in package";
+    LOG(DEBUG) << "Icon was not found in application";
   }
 
   for (image_x* image : GListRange<image_x*>(app->image)) {

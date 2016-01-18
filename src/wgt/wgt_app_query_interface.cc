@@ -12,6 +12,7 @@
 #include <boost/system/error_code.hpp>
 
 #include <common/pkgmgr_registration.h>
+#include <common/recovery_file.h>
 #include <common/request.h>
 #include <common/utils/file_util.h>
 
@@ -88,6 +89,13 @@ std::string GetPkgIdFromPath(const std::string& path) {
   return pkg_id;
 }
 
+std::string ReadPkgidFromRecovery(const std::string& recovery_path) {
+  std::unique_ptr<ci::recovery::RecoveryFile> recovery_file =
+      ci::recovery::RecoveryFile::OpenRecoveryFileForPath(recovery_path);
+  recovery_file->Detach();
+  return recovery_file->pkgid();
+}
+
 }  // namespace
 
 namespace wgt {
@@ -104,10 +112,12 @@ bool WgtAppQueryInterface::IsAppInstalledByArgv(int argc, char** argv) {
 
 bool WgtAppQueryInterface::IsHybridApplication(int argc, char** argv) {
   std::string arg = GetInstallationRequestInfo(argc, argv);
+  if (arg.find("apps_rw/recovery-") != std::string::npos)
+    arg = ReadPkgidFromRecovery(arg);
   if (ci::IsPackageInstalled(arg, ci::GetRequestMode())) {
     bf::path package_directory(ci::GetRootAppPath());
-    if (bf::exists(package_directory / kTizenManifestLocation) &&
-        bf::exists(package_directory / kHybridConfigLocation))
+    if (bf::exists(package_directory / arg / kTizenManifestLocation) &&
+        bf::exists(package_directory / arg / kHybridConfigLocation))
       return true;
   } else {
     bool tizen_manifest_found = false;
