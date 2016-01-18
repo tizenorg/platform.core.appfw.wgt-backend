@@ -23,6 +23,14 @@
 #include <common/step/step_remove_files.h>
 #include <common/step/step_remove_icons.h>
 #include <common/step/step_revoke_security.h>
+#include <common/step/step_open_recovery_file.h>
+#include <common/step/step_recover_application.h>
+#include <common/step/step_recover_files.h>
+#include <common/step/step_recover_icons.h>
+#include <common/step/step_recover_manifest.h>
+#include <common/step/step_recover_security.h>
+#include <common/step/step_recover_storage_directories.h>
+#include <common/step/step_remove_temporary_directory.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
 #include <common/step/step_unregister_app.h>
@@ -42,6 +50,7 @@
 #include "wgt/step/step_check_wgt_background_category.h"
 #include "wgt/step/step_create_symbolic_link.h"
 #include "wgt/step/step_generate_xml.h"
+#include "wgt/step/step_parse_recovery.h"
 #include "wgt/step/step_remove_encryption_data.h"
 #include "wgt/step/step_wgt_patch_icons.h"
 #include "wgt/step/step_wgt_patch_storage_directories.h"
@@ -173,8 +182,21 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
     case ci::RequestType::Recovery:
-      // TODO(t.iwanek): implement recovery for hybrid apps if possible
-      AddStep<ci::configuration::StepFail>();
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::recovery::StepOpenRecoveryFile>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::RECOVERY,
+          ci::parse::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<hybrid::parse::StepStashTpkConfig>();
+      AddStep<wgt::parse::StepParseRecovery>();
+      AddStep<hybrid::parse::StepMergeTpkConfig>();
+      AddStep<ci::pkgmgr::StepRecoverApplication>();
+      AddStep<ci::filesystem::StepRemoveTemporaryDirectory>();
+      AddStep<ci::filesystem::StepRecoverIcons>();
+      AddStep<ci::filesystem::StepRecoverManifest>();
+      AddStep<ci::filesystem::StepRecoverStorageDirectories>();
+      AddStep<ci::filesystem::StepRecoverFiles>();
+      AddStep<ci::security::StepRecoverSecurity>();
       break;
     default:
       AddStep<ci::configuration::StepFail>();
