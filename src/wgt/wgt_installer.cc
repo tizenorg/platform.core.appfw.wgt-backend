@@ -35,6 +35,7 @@
 #include <common/step/step_register_security.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
+#include <common/step/step_run_parser_plugins.h>
 #include <common/step/step_check_signature.h>
 #include <common/step/step_unregister_app.h>
 #include <common/step/step_unzip.h>
@@ -89,6 +90,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::PluginsLauncher::ActionType::Install);
       AddStep<ci::security::StepRegisterSecurity>();
       break;
     }
@@ -117,6 +120,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::PluginsLauncher::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
     }
@@ -126,6 +131,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
           ci::parse::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::PluginsLauncher::ActionType::Uninstall);
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveFiles>();
@@ -176,6 +183,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::PluginsLauncher::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
     }
