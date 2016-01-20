@@ -34,6 +34,7 @@
 #include <common/step/step_remove_temporary_directory.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
+#include <common/step/step_run_parser_plugins.h>
 #include <common/step/step_unregister_app.h>
 #include <common/step/step_unzip.h>
 #include <common/step/step_update_app.h>
@@ -90,6 +91,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::PluginsLauncher::ActionType::Install);
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       break;
@@ -125,6 +128,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::PluginsLauncher::ActionType::Upgrade);
       break;
     case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -142,6 +147,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::encrypt::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
       AddStep<wgt::pkgmgr::StepRemoveManifest>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::PluginsLauncher::ActionType::Uninstall);
       break;
     case ci::RequestType::Reinstall:
       // RDS is not supported for hybrid apps
@@ -182,6 +189,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::PluginsLauncher::ActionType::Upgrade);
       break;
     case ci::RequestType::Recovery:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
