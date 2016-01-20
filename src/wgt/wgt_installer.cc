@@ -32,6 +32,7 @@
 #include <common/step/step_register_security.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
+#include <common/step/step_run_parser_plugins.h>
 #include <common/step/step_old_manifest.h>
 #include <common/step/step_check_signature.h>
 #include <common/step/step_unregister_app.h>
@@ -85,6 +86,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(ci::ActionType::Install);
       AddStep<ci::security::StepRegisterSecurity>();
       break;
     }
@@ -109,6 +111,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepWgtCreateIcons>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(ci::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
     }
@@ -123,6 +126,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepRemoveIcons>();
       AddStep<wgt::encrypt::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(ci::ActionType::Uninstall);
       break;
     }
     case ci::RequestType::Reinstall: {
