@@ -17,7 +17,7 @@ BuildRequires:  cmake
 BuildRequires:  gtest-devel
 BuildRequires:  pkgconfig(app-installers)
 BuildRequires:  pkgconfig(manifest-parser)
-BuildRequires:  pkgconfig(manifest-handlers)
+BuildRequires:  pkgconfig(wgt-manifest-handlers)
 BuildRequires:  pkgconfig(pkgmgr-installer)
 BuildRequires:  pkgconfig(libwebappenc)
 BuildRequires:  pkgconfig(tpk-installer)
