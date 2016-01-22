@@ -16,8 +16,7 @@
 #include <common/step/step_delta_patch.h>
 #include <common/step/step_fail.h>
 #include <common/step/step_kill_apps.h>
-#include <common/step/step_old_manifest.h>
-#include <common/step/step_parse.h>
+#include <common/step/step_parse_manifest.h>
 #include <common/step/step_privilege_compatibility.h>
 #include <common/step/step_register_app.h>
 #include <common/step/step_register_security.h>
@@ -32,7 +31,6 @@
 #include <common/step/step_update_security.h>
 
 #include <tpk/step/step_create_symbolic_link.h>
-#include <tpk/step/step_parse.h>
 #include <tpk/step/step_tpk_patch_icons.h>
 
 #include "hybrid/hybrid_backend_data.h"
@@ -60,7 +58,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
     case ci::RequestType::Install:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
-      AddStep<tpk::parse::StepParse>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::PACKAGE,
+          ci::parse::StepParseManifest::StoreLocation::NORMAL);
       AddStep<hybrid::parse::StepStashTpkConfig>();
       AddStep<hybrid::parse::StepParse>(true);
       AddStep<hybrid::parse::StepMergeTpkConfig>();
@@ -85,7 +85,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
     case ci::RequestType::Update:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
-      AddStep<tpk::parse::StepParse>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::PACKAGE,
+          ci::parse::StepParseManifest::StoreLocation::NORMAL);
       AddStep<hybrid::parse::StepStashTpkConfig>();
       AddStep<hybrid::parse::StepParse>(true);
       AddStep<hybrid::parse::StepMergeTpkConfig>();
@@ -95,7 +97,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<hybrid::encrypt::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
-      AddStep<ci::backup::StepOldManifest>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::parse::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
@@ -116,7 +120,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       // TODO(t.iwanek): this parses both configuration files
       // tpk and wgt, removing pkgmgr-parser should change this code
       // that it will still support parsing both files
-      AddStep<ci::parse::StepParse>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::parse::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
@@ -133,9 +139,11 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
     case ci::RequestType::Delta:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
-      // TODO(t.iwanek): manifest is parsed twice...
-      AddStep<tpk::parse::StepParse>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::PACKAGE,
+          ci::parse::StepParseManifest::StoreLocation::NORMAL);
       AddStep<hybrid::parse::StepStashTpkConfig>();
+      // TODO(t.iwanek): manifest is parsed twice...
       AddStep<hybrid::parse::StepParse>(false);
       AddStep<hybrid::parse::StepMergeTpkConfig>();
       AddStep<ci::filesystem::StepDeltaPatch>();
@@ -146,7 +154,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<hybrid::encrypt::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
-      AddStep<ci::backup::StepOldManifest>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::parse::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
