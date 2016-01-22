@@ -17,7 +17,7 @@
 #include <common/step/step_fail.h>
 #include <common/step/step_kill_apps.h>
 #include <common/step/step_open_recovery_file.h>
-#include <common/step/step_parse.h>
+#include <common/step/step_parse_manifest.h>
 #include <common/step/step_privilege_compatibility.h>
 #include <common/step/step_register_app.h>
 #include <common/step/step_recover_application.h>
@@ -33,7 +33,6 @@
 #include <common/step/step_register_security.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
-#include <common/step/step_old_manifest.h>
 #include <common/step/step_check_signature.h>
 #include <common/step/step_unregister_app.h>
 #include <common/step/step_unzip.h>
@@ -100,7 +99,9 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<ci::security::StepCheckOldCertificate>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
-      AddStep<ci::backup::StepOldManifest>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::parse::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
@@ -117,7 +118,9 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::Uninstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
-      AddStep<ci::parse::StepParse>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::parse::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
@@ -132,7 +135,9 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<wgt::parse::StepParse>(false);
       AddStep<ci::pkgmgr::StepKillApps>();
-      AddStep<ci::backup::StepOldManifest>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::parse::StepParseManifest::StoreLocation::BACKUP);
       AddStep<wgt::rds::StepRDSParse>();
       AddStep<wgt::rds::StepRDSModify>();
       AddStep<ci::security::StepUpdateSecurity>();
@@ -151,7 +156,9 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<ci::security::StepCheckOldCertificate>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
-      AddStep<ci::backup::StepOldManifest>();
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::parse::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
