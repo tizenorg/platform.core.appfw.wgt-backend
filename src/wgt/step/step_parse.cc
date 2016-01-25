@@ -70,6 +70,7 @@ void SetApplicationXDefaults(application_x* application) {
   application->support_disable = strdup("false");
   application->taskmanage = strdup("true");
   application->ui_gadget = strdup("false");
+  application->preload = strdup("false");
 }
 
 }  // namespace
@@ -510,6 +511,7 @@ common_installer::Step::Status StepParse::process() {
   const std::string& required_api_version = info->required_version();
 
   manifest->api_version = strdup(required_api_version.c_str());
+
   context_->pkgid.set(manifest->package);
 
   // write pkgid for recovery file
