@@ -157,6 +157,7 @@ bool StepParse::FillWidgetInfo(manifest_x* manifest) {
   manifest->type = strdup("wgt");
   manifest->appsetting = strdup("false");
   manifest->nodisplay_setting = strdup("false");
+  manifest->preload = strdup("false");
 
   // For wgt package use the long name
   for (auto& item : wgt_info->name_set()) {
@@ -510,6 +511,7 @@ common_installer::Step::Status StepParse::process() {
   const std::string& required_api_version = info->required_version();
 
   manifest->api_version = strdup(required_api_version.c_str());
+
   context_->pkgid.set(manifest->package);
 
   // write pkgid for recovery file
