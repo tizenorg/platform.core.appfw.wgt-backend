@@ -11,6 +11,7 @@
 #include <common/step/step_copy.h>
 #include <common/step/step_copy_backup.h>
 #include <common/step/step_copy_storage_directories.h>
+#include <common/step/step_clear_data.h>
 #include <common/step/step_create_icons.h>
 #include <common/step/step_create_storage_directories.h>
 #include <common/step/step_delta_patch.h>
@@ -197,6 +198,10 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::filesystem::StepRecoverStorageDirectories>();
       AddStep<ci::filesystem::StepRecoverFiles>();
       AddStep<ci::security::StepRecoverSecurity>();
+      break;
+    case ci::RequestType::Clear:
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::filesystem::StepClearData>();
       break;
     default:
       AddStep<ci::configuration::StepFail>();
