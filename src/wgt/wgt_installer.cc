@@ -8,6 +8,7 @@
 #include <common/step/step_configure.h>
 #include <common/step/step_backup_icons.h>
 #include <common/step/step_backup_manifest.h>
+#include <common/step/step_check_blacklist.h>
 #include <common/step/step_create_icons.h>
 #include <common/step/step_create_storage_directories.h>
 #include <common/step/step_copy.h>
@@ -71,6 +72,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
       AddStep<wgt::parse::StepParse>(true);
+      AddStep<ci::blacklist::StepCheckBlacklist>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -93,6 +95,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
       AddStep<wgt::parse::StepParse>(true);
+      AddStep<ci::blacklist::StepCheckBlacklist>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -138,6 +141,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::parse::StepParseManifest>(
           ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
           ci::parse::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::blacklist::StepCheckBlacklist>();
       AddStep<wgt::rds::StepRDSParse>();
       AddStep<wgt::rds::StepRDSModify>();
       AddStep<ci::security::StepUpdateSecurity>();
@@ -150,6 +154,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::parse::StepParse>(false);  // start file may not have changed
       AddStep<ci::filesystem::StepDeltaPatch>("res/wgt/");
       AddStep<wgt::parse::StepParse>(true);
+      AddStep<ci::blacklist::StepCheckBlacklist>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
