@@ -453,16 +453,6 @@ TEST_F(SmokeTest, UpdateMode_Rollback) {
   ASSERT_TRUE(ValidateFileContentInPackage(pkgid, "res/wgt/VERSION", "1\n"));
 }
 
-TEST_F(SmokeTest, DeinstallationMode_Rollback) {
-  bf::path path = kSmokePackagesDirectory / "DeinstallationMode_Rollback.wgt";
-  std::string pkgid = "smokeapp08";
-  std::string appid = "smokeapp08.DeinstallationModeRollback";
-  ASSERT_EQ(Install(path), ci::AppInstaller::Result::OK);
-  ASSERT_EQ(Uninstall(pkgid, RequestResult::FAIL),
-                      ci::AppInstaller::Result::ERROR);
-  ValidatePackage(pkgid, appid);
-}
-
 }  // namespace common_installer
 
 int main(int argc,  char** argv) {
