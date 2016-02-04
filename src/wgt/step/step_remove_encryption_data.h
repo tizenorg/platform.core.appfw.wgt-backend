@@ -22,36 +22,18 @@ class StepRemoveEncryptionData : public common_installer::Step {
   using Step::Step;
 
   /**
-   * \brief Empty method - the actual work is done in clean() to delay it
-   *
-   * \return Status::OK
-   */
-  Status process() override { return Status::OK; }
-
-  /**
    * \brief Remove encryption keys from database
    *
-   * \return Status::ERROR in case of failure,
-   *         Status::OK otherwise
-   */
-  Status clean() override;
-
-  /**
-   * \brief Empty method
-   *
    * \return Status::OK
    */
+  Status process() override;
+  Status clean() override { return Status::OK; }
   Status undo() override { return Status::OK; }
-
-  /**
-   * \brief Empty method
-   *
-   * \return Status::OK
-   */
   Status precheck() override { return Status::OK; }
 
   SCOPE_LOG_TAG(RemoveEncryptionData)
 };
 }  // namespace encrypt
 }  // namespace wgt
+
 #endif  // WGT_STEP_STEP_REMOVE_ENCRYPTION_DATA_H_
