@@ -115,7 +115,7 @@ bool WgtAppQueryInterface::IsHybridApplication(int argc, char** argv) {
   if (arg.find("apps_rw/recovery-") != std::string::npos)
     arg = ReadPkgidFromRecovery(arg);
   if (ci::IsPackageInstalled(arg, ci::GetRequestMode())) {
-    bf::path package_directory(ci::GetRootAppPath());
+    bf::path package_directory(ci::GetRootAppPath(false));
     if (bf::exists(package_directory / arg / kTizenManifestLocation) &&
         bf::exists(package_directory / arg / kHybridConfigLocation))
       return true;
