@@ -62,7 +62,7 @@ class StepCrash : public ci::Step {
 };
 
 void RemoveAllRecoveryFiles() {
-  bf::path root_path = ci::GetRootAppPath();
+  bf::path root_path = ci::GetRootAppPath(false);
   if (!bf::exists(root_path))
     return;
   for (auto& dir_entry : boost::make_iterator_range(
@@ -77,7 +77,7 @@ void RemoveAllRecoveryFiles() {
 }
 
 bf::path FindRecoveryFile() {
-  bf::path root_path = ci::GetRootAppPath();
+  bf::path root_path = ci::GetRootAppPath(false);
   for (auto& dir_entry : boost::make_iterator_range(
          bf::directory_iterator(root_path), bf::directory_iterator())) {
     if (bf::is_regular_file(dir_entry)) {
@@ -92,7 +92,7 @@ bf::path FindRecoveryFile() {
 bool ValidateFileContentInPackage(const std::string& pkgid,
                                   const std::string& relative,
                                   const std::string& expected) {
-  bf::path root_path = ci::GetRootAppPath();
+  bf::path root_path = ci::GetRootAppPath(false);
   bf::path file_path = root_path / pkgid / relative;
   if (!bf::exists(file_path)) {
     LOG(ERROR) << file_path << " doesn't exist";
@@ -113,7 +113,7 @@ bool ValidateFileContentInPackage(const std::string& pkgid,
 }
 
 void ValidatePackageFS(const std::string& pkgid, const std::string& appid) {
-  bf::path root_path = ci::GetRootAppPath();
+  bf::path root_path = ci::GetRootAppPath(false);
   bf::path package_path = root_path / pkgid;
   bf::path binary_path = package_path / "bin" / appid;
   bf::path data_path = package_path / "data";
@@ -150,7 +150,7 @@ void ValidatePackageFS(const std::string& pkgid, const std::string& appid) {
 }
 
 void PackageCheckCleanup(const std::string& pkgid, const std::string& appid) {
-  bf::path root_path = ci::GetRootAppPath();
+  bf::path root_path = ci::GetRootAppPath(false);
   bf::path package_path = root_path / pkgid;
   ASSERT_FALSE(bf::exists(package_path));
 
@@ -367,7 +367,7 @@ TEST_F(SmokeTest, RDSMode) {
   ValidatePackage(pkgid, appid);
 
   // Check delta modifications
-  bf::path root_path = ci::GetRootAppPath();
+  bf::path root_path = ci::GetRootAppPath(false);
   ASSERT_FALSE(bf::exists(root_path / pkgid / "res" / "wgt" / "DELETED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "ADDED"));
   ValidateFileContentInPackage(pkgid, "res/wgt/MODIFIED", "2\n");
@@ -383,7 +383,7 @@ TEST_F(SmokeTest, DeltaMode) {
   ValidatePackage(pkgid, appid);
 
   // Check delta modifications
-  bf::path root_path = ci::GetRootAppPath();
+  bf::path root_path = ci::GetRootAppPath(false);
   ASSERT_FALSE(bf::exists(root_path / pkgid / "res" / "wgt" / "DELETED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "ADDED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "css" / "style.css"));  // NOLINT
