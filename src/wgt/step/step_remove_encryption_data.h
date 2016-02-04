@@ -22,19 +22,19 @@ class StepRemoveEncryptionData : public common_installer::Step {
   using Step::Step;
 
   /**
-   * \brief Empty method - the actual work is done in clean() to delay it
+   * \brief Remove encryption keys from database
    *
    * \return Status::OK
    */
-  Status process() override { return Status::OK; }
+  Status process() override;
 
   /**
-   * \brief Remove encryption keys from database
+   * \brief Empty method
    *
    * \return Status::ERROR in case of failure,
    *         Status::OK otherwise
    */
-  Status clean() override;
+  Status clean() override { return Status::OK; }
 
   /**
    * \brief Empty method
