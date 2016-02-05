@@ -27,27 +27,8 @@ class StepRemoveEncryptionData : public common_installer::Step {
    * \return Status::OK
    */
   Status process() override;
-
-  /**
-   * \brief Empty method
-   *
-   * \return Status::ERROR in case of failure,
-   *         Status::OK otherwise
-   */
   Status clean() override { return Status::OK; }
-
-  /**
-   * \brief Empty method
-   *
-   * \return Status::OK
-   */
   Status undo() override { return Status::OK; }
-
-  /**
-   * \brief Empty method
-   *
-   * \return Status::OK
-   */
   Status precheck() override { return Status::OK; }
 
   SCOPE_LOG_TAG(RemoveEncryptionData)
