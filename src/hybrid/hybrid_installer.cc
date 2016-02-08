@@ -94,7 +94,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Install);
+          ci::Plugin::ActionType::Install);
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
@@ -132,7 +132,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Upgrade);
+          ci::Plugin::ActionType::Upgrade);
       break;
     case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -140,7 +140,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
           ci::parse::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Uninstall);
+          ci::Plugin::ActionType::Uninstall);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::filesystem::StepRemovePerUserStorageDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
@@ -189,7 +189,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Upgrade);
+          ci::Plugin::ActionType::Upgrade);
       break;
     case ci::RequestType::Recovery:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
