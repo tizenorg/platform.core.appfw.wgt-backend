@@ -38,6 +38,7 @@
 #include <common/step/step_unzip.h>
 #include <common/step/step_update_app.h>
 #include <common/step/step_update_security.h>
+#include <common/step/step_remove_manifest.h>
 
 #include <tpk/step/step_create_symbolic_link.h>
 #include <tpk/step/step_tpk_patch_icons.h>
@@ -55,7 +56,6 @@
 #include "wgt/step/step_remove_encryption_data.h"
 #include "wgt/step/step_wgt_patch_icons.h"
 #include "wgt/step/step_wgt_patch_storage_directories.h"
-#include "wgt/step/step_wgt_remove_manifest.h"
 
 namespace ci = common_installer;
 
@@ -141,7 +141,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::filesystem::StepRemoveIcons>();
       AddStep<wgt::encrypt::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
-      AddStep<wgt::pkgmgr::StepRemoveManifest>();
+      AddStep<ci::pkgmgr::StepRemoveManifest>();
       break;
     case ci::RequestType::Reinstall:
       // RDS is not supported for hybrid apps
