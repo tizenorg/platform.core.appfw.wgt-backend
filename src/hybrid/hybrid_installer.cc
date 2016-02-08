@@ -92,7 +92,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<tpk::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Install);
+          ci::Plugin::ActionType::Install);
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       break;
@@ -129,7 +129,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Upgrade);
+          ci::Plugin::ActionType::Upgrade);
       break;
     case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -148,7 +148,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepRevokeSecurity>();
       AddStep<wgt::pkgmgr::StepRemoveManifest>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Uninstall);
+          ci::Plugin::ActionType::Uninstall);
       break;
     case ci::RequestType::Reinstall:
       // RDS is not supported for hybrid apps
@@ -190,7 +190,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Upgrade);
+          ci::Plugin::ActionType::Upgrade);
       break;
     case ci::RequestType::Recovery:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
