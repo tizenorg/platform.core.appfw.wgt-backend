@@ -91,7 +91,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Install);
+          ci::Plugin::ActionType::Install);
       AddStep<ci::security::StepRegisterSecurity>();
       break;
     }
@@ -121,7 +121,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Upgrade);
+          ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
     }
@@ -132,7 +132,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::parse::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Uninstall);
+          ci::Plugin::ActionType::Uninstall);
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveFiles>();
@@ -184,7 +184,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
-          ci::PluginsLauncher::ActionType::Upgrade);
+          ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
     }
