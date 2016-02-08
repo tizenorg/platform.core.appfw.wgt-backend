@@ -41,9 +41,9 @@
 #include <common/step/step_update_app.h>
 #include <common/step/step_update_security.h>
 #include <common/step/step_check_old_certificate.h>
+#include <common/step/step_remove_manifest.h>
 
 #include <wgt_manifest_handlers/widget_config_parser.h>
-
 #include "wgt/step/step_add_default_privileges.h"
 #include "wgt/step/step_check_settings_level.h"
 #include "wgt/step/step_check_wgt_background_category.h"
@@ -58,7 +58,6 @@
 #include "wgt/step/step_wgt_patch_icons.h"
 #include "wgt/step/step_wgt_patch_storage_directories.h"
 #include "wgt/step/step_wgt_resource_directory.h"
-#include "wgt/step/step_wgt_remove_manifest.h"
 
 namespace ci = common_installer;
 
@@ -133,7 +132,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepRemoveIcons>();
       AddStep<wgt::encrypt::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
-      AddStep<wgt::pkgmgr::StepRemoveManifest>();
+      AddStep<ci::pkgmgr::StepRemoveManifest>();
       break;
     }
     case ci::RequestType::Reinstall: {
