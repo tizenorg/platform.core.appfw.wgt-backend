@@ -153,12 +153,10 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::parse::StepParseManifest>(
           ci::parse::StepParseManifest::ManifestLocation::PACKAGE,
           ci::parse::StepParseManifest::StoreLocation::NORMAL);
-      AddStep<hybrid::parse::StepStashTpkConfig>();
-      // TODO(t.iwanek): manifest is parsed twice...
-      AddStep<hybrid::parse::StepParse>(false);
-      AddStep<hybrid::parse::StepMergeTpkConfig>();
       AddStep<ci::filesystem::StepDeltaPatch>();
-      AddStep<wgt::parse::StepParse>(true);
+      AddStep<hybrid::parse::StepStashTpkConfig>();
+      AddStep<hybrid::parse::StepParse>(true);
+      AddStep<hybrid::parse::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
