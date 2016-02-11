@@ -133,9 +133,6 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       break;
     case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
-      // TODO(t.iwanek): this parses both configuration files
-      // tpk and wgt, removing pkgmgr-parser should change this code
-      // that it will still support parsing both files
       AddStep<ci::parse::StepParseManifest>(
           ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
           ci::parse::StepParseManifest::StoreLocation::NORMAL);
