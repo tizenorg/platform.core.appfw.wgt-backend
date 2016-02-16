@@ -141,6 +141,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::PluginsLauncher::ActionType::Uninstall);
       AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepRemoveSharedDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveFiles>();
