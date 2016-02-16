@@ -14,7 +14,7 @@
 #include <common/step/step_clear_data.h>
 #include <common/step/step_create_icons.h>
 #include <common/step/step_create_storage_directories.h>
-#include <common/step/step_create_shared_directories.h>
+#include <common/step/step_create_per_user_shared_directories.h>
 #include <common/step/step_delta_patch.h>
 #include <common/step/step_fail.h>
 #include <common/step/step_kill_apps.h>
@@ -33,6 +33,7 @@
 #include <common/step/step_recover_security.h>
 #include <common/step/step_recover_storage_directories.h>
 #include <common/step/step_remove_temporary_directory.h>
+#include <common/step/step_remove_per_user_storage_directories.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
 #include <common/step/step_run_parser_plugins.h>
@@ -96,7 +97,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::PluginsLauncher::ActionType::Install);
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
-      AddStep<ci::filesystem::StepCreateSharedDirectories>();
+      AddStep<ci::filesystem::StepCreatePerUserSharedDirectories>();
       break;
     case ci::RequestType::Update:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -141,6 +142,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::PluginsLauncher::ActionType::Uninstall);
       AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepRemovePerUserStorageDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveFiles>();
