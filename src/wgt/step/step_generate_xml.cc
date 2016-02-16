@@ -143,8 +143,6 @@ common_installer::Step::Status StepGenerateXml::GenerateApplicationCommonXml(
 
   for (image_x* image : GListRange<image_x*>(app->image)) {
     xmlTextWriterStartElement(writer, BAD_CAST "image");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "name",
-        BAD_CAST image->name);
     if (image->lang && strcmp(DEFAULT_LOCALE, image->lang) != 0) {
       xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
 
