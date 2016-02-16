@@ -11,6 +11,7 @@
 #include <common/step/step_check_blacklist.h>
 #include <common/step/step_create_icons.h>
 #include <common/step/step_create_storage_directories.h>
+#include <common/step/step_create_per_user_shared_directories.h>
 #include <common/step/step_clear_data.h>
 #include <common/step/step_copy.h>
 #include <common/step/step_copy_backup.h>
@@ -90,6 +91,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
+      AddStep<ci::filesystem::StepCreatePerUserSharedDirectories>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::PluginsLauncher::ActionType::Install);
       AddStep<ci::security::StepRegisterSecurity>();
