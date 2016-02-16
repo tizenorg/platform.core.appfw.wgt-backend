@@ -48,6 +48,22 @@ enum class RequestResult {
   CRASH
 };
 
+class TestPkgmgrInstaller : public ci::PkgmgrInstallerInterface {
+ public:
+  bool CreatePkgMgrInstaller(pkgmgr_installer** installer,
+                             ci::InstallationMode* mode) {
+    *installer = pkgmgr_installer_new();
+    if (!*installer)
+      return false;
+    *mode = ci::InstallationMode::ONLINE;
+    return true;
+  }
+
+  bool ShouldCreateSignal() const {
+    return false;
+  }
+};
+
 class StepCrash : public ci::Step {
  public:
   using Step::Step;
@@ -209,11 +225,12 @@ ci::AppInstaller::Result RunInstallerWithPkgrmgr(ci::PkgMgrPtr pkgmgr,
 ci::AppInstaller::Result Install(const bf::path& path,
                                  RequestResult mode = RequestResult::NORMAL) {
   const char* argv[] = {"", "-i", path.c_str()};
+  TestPkgmgrInstaller pkgmgr_installer;
   std::unique_ptr<ci::AppQueryInterface> query_interface =
       CreateQueryInterface();
   auto pkgmgr =
       ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
-                                  query_interface.get());
+                                  &pkgmgr_installer, query_interface.get());
   if (!pkgmgr) {
     LOG(ERROR) << "Failed to initialize pkgmgr interface";
     return ci::AppInstaller::Result::UNKNOWN;
@@ -234,11 +251,12 @@ ci::AppInstaller::Result Update(const bf::path& path_old,
 ci::AppInstaller::Result Uninstall(const std::string& pkgid,
                                    RequestResult mode = RequestResult::NORMAL) {
   const char* argv[] = {"", "-d", pkgid.c_str()};
+  TestPkgmgrInstaller pkgmgr_installer;
   std::unique_ptr<ci::AppQueryInterface> query_interface =
       CreateQueryInterface();
   auto pkgmgr =
       ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
-                                  query_interface.get());
+                                  &pkgmgr_installer, query_interface.get());
   if (!pkgmgr) {
     LOG(ERROR) << "Failed to initialize pkgmgr interface";
     return ci::AppInstaller::Result::UNKNOWN;
@@ -254,11 +272,12 @@ ci::AppInstaller::Result Reinstall(const bf::path& path,
     return ci::AppInstaller::Result::UNKNOWN;
   }
   const char* argv[] = {"", "-r", delta_dir.c_str()};
+  TestPkgmgrInstaller pkgmgr_installer;
   std::unique_ptr<ci::AppQueryInterface> query_interface =
       CreateQueryInterface();
   auto pkgmgr =
       ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
-                                  query_interface.get());
+                                  &pkgmgr_installer, query_interface.get());
   if (!pkgmgr) {
     LOG(ERROR) << "Failed to initialize pkgmgr interface";
     return ci::AppInstaller::Result::UNKNOWN;
@@ -278,11 +297,12 @@ ci::AppInstaller::Result DeltaInstall(const bf::path& path,
 ci::AppInstaller::Result Recover(const bf::path& recovery_file,
                                  RequestResult mode = RequestResult::NORMAL) {
   const char* argv[] = {"", "-b", recovery_file.c_str()};
+  TestPkgmgrInstaller pkgmgr_installer;
   std::unique_ptr<ci::AppQueryInterface> query_interface =
       CreateQueryInterface();
   auto pkgmgr =
       ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
-                                  query_interface.get());
+                                  &pkgmgr_installer, query_interface.get());
   if (!pkgmgr) {
     LOG(ERROR) << "Failed to initialize pkgmgr interface";
     return ci::AppInstaller::Result::UNKNOWN;

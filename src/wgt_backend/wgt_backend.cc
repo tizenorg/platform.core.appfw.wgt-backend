@@ -13,8 +13,10 @@
 namespace ci = common_installer;
 
 int main(int argc, char** argv) {
+  ci::PkgmgrInstaller pkgmgr_installer;
   wgt::WgtAppQueryInterface query_interface;
-  auto pkgmgr = ci::PkgMgrInterface::Create(argc, argv, &query_interface);
+  auto pkgmgr = ci::PkgMgrInterface::Create(argc, argv, &pkgmgr_installer,
+                                            &query_interface);
   if (!pkgmgr) {
     LOG(ERROR) << "Options of pkgmgr installer cannot be parsed";
     return EINVAL;
