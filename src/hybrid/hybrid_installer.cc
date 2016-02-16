@@ -33,6 +33,7 @@
 #include <common/step/step_recover_security.h>
 #include <common/step/step_recover_storage_directories.h>
 #include <common/step/step_remove_temporary_directory.h>
+#include <common/step/step_remove_shared_directories.h>
 #include <common/step/step_rollback_deinstallation_security.h>
 #include <common/step/step_rollback_installation_security.h>
 #include <common/step/step_run_parser_plugins.h>
@@ -141,6 +142,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::PluginsLauncher::ActionType::Uninstall);
       AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepRemoveSharedDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveFiles>();
