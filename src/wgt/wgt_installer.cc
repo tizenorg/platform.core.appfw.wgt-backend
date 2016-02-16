@@ -31,6 +31,7 @@
 #include <common/step/step_recover_storage_directories.h>
 #include <common/step/step_remove_icons.h>
 #include <common/step/step_remove_files.h>
+#include <common/step/step_remove_shared_directories.h>
 #include <common/step/step_remove_temporary_directory.h>
 #include <common/step/step_revoke_security.h>
 #include <common/step/step_register_security.h>
@@ -135,6 +136,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::PluginsLauncher::ActionType::Uninstall);
+      AddStep<ci::filesystem::StepRemoveSharedDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveFiles>();
