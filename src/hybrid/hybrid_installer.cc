@@ -14,6 +14,7 @@
 #include <common/step/step_clear_data.h>
 #include <common/step/step_create_icons.h>
 #include <common/step/step_create_storage_directories.h>
+#include <common/step/step_create_per_user_storage_directories.h>
 #include <common/step/step_delta_patch.h>
 #include <common/step/step_fail.h>
 #include <common/step/step_kill_apps.h>
@@ -95,6 +96,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::PluginsLauncher::ActionType::Install);
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
+      AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
       break;
     case ci::RequestType::Update:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
