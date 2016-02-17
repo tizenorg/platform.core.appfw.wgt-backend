@@ -24,8 +24,10 @@ SET(CMAKE_CXX_FLAGS_CCOV       "-O0 -std=c++11 -g --coverage")
 # Targets
 SET(TARGET_LIBNAME_WGT "wgt-installer")
 SET(TARGET_WGT_BACKEND "wgt-backend")
-SET(TARGET_SMOKE_TEST "smoke_test")
 SET(TARGET_LIBNAME_HYBRID "hybrid-installer")
+
+SET(TARGET_SMOKE_TEST "smoke-test")
+SET(TARGET_SMOKE_TEST_HELPER "smoke-test-helper")
 
 ADD_DEFINITIONS("-Wall")
 ADD_DEFINITIONS("-Wextra")

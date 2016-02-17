@@ -11,6 +11,7 @@
 #include <common/pkgmgr_registration.h>
 #include <common/request.h>
 #include <common/step/step_fail.h>
+#include <common/utils/subprocess.h>
 #include <gtest/gtest.h>
 #include <gtest/gtest-death-test.h>
 #include <pkgmgr-info.h>
@@ -46,15 +47,14 @@ const char KUserAppsDirBackup[] = "apps_rw.bck";
 
 enum class RequestResult {
   NORMAL,
-  FAIL,
-  CRASH
+  FAIL
 };
 
 class TestPkgmgrInstaller : public ci::PkgmgrInstallerInterface {
  public:
   bool CreatePkgMgrInstaller(pkgmgr_installer** installer,
                              ci::InstallationMode* mode) {
-    *installer = pkgmgr_installer_new();
+    *installer = pkgmgr_installer_offline_new();
     if (!*installer)
       return false;
     *mode = ci::InstallationMode::ONLINE;
@@ -69,19 +69,6 @@ class TestPkgmgrInstaller : public ci::PkgmgrInstallerInterface {
 enum class PackageType {
   WGT,
   HYBRID
-};
-
-class StepCrash : public ci::Step {
- public:
-  using Step::Step;
-
-  ci::Step::Status process() override {
-    raise(SIGSEGV);
-    return Status::OK;
-  }
-  ci::Step::Status clean() override { return ci::Step::Status::OK; }
-  ci::Step::Status undo() override { return ci::Step::Status::OK; }
-  ci::Step::Status precheck() override { return ci::Step::Status::OK; }
 };
 
 void RemoveAllRecoveryFiles() {
@@ -240,8 +227,6 @@ ci::AppInstaller::Result RunInstallerWithPkgrmgr(ci::PkgMgrPtr pkgmgr,
   case RequestResult::FAIL:
     installer->AddStep<ci::configuration::StepFail>();
     break;
-  case RequestResult::CRASH:
-    installer->AddStep<StepCrash>();
   default:
     break;
   }
@@ -454,7 +439,9 @@ TEST_F(SmokeTest, DeltaMode) {
 
 TEST_F(SmokeTest, RecoveryMode_ForInstallation) {
   bf::path path = kSmokePackagesDirectory / "RecoveryMode_ForInstallation.wgt";
-  ASSERT_DEATH(Install(path, PackageType::WGT, RequestResult::CRASH), ".*");
+  Subprocess backend_crash("/usr/bin/wgt-backend-ut/smoke-test-helper");
+  backend_crash.Run("-i", path.string());
+  ASSERT_NE(backend_crash.Wait(), 0);
 
   std::string pkgid = "smokeapp09";
   std::string appid = "smokeapp09.RecoveryModeForInstallation";
@@ -469,8 +456,12 @@ TEST_F(SmokeTest, RecoveryMode_ForUpdate) {
   bf::path path_old = kSmokePackagesDirectory / "RecoveryMode_ForUpdate.wgt";
   bf::path path_new = kSmokePackagesDirectory / "RecoveryMode_ForUpdate_2.wgt";
   RemoveAllRecoveryFiles();
-  ASSERT_DEATH(Update(path_old, path_new, PackageType::WGT,
-                      RequestResult::CRASH), ".*");
+  Subprocess backend_test("/usr/bin/wgt-backend");
+  backend_test.Run("-i", path_old.string());
+  ASSERT_EQ(backend_test.Wait(), 0);
+  Subprocess backend_crash("/usr/bin/wgt-backend-ut/smoke-test-helper");
+  backend_crash.Run("-i", path_new.string());
+  ASSERT_NE(backend_crash.Wait(), 0);
 
   std::string pkgid = "smokeapp10";
   std::string appid = "smokeapp10.RecoveryModeForUpdate";
