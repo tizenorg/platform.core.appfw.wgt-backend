@@ -50,7 +50,7 @@ class StepParse : public common_installer::Step {
   bool FillInstallationInfo(manifest_x* manifest);
   bool FillIconPaths(manifest_x* manifest);
   bool FillWidgetInfo(manifest_x* manifest);
-  bool FillUIApplicationInfo(manifest_x* manifest);
+  bool FillMainApplicationInfo(manifest_x* manifest);
   bool FillServiceApplicationInfo(manifest_x* manifest);
   bool FillAppControl(manifest_x* manifest);
   bool FillPrivileges(manifest_x* manifest);

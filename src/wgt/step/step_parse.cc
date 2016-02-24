@@ -43,6 +43,10 @@ namespace bf = boost::filesystem;
 
 namespace {
 
+const char kCategoryWearableClock[] =
+    "http://tizen.org/category/wearable_clock";
+const char kCategoryWatchClock[] = "com.samsung.wmanager.WATCH_CLOCK";
+
 const std::string kManifestVersion = "1.0.0";
 const char kTizenPackageXmlNamespace[] = "http://tizen.org/ns/packages";
 
@@ -60,7 +64,6 @@ GList* GenerateMetadataListX(const wgt::parse::MetaDataInfo& meta_info) {
 }
 
 void SetApplicationXDefaults(application_x* application) {
-  application->ambient_support = strdup("false");
   application->effectimage_type = strdup("image");
   application->enabled = strdup("true");
   application->guestmode_visibility = strdup("true");
@@ -234,7 +237,7 @@ bool StepParse::FillWidgetInfo(manifest_x* manifest) {
   return true;
 }
 
-bool StepParse::FillUIApplicationInfo(manifest_x* manifest) {
+bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
   std::shared_ptr<const TizenApplicationInfo> app_info =
       std::static_pointer_cast<const TizenApplicationInfo>(
           parser_->GetManifestData(app_keys::kTizenApplicationKey));
@@ -242,15 +245,34 @@ bool StepParse::FillUIApplicationInfo(manifest_x* manifest) {
     LOG(ERROR) << "Application info manifest data has not been found.";
     return false;
   }
+  bool has_watch_catergory = false;
+  std::shared_ptr<const CategoryInfoList> category_info =
+      std::static_pointer_cast<const CategoryInfoList>(parser_->GetManifestData(
+          app_keys::kTizenCategoryKey));
+  if (category_info) {
+    has_watch_catergory = std::find_if(category_info->categories.begin(),
+                                       category_info->categories.end(),
+                                       [](const std::string& category) {
+      return category == kCategoryWearableClock ||
+             category == kCategoryWatchClock;
+    }) != category_info->categories.end();
+  }
+
   // application data
   application_x* application = reinterpret_cast<application_x*>(
       calloc(1, sizeof(application_x)));
-  application->component_type = strdup("uiapp");
+  application->component_type =
+      has_watch_catergory ? strdup("watchapp") : strdup("uiapp");
   application->mainapp = strdup("true");
   application->nodisplay = strdup("false");
   application->multiple = strdup("false");
   application->appid = strdup(app_info->id().c_str());
   SetApplicationXDefaults(application);
+  if (has_watch_catergory)
+    application->ambient_support =
+        strdup(app_info->ambient_support() ? "true" : "false");
+  else
+    application->ambient_support = strdup("false");
   application->package = strdup(app_info->package().c_str());
 
   application->exec =
@@ -298,6 +320,7 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
     application->autorestart =
         service_info.auto_restart() ? strdup("true") : strdup("false");
     SetApplicationXDefaults(application);
+    application->ambient_support = strdup("false");
     application->package = strdup(manifest->package);
 
     for (auto& pair : service_info.names()) {
@@ -449,7 +472,7 @@ bool StepParse::FillExtraManifestInfo(manifest_x* manifest) {
 bool StepParse::FillManifestX(manifest_x* manifest) {
   if (!FillIconPaths(manifest))
     return false;
-  if (!FillUIApplicationInfo(manifest))
+  if (!FillMainApplicationInfo(manifest))
     return false;
   if (!FillWidgetInfo(manifest))
     return false;
