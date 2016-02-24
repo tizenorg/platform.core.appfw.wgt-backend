@@ -245,7 +245,8 @@ common_installer::Step::Status StepGenerateXml::precheck() {
 }
 
 common_installer::Step::Status StepGenerateXml::process() {
-  bf::path xml_path = bf::path(getUserManifestPath(context_->uid.get()))
+  bf::path xml_path =
+      bf::path(getUserManifestPath(context_->uid.get(), false))
       / bf::path(context_->pkgid.get());
   xml_path += ".xml";
   context_->xml_path.set(xml_path.string());

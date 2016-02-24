@@ -136,7 +136,7 @@ void ValidatePackageFS(const std::string& pkgid,
   ASSERT_TRUE(bf::exists(cache_path));
 
   bf::path manifest_path =
-      bf::path(getUserManifestPath(getuid())) / (pkgid + ".xml");
+      bf::path(getUserManifestPath(getuid(), false)) / (pkgid + ".xml");
   ASSERT_TRUE(bf::exists(manifest_path));
 
   for (auto& appid : appids) {
@@ -170,7 +170,7 @@ void PackageCheckCleanup(const std::string& pkgid,
   ASSERT_FALSE(bf::exists(package_path));
 
   bf::path manifest_path =
-      bf::path(getUserManifestPath(getuid())) / (pkgid + ".xml");
+      bf::path(getUserManifestPath(getuid(), false)) / (pkgid + ".xml");
   ASSERT_FALSE(bf::exists(manifest_path));
 
   for (auto& appid : appids) {
