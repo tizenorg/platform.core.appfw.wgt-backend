@@ -87,6 +87,13 @@ void WriteWidgetApplicationAttributes(
         BAD_CAST app->multiple);
 }
 
+void WriteWatchApplicationAttributes(
+    xmlTextWriterPtr writer, application_x *app) {
+  if (app->ambient_support)
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "ambient-support",
+        BAD_CAST app->ambient_support);
+}
+
 }  // namespace
 
 namespace wgt {
@@ -119,6 +126,9 @@ common_installer::Step::Status StepGenerateXml::GenerateApplicationCommonXml(
     break;
   case AppCompType::WIDGETAPP:
     WriteWidgetApplicationAttributes(writer, app);
+    break;
+  case AppCompType::WATCHAPP:
+    WriteWatchApplicationAttributes(writer, app);
     break;
   }
 
@@ -337,6 +347,9 @@ common_installer::Step::Status StepGenerateXml::process() {
     } else if (strcmp(app->component_type, "widgetapp") == 0) {
       type = AppCompType::WIDGETAPP;
       xmlTextWriterStartElement(writer, BAD_CAST "widget-application");
+    } else if (strcmp(app->component_type, "watchapp") == 0) {
+      type = AppCompType::WATCHAPP;
+      xmlTextWriterStartElement(writer, BAD_CAST "watch-application");
     } else {
       LOG(ERROR) << "Unknown application component_type";
       xmlFreeTextWriter(writer);

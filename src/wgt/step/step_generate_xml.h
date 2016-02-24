@@ -29,7 +29,8 @@ class StepGenerateXml : public common_installer::Step {
   enum class AppCompType {
     UIAPP,
     SVCAPP,
-    WIDGETAPP
+    WIDGETAPP,
+    WATCHAPP
   };
 
   Step::Status GenerateApplicationCommonXml(application_x* app,
