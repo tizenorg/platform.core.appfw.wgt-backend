@@ -136,13 +136,13 @@ void ValidatePackageFS(const std::string& pkgid,
   ASSERT_TRUE(bf::exists(cache_path));
 
   bf::path manifest_path =
-      bf::path(getUserManifestPath(getuid())) / (pkgid + ".xml");
+      bf::path(getUserManifestPath(getuid(), false)) / (pkgid + ".xml");
   ASSERT_TRUE(bf::exists(manifest_path));
 
   for (auto& appid : appids) {
     bf::path binary_path = package_path / "bin" / appid;
     ASSERT_TRUE(bf::exists(binary_path));
-    bf::path icon_path = bf::path(getIconPath(getuid())) / (appid + ".png");
+    bf::path icon_path = bf::path(getIconPath(getuid(), false)) / (appid + ".png");
     ASSERT_TRUE(bf::exists(icon_path));
     bf::path icon_backup = ci::GetBackupPathForIconFile(icon_path);
     ASSERT_FALSE(bf::exists(icon_backup));
@@ -170,11 +170,11 @@ void PackageCheckCleanup(const std::string& pkgid,
   ASSERT_FALSE(bf::exists(package_path));
 
   bf::path manifest_path =
-      bf::path(getUserManifestPath(getuid())) / (pkgid + ".xml");
+      bf::path(getUserManifestPath(getuid(), false)) / (pkgid + ".xml");
   ASSERT_FALSE(bf::exists(manifest_path));
 
   for (auto& appid : appids) {
-    bf::path icon_path = bf::path(getIconPath(getuid())) / (appid + ".png");
+    bf::path icon_path = bf::path(getIconPath(getuid(), false)) / (appid + ".png");
     ASSERT_FALSE(bf::exists(icon_path));
     bf::path icon_backup = ci::GetBackupPathForIconFile(icon_path);
     ASSERT_FALSE(bf::exists(icon_backup));
