@@ -16,6 +16,7 @@ namespace bs = boost::system;
 namespace {
 
 const char kSharedLocation[] = "shared";
+const char kSharedResLocation[] = "shared/res";
 const char kResWgtSubPath[] = "res/wgt";
 const char kTemporaryData[] = "tmp";
 
@@ -39,8 +40,19 @@ common_installer::Step::Status StepWgtPatchStorageDirectories::process() {
 }
 
 bool StepWgtPatchStorageDirectories::ShareDirFor3x() {
-  bf::path src = context_->pkg_path.get() / kResWgtSubPath / kSharedLocation;
-  bf::path dst = context_->pkg_path.get() / kSharedLocation;
+  bf::path shared_dir = context_->pkg_path.get() / kSharedLocation;
+  if (!bf::exists(shared_dir)) {
+    bs::error_code error;
+    bf::create_directory(shared_dir);
+    if (error) {
+      LOG(ERROR) << "Failed to create directory: " << shared_dir;
+      return false;
+    }
+  }
+  bf::path src = context_->pkg_path.get() / kResWgtSubPath / kSharedResLocation;
+  if (!bf::exists(src))
+    return true;
+  bf::path dst = context_->pkg_path.get() / kSharedResLocation;
   if (!common_installer::MoveDir(src, dst,
                                  common_installer::FS_MERGE_DIRECTORIES)) {
     LOG(ERROR) << "Failed to move shared data from res/wgt to shared";
