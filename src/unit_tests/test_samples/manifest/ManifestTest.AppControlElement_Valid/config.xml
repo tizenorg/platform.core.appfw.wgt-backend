@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets">
+  <tizen:application id="package0id.appid" package="package0id" required_version="3.0"/>
+  <tizen:app-control>
+    <tizen:src name="edit.html"/>
+    <tizen:operation name="http://tizen.org/appcontrol/operation/edit"/>
+    <tizen:mime name="image/jpg" />
+    <tizen:uri name="myapp"/>
+  </tizen:app-control>
+</widget>
