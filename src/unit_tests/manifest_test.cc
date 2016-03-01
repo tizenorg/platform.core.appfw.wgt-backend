@@ -213,4 +213,44 @@ TEST_F(ManifestTest, PrivilegeElement_MissingName) {
   ASSERT_FALSE(runner.Run());
 }
 
+TEST_F(ManifestTest, AppControlElement_Valid) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+  ASSERT_NE(app, nullptr);
+  std::vector<appcontrol_x*> app_controls;
+  for (appcontrol_x* app_control : GListRange<appcontrol_x*>(app->appcontrol)) {
+    app_controls.push_back(app_control);
+  }
+  ASSERT_EQ(app_controls.size(), 1);
+  ASSERT_CSTR_EQ(app_controls[0]->mime, "image/jpg");
+  ASSERT_CSTR_EQ(app_controls[0]->operation,
+                 "http://tizen.org/appcontrol/operation/edit");
+  ASSERT_CSTR_EQ(app_controls[0]->uri, "myapp");
+}
+
+TEST_F(ManifestTest, AppControlElement_MissingMIME) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, AppControlElement_MissingOperation) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, AppControlElement_MissingSrc) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, AppControlElement_MissingURI) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+
 
