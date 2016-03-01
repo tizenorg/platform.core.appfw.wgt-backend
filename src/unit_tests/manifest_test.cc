@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "wgt/step/step_parse.h"
 #include "wgt/wgt_backend_data.h"
@@ -168,7 +169,48 @@ TEST_F(ManifestTest, ApplicationElement_MissingVersion) {
   ASSERT_FALSE(runner.Run());
 }
 
+TEST_F(ManifestTest, PrivilegeElement_ValidName) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+  std::vector<std::string> priv_vec;
+  for (const char* priv : GListRange<char*>(m->privileges)) {
+    priv_vec.push_back(priv);
+  }
+  ASSERT_FALSE(priv_vec.empty());
+  const char* expected_name = "http://tizen.org/privilege/application.launch";
+  ASSERT_CSTR_EQ(priv_vec[0].c_str(), expected_name);
+}
 
+TEST_F(ManifestTest, PrivilegeElement_ManyElements) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+  std::vector<std::string> priv_vec;
+  for (const char* priv : GListRange<char*>(m->privileges)) {
+    priv_vec.push_back(priv);
+  }
+  ASSERT_EQ(priv_vec.size(), 2);
+  const char* first_priv = "http://tizen.org/privilege/application.close";
+  ASSERT_CSTR_EQ(priv_vec[0].c_str(), first_priv);
+  const char* second_priv = "http://tizen.org/privilege/application.launch";
+  ASSERT_CSTR_EQ(priv_vec[1].c_str(), second_priv);
+}
 
+TEST_F(ManifestTest, PrivilegeElement_InvalidName) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, PrivilegeElement_MissingName) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
 
 
