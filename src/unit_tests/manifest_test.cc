@@ -95,3 +95,15 @@ TEST_F(ManifestTest, WidgetElement_InvalidNamespace) {
   StepParseRunner runner(GetMyName());
   ASSERT_FALSE(runner.Run());
 }
+
+TEST_F(ManifestTest, WidgetElement_MissingNamespace) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, WidgetElement_ManyNamespaces) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+
