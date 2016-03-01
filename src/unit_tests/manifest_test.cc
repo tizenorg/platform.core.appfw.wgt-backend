@@ -106,4 +106,69 @@ TEST_F(ManifestTest, WidgetElement_ManyNamespaces) {
   ASSERT_FALSE(runner.Run());
 }
 
+TEST_F(ManifestTest, ApplicationElement_ManyElements) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, ApplicationElement_ValidAppId) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+  ASSERT_NE(app, nullptr);
+  ASSERT_CSTR_EQ(app->appid, "package0id.appid");
+}
+
+TEST_F(ManifestTest, ApplicationElement_MissingAppId) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, ApplicationElement_InvalidAppId) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, ApplicationElement_ValidPackage) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  ASSERT_CSTR_EQ(m->package, "package0id");
+}
+
+TEST_F(ManifestTest, ApplicationElement_InvalidPackage) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, ApplicationElement_MissingPackage) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, ApplicationElement_ValidVersion) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  ASSERT_CSTR_EQ(m->version, "3.0");
+}
+
+TEST_F(ManifestTest, ApplicationElement_InvalidVersion) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+TEST_F(ManifestTest, ApplicationElement_MissingVersion) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_FALSE(runner.Run());
+}
+
+
+
+
 

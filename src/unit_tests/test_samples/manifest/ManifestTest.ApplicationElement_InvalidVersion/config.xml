@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets">
+  <tizen:application id="package0id.appid" package="package0id" required_version="Invalid"/>
+</widget>
