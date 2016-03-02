@@ -45,7 +45,7 @@ class StepParse : public common_installer::Step {
   std::set<std::string> ExtractPrivileges(
       std::shared_ptr<const PermissionsInfo> perm_info) const;
 
-  const std::string& GetPackageVersion(const std::string& manifest_version);
+  std::string GetPackageVersion(const std::string& manifest_version);
 
   bool FillInstallationInfo(manifest_x* manifest);
   bool FillIconPaths(manifest_x* manifest);

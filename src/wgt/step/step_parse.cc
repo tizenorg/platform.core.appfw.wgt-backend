@@ -11,6 +11,7 @@
 #include <common/installer_context.h>
 #include <common/step/step.h>
 #include <common/utils/glist_range.h>
+#include <manifest_parser/utils/version_number.h>
 #include <wgt_manifest_handlers/account_handler.h>
 #include <wgt_manifest_handlers/app_control_handler.h>
 #include <wgt_manifest_handlers/application_icons_handler.h>
@@ -95,11 +96,24 @@ std::set<std::string> StepParse::ExtractPrivileges(
   return perm_info->GetAPIPermissions();
 }
 
-const std::string& StepParse::GetPackageVersion(
+std::string StepParse::GetPackageVersion(
      const std::string& manifest_version) {
-  if (!manifest_version.empty())
-    return manifest_version;
-  return kManifestVersion;
+  if (manifest_version.empty()) {
+    return kManifestVersion;
+  }
+  std::string version = manifest_version.substr(0,
+      manifest_version.find_first_not_of("1234567890."));
+
+  utils::VersionNumber version_number(version);
+
+  if (!version_number.IsValidTizenPackageVersion()) {
+    LOG(WARNING) << "Version number: " << manifest_version
+                 << " is not valid version number for tizen package. "
+                 << "Default value will be used.";
+    return kManifestVersion;
+  }
+
+  return version_number.ToString();
 }
 
 bool StepParse::FillInstallationInfo(manifest_x* manifest) {
