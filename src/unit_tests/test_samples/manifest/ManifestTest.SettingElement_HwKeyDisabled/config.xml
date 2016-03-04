@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets">
+  <tizen:application id="package0id.appid" package="package0id" required_version="3.0"/>
+  <tizen:setting background-support="enable" />
+  <tizen:setting context-menu="disable" />
+  <tizen:setting encryption="enable" />
+  <tizen:setting screen-orientation="landscape" />
+  <tizen:setting install-location="internal-only" />
+  <tizen:setting hwkey-event="disable" />
+  <tizen:setting background-vibration="enable" />
+</widget>
