@@ -8,6 +8,8 @@
 #include <common/request.h>
 #include <common/utils/glist_range.h>
 
+#include <wgt_manifest_handlers/setting_handler.h>
+
 #include <glib.h>
 #include <gtest/gtest.h>
 
@@ -47,6 +49,10 @@ class StepParseRunner {
     PrepareContext();
     wgt::parse::StepParse step(context_.get(), !ignore_start_files_);
     return step.process() == ci::Step::Status::OK;
+  }
+
+  wgt::WgtBackendData* GetBackendData() const {
+    return static_cast<wgt::WgtBackendData*>(context_->backend_data.get());
   }
 
   manifest_x* GetManifest() const {
@@ -213,4 +219,157 @@ TEST_F(ManifestTest, PrivilegeElement_MissingName) {
   ASSERT_FALSE(runner.Run());
 }
 
+TEST_F(ManifestTest, SettingsElement_Valid) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
 
+  ASSERT_EQ(settings.background_support_enabled(), true);
+  ASSERT_EQ(settings.context_menu_enabled(), false);
+  ASSERT_EQ(settings.encryption_enabled(), true);
+  ASSERT_EQ(settings.screen_orientation(),
+            wgt::parse::SettingInfo::ScreenOrientation::LANDSCAPE);
+  ASSERT_EQ(settings.install_location(),
+            wgt::parse::SettingInfo::InstallLocation::INTERNAL);
+  ASSERT_EQ(settings.hwkey_enabled(), true);
+  ASSERT_EQ(settings.background_vibration(), true);
+}
+
+
+TEST_F(ManifestTest, SettingsElement_BackgroundSupportEnabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.background_support_enabled(), true);
+}
+
+TEST_F(ManifestTest, SettingsElement_BackgroundSupportDisabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.background_support_enabled(), false);
+}
+
+TEST_F(ManifestTest, SettingsElement_MissingBackgroundSupport) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+}
+
+TEST_F(ManifestTest, SettingsElement_BackgroundVibrationEnabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.background_vibration(), true);
+}
+
+TEST_F(ManifestTest, SettingsElement_BackgroundVibrationDisabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.background_vibration(), false);
+}
+
+TEST_F(ManifestTest, SettingsElement_MissingBackgroundVibration) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+}
+
+TEST_F(ManifestTest, SettingsElement_ContextMenuEnabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.context_menu_enabled(), true);
+}
+
+TEST_F(ManifestTest, SettingsElement_ContextMenuDisabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.context_menu_enabled(), false);
+}
+
+TEST_F(ManifestTest, SettingsElement_MissingContextMenu) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+}
+
+TEST_F(ManifestTest, SettingsElement_EncryptionEnabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.encryption_enabled(), true);
+}
+
+TEST_F(ManifestTest, SettingsElement_EncryptionDisabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.encryption_enabled(), false);
+}
+
+TEST_F(ManifestTest, SettingsElement_MissingEncryption) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+}
+
+TEST_F(ManifestTest, SettingsElement_HwKeyEnabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.hwkey_enabled(), true);
+}
+
+TEST_F(ManifestTest, SettingsElement_HwKeyDisabled) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto backend_data = runner.GetBackendData();
+  auto settings = backend_data->settings.get();
+  ASSERT_EQ(settings.hwkey_enabled(), false);
+}
+
+TEST_F(ManifestTest, SettingsElement_MissingHwKeyEvent) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+}
+
+TEST_F(ManifestTest, SettingsElement_MissingInstallLocation) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+}
+
+TEST_F(ManifestTest, SettingsElement_MissingScreenOrientation) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+}
