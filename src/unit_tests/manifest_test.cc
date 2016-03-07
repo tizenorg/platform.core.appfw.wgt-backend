@@ -440,3 +440,57 @@ TEST_F(ManifestTest, MetadataElement_MissingKey) {
   }
   ASSERT_EQ(meta_data_map.size(), 0);
 }
+
+TEST_F(ManifestTest, CategoryElement_Valid) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+
+  std::vector<std::string> categories;
+  for (const char* category : GListRange<char*>(app->category)) {
+    categories.push_back(category);
+  }
+  ASSERT_EQ(categories.size(), 1);
+  ASSERT_CSTR_EQ(categories[0].c_str(),
+                 "http://tizen.org/category/wearable_clock");
+}
+
+TEST_F(ManifestTest, CategoryElement_MissingName) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+
+  std::vector<std::string> categories;
+  for (const char* category : GListRange<char*>(app->category)) {
+    categories.push_back(category);
+  }
+  ASSERT_TRUE(categories.empty());
+}
+
+TEST_F(ManifestTest, CategoryElement_MultipleElements) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+
+  std::vector<std::string> categories;
+  for (const char* category : GListRange<char*>(app->category)) {
+    categories.push_back(category);
+  }
+  ASSERT_EQ(categories.size(), 3);
+  ASSERT_CSTR_EQ(categories[0].c_str(),
+                 "http://tizen.org/category/category_0");
+  ASSERT_CSTR_EQ(categories[1].c_str(),
+                 "http://tizen.org/category/category_1");
+  ASSERT_CSTR_EQ(categories[2].c_str(),
+                 "http://tizen.org/category/category_2");
+
+}
