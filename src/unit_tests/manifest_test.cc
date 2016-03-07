@@ -13,6 +13,7 @@
 #include <glib.h>
 #include <gtest/gtest.h>
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -214,6 +215,7 @@ TEST_F(ManifestTest, PrivilegeElement_MissingName) {
   StepParseRunner runner(GetMyName());
   ASSERT_FALSE(runner.Run());
 }
+
 
 TEST_F(ManifestTest, AppControlElement_Valid) {
   StepParseRunner runner(GetMyName());
@@ -463,4 +465,77 @@ TEST_F(ManifestTest, SettingsElement_MissingScreenOrientation) {
   auto settings = backend_data->settings.get();
   ASSERT_EQ(settings.screen_orientation(),
             wgt::parse::SettingInfo::ScreenOrientation::AUTO);
+}
+
+TEST_F(ManifestTest, MetadataElement_Valid) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+
+  std::map<std::string, std::string> meta_data_map;
+  for (metadata_x* meta_data : GListRange<metadata_x*>(app->metadata)) {
+    if (meta_data->value)
+      meta_data_map[meta_data->key] = meta_data->value;
+    else
+      meta_data_map[meta_data->key] = std::string();
+  }
+  ASSERT_EQ(meta_data_map.size(), 2);
+  ASSERT_CSTR_EQ(meta_data_map["key1"].c_str(), "");
+  ASSERT_CSTR_EQ(meta_data_map["key2"].c_str(), "value2");
+}
+
+TEST_F(ManifestTest, MetadataElement_DuplicateKey) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+
+  std::map<std::string, std::string> meta_data_map;
+  for (metadata_x* meta_data : GListRange<metadata_x*>(app->metadata)) {
+    meta_data_map[meta_data->key] = meta_data->value;
+  }
+  ASSERT_EQ(meta_data_map.size(), 2);
+  ASSERT_CSTR_EQ(meta_data_map["key1"].c_str(), "key1value");
+  ASSERT_CSTR_EQ(meta_data_map["key2"].c_str(), "key2value");
+}
+
+TEST_F(ManifestTest, MetadataElement_MissingValue) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+
+  std::map<std::string, std::string> meta_data_map;
+  for (metadata_x* meta_data : GListRange<metadata_x*>(app->metadata)) {
+    if (meta_data->value)
+      meta_data_map[meta_data->key] = meta_data->value;
+    else
+      meta_data_map[meta_data->key] = std::string();
+  }
+  ASSERT_EQ(meta_data_map.size(), 2);
+  ASSERT_CSTR_EQ(meta_data_map["key1"].c_str(), "");
+  ASSERT_CSTR_EQ(meta_data_map["key2"].c_str(), "");
+}
+
+TEST_F(ManifestTest, MetadataElement_MissingKey) {
+  StepParseRunner runner(GetMyName());
+  ASSERT_TRUE(runner.Run());
+  manifest_x* m = runner.GetManifest();
+  ASSERT_NE(m, nullptr);
+  auto apps = GListRange<application_x*>(m->application);
+  application_x* app = *apps.begin();
+
+  std::map<std::string, std::string> meta_data_map;
+  for (metadata_x* meta_data : GListRange<metadata_x*>(app->metadata)) {
+    if (meta_data->key && meta_data->value)
+      meta_data_map[meta_data->key] = meta_data->value;
+  }
+  ASSERT_EQ(meta_data_map.size(), 0);
 }
