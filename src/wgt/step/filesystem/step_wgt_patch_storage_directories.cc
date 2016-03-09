@@ -40,7 +40,7 @@ common_installer::Step::Status StepWgtPatchStorageDirectories::process() {
 }
 
 bool StepWgtPatchStorageDirectories::ShareDirFor3x() {
-  bf::path shared_dir = context_->pkg_path.get() / kSharedLocation;
+  bf::path shared_dir = context_->package_storage->path() / kSharedLocation;
   if (!bf::exists(shared_dir)) {
     bs::error_code error;
     bf::create_directory(shared_dir);
@@ -49,10 +49,11 @@ bool StepWgtPatchStorageDirectories::ShareDirFor3x() {
       return false;
     }
   }
-  bf::path src = context_->pkg_path.get() / kResWgtSubPath / kSharedResLocation;
+  bf::path src =
+      context_->package_storage->path() / kResWgtSubPath / kSharedResLocation;
   if (!bf::exists(src))
     return true;
-  bf::path dst = context_->pkg_path.get() / kSharedResLocation;
+  bf::path dst = context_->package_storage->path() / kSharedResLocation;
   if (!common_installer::MoveDir(src, dst,
                                  common_installer::FS_MERGE_DIRECTORIES)) {
     LOG(ERROR) << "Failed to move shared data from res/wgt to shared";
@@ -71,7 +72,7 @@ bool StepWgtPatchStorageDirectories::ShareDirFor3x() {
 
 bool StepWgtPatchStorageDirectories::CreatePrivateTmpDir() {
   bs::error_code error_code;
-  bf::path tmp_path = context_->pkg_path.get() / kTemporaryData;
+  bf::path tmp_path = context_->package_storage->path() / kTemporaryData;
   bf::create_directory(tmp_path, error_code);
   if (error_code) {
     LOG(ERROR) << "Failed to create private temporary directory for package";
