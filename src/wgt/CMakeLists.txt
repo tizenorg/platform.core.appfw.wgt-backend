@@ -2,7 +2,6 @@
 SET(SRCS
   step/common/privileges.cc
   step/configuration/step_parse.cc
-  step/configuration/step_parse_recovery.cc
   step/encryption/step_encrypt_resources.cc
   step/encryption/step_remove_encryption_data.cc
   step/filesystem/step_copy_preview_icons.cc
