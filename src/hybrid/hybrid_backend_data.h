@@ -19,7 +19,7 @@ namespace hybrid {
 
 class HybridBackendData : public wgt::WgtBackendData {
  public:
-  HybridBackendData() { }
+  HybridBackendData() : tpk_manifest_data(nullptr) { }
   ~HybridBackendData() override {
     if (tpk_manifest_data.get())
       pkgmgr_parser_free_manifest_xml(tpk_manifest_data.get());
