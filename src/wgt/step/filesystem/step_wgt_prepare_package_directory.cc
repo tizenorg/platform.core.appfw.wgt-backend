@@ -26,8 +26,10 @@ namespace filesystem {
 
 ci::Step::Status StepWgtPreparePackageDirectory::CreateSymlinkToMountPoint() {
   bs::error_code error;
-  bf::path mount_point = ci::GetMountLocation(context_->pkg_path.get());
-  bf::path res_wgt_link = context_->pkg_path.get() / kResWgtDirectory;
+  bf::path mount_point =
+      ci::GetMountLocation(context_->package_storage->path());
+  bf::path res_wgt_link =
+      context_->package_storage->path() / kResWgtDirectory;
   if (bf::exists(res_wgt_link)) {
     if (!bf::is_symlink(res_wgt_link)) {
       LOG(ERROR) << res_wgt_link << " is not symlink. Cannot proceed";
@@ -63,7 +65,7 @@ ci::Step::Status StepWgtPreparePackageDirectory::process() {
 }
 
 ci::Step::Status StepWgtPreparePackageDirectory::precheck() {
-  if (context_->pkg_path.get().empty()) {
+  if (context_->package_storage->path().empty()) {
     LOG(ERROR) << "Package installation path is not set";
     return Status::INVALID_VALUE;
   }
