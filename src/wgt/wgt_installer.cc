@@ -12,6 +12,7 @@
 #include <common/step/configuration/step_configure.h>
 #include <common/step/configuration/step_fail.h>
 #include <common/step/configuration/step_parse_manifest.h>
+#include <common/step/filesystem/step_acquire_package_storage.h>
 #include <common/step/filesystem/step_clear_data.h>
 #include <common/step/filesystem/step_copy.h>
 #include <common/step/filesystem/step_copy_storage_directories.h>
@@ -22,6 +23,7 @@
 #include <common/step/filesystem/step_recover_files.h>
 #include <common/step/filesystem/step_recover_icons.h>
 #include <common/step/filesystem/step_recover_manifest.h>
+#include <common/step/filesystem/step_recover_package_storage.h>
 #include <common/step/filesystem/step_recover_storage_directories.h>
 #include <common/step/filesystem/step_remove_files.h>
 #include <common/step/filesystem/step_remove_icons.h>
@@ -51,7 +53,6 @@
 #include <wgt_manifest_handlers/widget_config_parser.h>
 
 #include "wgt/step/configuration/step_parse.h"
-#include "wgt/step/configuration/step_parse_recovery.h"
 #include "wgt/step/encryption/step_encrypt_resources.h"
 #include "wgt/step/encryption/step_remove_encryption_data.h"
 #include "wgt/step/filesystem/step_create_symbolic_link.h"
@@ -87,6 +88,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::encryption::StepEncryptResources>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::filesystem::StepCopy>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<ci::filesystem::StepCreateStorageDirectories>();
@@ -118,6 +120,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -138,6 +141,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Uninstall);
       AddStep<ci::filesystem::StepRemovePerUserStorageDirectories>();
@@ -158,6 +162,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::pkgmgr::StepCheckBlacklist>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<wgt::rds::StepRDSParse>();
       AddStep<wgt::rds::StepRDSModify>();
       AddStep<ci::security::StepUpdateSecurity>();
@@ -184,6 +189,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -200,11 +206,14 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     case ci::RequestType::Recovery: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::recovery::StepOpenRecoveryFile>();
-      AddStep<wgt::configuration::StepParseRecovery>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::RECOVERY,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::pkgmgr::StepRecoverApplication>();
       AddStep<ci::filesystem::StepRemoveTemporaryDirectory>();
       AddStep<ci::filesystem::StepRecoverIcons>();
       AddStep<ci::filesystem::StepRecoverManifest>();
+      AddStep<ci::filesystem::StepRecoverPackageStorage>();
       AddStep<ci::filesystem::StepRecoverStorageDirectories>();
       AddStep<ci::filesystem::StepRecoverFiles>();
       AddStep<ci::security::StepRecoverSecurity>();
@@ -212,6 +221,10 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::Clear: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::filesystem::StepClearData>();
       break;
     }
