@@ -4,6 +4,7 @@
 
 #include "hybrid/hybrid_installer.h"
 
+#include <common/step/step_acquire_package_storage.h>
 #include <common/step/step_check_signature.h>
 #include <common/step/step_backup_icons.h>
 #include <common/step/step_backup_manifest.h>
@@ -30,6 +31,7 @@
 #include <common/step/step_recover_files.h>
 #include <common/step/step_recover_icons.h>
 #include <common/step/step_recover_manifest.h>
+#include <common/step/step_recover_package_storage.h>
 #include <common/step/step_recover_security.h>
 #include <common/step/step_recover_storage_directories.h>
 #include <common/step/step_remove_temporary_directory.h>
@@ -55,7 +57,6 @@
 #include "wgt/step/step_check_wgt_background_category.h"
 #include "wgt/step/step_create_symbolic_link.h"
 #include "wgt/step/step_generate_xml.h"
-#include "wgt/step/step_parse_recovery.h"
 #include "wgt/step/step_remove_encryption_data.h"
 #include "wgt/step/step_wgt_patch_icons.h"
 #include "wgt/step/step_wgt_patch_storage_directories.h"
@@ -84,6 +85,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<hybrid::encrypt::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::filesystem::StepCopy>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
@@ -120,6 +122,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
@@ -142,6 +145,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Uninstall);
       AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::filesystem::StepRemovePerUserStorageDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
@@ -177,6 +181,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
@@ -197,19 +202,21 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::parse::StepParseManifest>(
           ci::parse::StepParseManifest::ManifestLocation::RECOVERY,
           ci::parse::StepParseManifest::StoreLocation::NORMAL);
-      AddStep<hybrid::parse::StepStashTpkConfig>();
-      AddStep<wgt::parse::StepParseRecovery>();
-      AddStep<hybrid::parse::StepMergeTpkConfig>();
       AddStep<ci::pkgmgr::StepRecoverApplication>();
       AddStep<ci::filesystem::StepRemoveTemporaryDirectory>();
       AddStep<ci::filesystem::StepRecoverIcons>();
       AddStep<ci::filesystem::StepRecoverManifest>();
+      AddStep<ci::filesystem::StepRecoverPackageStorage>();
       AddStep<ci::filesystem::StepRecoverStorageDirectories>();
       AddStep<ci::filesystem::StepRecoverFiles>();
       AddStep<ci::security::StepRecoverSecurity>();
       break;
     case ci::RequestType::Clear:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::parse::StepParseManifest>(
+          ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::parse::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<ci::filesystem::StepAcquirePackageStorage>();
       AddStep<ci::filesystem::StepClearData>();
       break;
     default:
