@@ -46,9 +46,9 @@ namespace filesystem {
 ci::Step::Status
 StepWgtUpdatePackageDirectory::CreateBackupOfDirectories() {
   bf::path backup_path =
-      ci::GetBackupPathForPackagePath(context_->pkg_path.get());
+      ci::GetBackupPathForPackagePath(context_->package_storage->path());
   for (auto& entry : kBackupEntries) {
-    bf::path directory = context_->pkg_path.get() / entry;
+    bf::path directory = context_->package_storage->path() / entry;
     if (!bf::exists(directory))
       continue;
     LOG(DEBUG) << "Backup directory entry: " << entry;
@@ -65,14 +65,14 @@ StepWgtUpdatePackageDirectory::CreateBackupOfDirectories() {
 ci::Step::Status
 StepWgtUpdatePackageDirectory::RecoverBackupOfDirectories() {
   bf::path backup_path =
-      ci::GetBackupPathForPackagePath(context_->pkg_path.get());
+      ci::GetBackupPathForPackagePath(context_->package_storage->path());
 
   // skip if there is no backup of directories
   if (!bf::exists(backup_path))
     return Status::OK;
 
   for (auto& entry : kBackupEntries) {
-    bf::path directory = context_->pkg_path.get() / entry;
+    bf::path directory = context_->package_storage->path() / entry;
     bf::path directory_backup = backup_path / entry;
     if (!bf::exists(directory_backup))
         continue;
@@ -101,7 +101,7 @@ ci::Step::Status StepWgtUpdatePackageDirectory::process() {
 
 ci::Step::Status StepWgtUpdatePackageDirectory::clean() {
   bf::path backup_path =
-      ci::GetBackupPathForPackagePath(context_->pkg_path.get());
+      ci::GetBackupPathForPackagePath(context_->package_storage->path());
   if (bf::exists(backup_path)) {
     bs::error_code error;
     bf::remove_all(backup_path, error);
@@ -118,7 +118,7 @@ ci::Step::Status StepWgtUpdatePackageDirectory::undo() {
   if (status != Status::OK)
     return status;
   bf::path backup_path =
-      ci::GetBackupPathForPackagePath(context_->pkg_path.get());
+      ci::GetBackupPathForPackagePath(context_->package_storage->path());
   if (bf::exists(backup_path)) {
     bs::error_code error;
     bf::remove_all(backup_path, error);

@@ -15,7 +15,7 @@ namespace wgt {
 namespace rds {
 
 std::string StepWgtRDSModify::GetAppPath() {
-  boost::filesystem::path p = context_->pkg_path.get() / "res" / "wgt";
+  boost::filesystem::path p = context_->package_storage->path() / "res" / "wgt";
   return p.string();
 }
 

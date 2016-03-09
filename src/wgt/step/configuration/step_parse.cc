@@ -528,7 +528,7 @@ bool StepParse::LocateConfigFile() {
     case ConfigLocation::PACKAGE:
       return StepParse::Check(context_->unpacked_dir_path.get());
     case ConfigLocation::INSTALLED:
-      return StepParse::Check(context_->pkg_path.get() / kResWgt);
+      return StepParse::Check(context_->package_storage->path() / kResWgt);
     case ConfigLocation::RECOVERY:
       if (StepParse::Check(common_installer::GetBackupPathForPackagePath(
           context_->root_application_path.get()

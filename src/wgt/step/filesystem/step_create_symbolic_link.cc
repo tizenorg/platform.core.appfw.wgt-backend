@@ -37,7 +37,7 @@ common_installer::Step::Status StepCreateSymbolicLink::process() {
     if (strcmp("webapp", app->type) != 0)
       continue;
     // binary is a symbolic link named <appid> and is located in <pkgid>/<appid>
-    bf::path exec_path = context_->pkg_path.get() / bf::path("bin");
+    bf::path exec_path = context_->package_storage->path() / bf::path("bin");
     common_installer::CreateDir(exec_path);
 
     exec_path /= bf::path(app->appid);
@@ -63,7 +63,7 @@ common_installer::Step::Status StepCreateSymbolicLink::process() {
 common_installer::Step::Status StepCreateSymbolicLink::undo() {
   for (application_x* app :
        GListRange<application_x*>(context_->manifest_data.get()->application)) {
-    bf::path exec_path = context_->pkg_path.get() / "bin" / app->appid;
+    bf::path exec_path = context_->package_storage->path() / "bin" / app->appid;
     if (bf::exists(exec_path))
       bf::remove_all(exec_path);
   }
