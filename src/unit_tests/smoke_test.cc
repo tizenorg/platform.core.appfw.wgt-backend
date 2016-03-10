@@ -71,6 +71,14 @@ enum class PackageType {
   HYBRID
 };
 
+bool TouchFile(const bf::path& path) {
+  FILE* f = fopen(path.c_str(), "w+");
+  if (!f)
+    return false;
+  fclose(f);
+  return true;
+}
+
 void RemoveAllRecoveryFiles() {
   bf::path root_path = ci::GetRootAppPath(false);
   if (!bf::exists(root_path))
@@ -142,7 +150,8 @@ void ValidatePackageFS(const std::string& pkgid,
   for (auto& appid : appids) {
     bf::path binary_path = package_path / "bin" / appid;
     ASSERT_TRUE(bf::exists(binary_path));
-    bf::path icon_path = bf::path(getIconPath(getuid(), false)) / (appid + ".png");
+    bf::path icon_path =
+        bf::path(getIconPath(getuid(), false)) / (appid + ".png");
     ASSERT_TRUE(bf::exists(icon_path));
     bf::path icon_backup = ci::GetBackupPathForIconFile(icon_path);
     ASSERT_FALSE(bf::exists(icon_backup));
@@ -174,7 +183,8 @@ void PackageCheckCleanup(const std::string& pkgid,
   ASSERT_FALSE(bf::exists(manifest_path));
 
   for (auto& appid : appids) {
-    bf::path icon_path = bf::path(getIconPath(getuid(), false)) / (appid + ".png");
+    bf::path icon_path =
+        bf::path(getIconPath(getuid(), false)) / (appid + ".png");
     ASSERT_FALSE(bf::exists(icon_path));
     bf::path icon_backup = ci::GetBackupPathForIconFile(icon_path);
     ASSERT_FALSE(bf::exists(icon_backup));
@@ -309,6 +319,23 @@ ci::AppInstaller::Result DeltaInstall(const bf::path& path,
   return Install(delta_package, type);
 }
 
+ci::AppInstaller::Result Clear(const std::string& pkgid,
+                                   PackageType type,
+                                   RequestResult mode = RequestResult::NORMAL) {
+  const char* argv[] = {"", "-c", pkgid.c_str()};
+  TestPkgmgrInstaller pkgmgr_installer;
+  std::unique_ptr<ci::AppQueryInterface> query_interface =
+      CreateQueryInterface();
+  auto pkgmgr =
+      ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
+                                  &pkgmgr_installer, query_interface.get());
+  if (!pkgmgr) {
+    LOG(ERROR) << "Failed to initialize pkgmgr interface";
+    return ci::AppInstaller::Result::UNKNOWN;
+  }
+  return RunInstallerWithPkgrmgr(pkgmgr, type, mode);
+}
+
 ci::AppInstaller::Result Recover(const bf::path& recovery_file,
                                  PackageType type,
                                  RequestResult mode = RequestResult::NORMAL) {
@@ -416,6 +443,24 @@ TEST_F(SmokeTest, RDSMode) {
   ASSERT_FALSE(bf::exists(root_path / pkgid / "res" / "wgt" / "DELETED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "ADDED"));
   ValidateFileContentInPackage(pkgid, "res/wgt/MODIFIED", "2\n");
+}
+
+TEST_F(SmokeTest, ClearMode) {
+  bf::path path = kSmokePackagesDirectory / "ClearMode.wgt";
+  std::string pkgid = "smokeapp20";
+  std::string appid = "smokeapp20.ClearMode";
+  ASSERT_EQ(Install(path, PackageType::WGT),
+            ci::AppInstaller::Result::OK);
+  bf::path root_path = ci::GetRootAppPath(false);
+  bs::error_code error;
+  bf::create_directory(root_path / pkgid / "data" / "dir", error);
+  ASSERT_FALSE(error);
+  ASSERT_TRUE(TouchFile(root_path / pkgid / "data" / "dir" / "file"));
+  ASSERT_TRUE(TouchFile(root_path / pkgid / "data" / "file"));
+  ASSERT_EQ(Clear(pkgid, PackageType::WGT), ci::AppInstaller::Result::OK);
+  ValidatePackage(pkgid, {appid});
+  ASSERT_FALSE(bf::exists(root_path / pkgid / "data" / "dir" / "file"));
+  ASSERT_FALSE(bf::exists(root_path / pkgid / "res" / "file"));
 }
 
 TEST_F(SmokeTest, DeltaMode) {
