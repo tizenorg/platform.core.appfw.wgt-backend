@@ -10,7 +10,7 @@
 #include <common/pkgmgr_interface.h>
 #include <common/pkgmgr_registration.h>
 #include <common/request.h>
-#include <common/step/step_fail.h>
+#include <common/step/configuration/step_fail.h>
 #include <common/utils/subprocess.h>
 #include <gtest/gtest.h>
 #include <gtest/gtest-death-test.h>
