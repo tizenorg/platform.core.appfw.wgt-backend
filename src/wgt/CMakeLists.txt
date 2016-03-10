@@ -1,20 +1,20 @@
 # Target - sources
 SET(SRCS
   rds_parser.cc
-  step/step_check_settings_level.cc
-  step/step_check_wgt_background_category.cc
-  step/step_create_symbolic_link.cc
-  step/step_encrypt_resources.cc
-  step/step_generate_xml.cc
-  step/step_parse.cc
-  step/step_remove_encryption_data.cc
-  step/step_parse_recovery.cc
-  step/step_rds_parse.cc
-  step/step_rds_modify.cc
-  step/step_wgt_patch_icons.cc
-  step/step_wgt_patch_storage_directories.cc
-  step/step_wgt_resource_directory.cc
-  step/step_add_default_privileges.cc
+  step/configuration/step_parse.cc
+  step/configuration/step_parse_recovery.cc
+  step/encryption/step_encrypt_resources.cc
+  step/encryption/step_remove_encryption_data.cc
+  step/filesystem/step_create_symbolic_link.cc
+  step/filesystem/step_wgt_patch_icons.cc
+  step/filesystem/step_wgt_patch_storage_directories.cc
+  step/filesystem/step_wgt_resource_directory.cc
+  step/pkgmgr/step_generate_xml.cc
+  step/rds/step_rds_modify.cc
+  step/rds/step_rds_parse.cc
+  step/security/step_add_default_privileges.cc
+  step/security/step_check_settings_level.cc
+  step/security/step_check_wgt_background_category.cc
   wgt_app_query_interface.cc
   wgt_installer.cc
 )
