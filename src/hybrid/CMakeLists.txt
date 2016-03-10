@@ -1,8 +1,8 @@
 SET(SRCS
-  step/step_encrypt_resources.cc
-  step/step_merge_tpk_config.cc
-  step/step_parse.cc
-  step/step_stash_tpk_config.cc
+  step/configuration/step_merge_tpk_config.cc
+  step/configuration/step_parse.cc
+  step/configuration/step_stash_tpk_config.cc
+  step/encryption/step_encrypt_resources.cc
   hybrid_installer.cc
 )
 ADD_LIBRARY(${TARGET_LIBNAME_HYBRID} STATIC ${SRCS})

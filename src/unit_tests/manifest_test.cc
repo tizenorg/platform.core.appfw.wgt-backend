@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "wgt/step/step_parse.h"
+#include "wgt/step/configuration/step_parse.h"
 #include "wgt/wgt_backend_data.h"
 
 #define ASSERT_CSTR_EQ(STR1, STR2)                                             \
@@ -48,7 +48,7 @@ class StepParseRunner {
 
   bool Run() {
     PrepareContext();
-    wgt::parse::StepParse step(context_.get(), !ignore_start_files_);
+    wgt::configuration::StepParse step(context_.get(), !ignore_start_files_);
     return step.process() == ci::Step::Status::OK;
   }
 
