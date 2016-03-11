@@ -9,6 +9,7 @@
 #include <common/step/step_backup_icons.h>
 #include <common/step/step_backup_manifest.h>
 #include <common/step/step_check_blacklist.h>
+#include <common/step/step_check_removable.h>
 #include <common/step/step_create_icons.h>
 #include <common/step/step_create_storage_directories.h>
 #include <common/step/step_create_per_user_storage_directories.h>
@@ -130,6 +131,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::Uninstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::pkgmgr::StepCheckRemovable>();
       AddStep<ci::parse::StepParseManifest>(
           ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
           ci::parse::StepParseManifest::StoreLocation::NORMAL);
