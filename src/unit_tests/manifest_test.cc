@@ -180,8 +180,6 @@ TEST_F(ManifestTest, PrivilegeElement_ValidName) {
   ASSERT_TRUE(runner.Run());
   manifest_x* m = runner.GetManifest();
   ASSERT_NE(m, nullptr);
-  auto apps = GListRange<application_x*>(m->application);
-  application_x* app = *apps.begin();
   std::vector<std::string> priv_vec;
   for (const char* priv : GListRange<char*>(m->privileges)) {
     priv_vec.push_back(priv);
@@ -196,8 +194,6 @@ TEST_F(ManifestTest, PrivilegeElement_ManyElements) {
   ASSERT_TRUE(runner.Run());
   manifest_x* m = runner.GetManifest();
   ASSERT_NE(m, nullptr);
-  auto apps = GListRange<application_x*>(m->application);
-  application_x* app = *apps.begin();
   std::vector<std::string> priv_vec;
   for (const char* priv : GListRange<char*>(m->privileges)) {
     priv_vec.push_back(priv);
