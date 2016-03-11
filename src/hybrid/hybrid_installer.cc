@@ -7,6 +7,7 @@
 #include <common/step/step_check_signature.h>
 #include <common/step/step_backup_icons.h>
 #include <common/step/step_backup_manifest.h>
+#include <common/step/step_check_removable.h>
 #include <common/step/step_configure.h>
 #include <common/step/step_copy.h>
 #include <common/step/step_copy_backup.h>
@@ -136,6 +137,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       break;
     case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::pkgmgr::StepCheckRemovable>();
       AddStep<ci::parse::StepParseManifest>(
           ci::parse::StepParseManifest::ManifestLocation::INSTALLED,
           ci::parse::StepParseManifest::StoreLocation::NORMAL);
