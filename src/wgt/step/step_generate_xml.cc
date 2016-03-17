@@ -119,10 +119,10 @@ common_installer::Step::Status StepGenerateXml::GenerateApplicationCommonXml(
   // app-specific attributes
   switch (type) {
   case AppCompType::UIAPP:
-    WriteServiceApplicationAttributes(writer, app);
+    WriteUIApplicationAttributes(writer, app);
     break;
   case AppCompType::SVCAPP:
-    WriteUIApplicationAttributes(writer, app);
+    WriteServiceApplicationAttributes(writer, app);
     break;
   case AppCompType::WIDGETAPP:
     WriteWidgetApplicationAttributes(writer, app);
