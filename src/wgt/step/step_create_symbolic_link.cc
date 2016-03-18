@@ -44,6 +44,8 @@ common_installer::Step::Status StepCreateSymbolicLink::process() {
 
     if (strcmp(app->component_type, "uiapp") == 0) {
       bf::create_symlink(bf::path(WRT_LAUNCHER), exec_path, error);
+    } else if (strcmp(app->component_type, "watchapp") == 0) {
+      bf::create_symlink(bf::path(WRT_LAUNCHER), exec_path, error);
     } else {
       bf::create_symlink(kWrtServiceBinaryPath, exec_path, error);
     }
