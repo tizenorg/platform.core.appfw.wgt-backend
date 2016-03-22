@@ -36,7 +36,6 @@
 #include <common/step/pkgmgr/step_update_app.h>
 #include <common/step/recovery/step_open_recovery_file.h>
 #include <common/step/security/step_check_signature.h>
-#include <common/step/security/step_privilege_compatibility.h>
 #include <common/step/security/step_recover_security.h>
 #include <common/step/security/step_register_security.h>
 #include <common/step/security/step_revoke_security.h>
@@ -80,7 +79,6 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<hybrid::configuration::StepParse>(true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
-      AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<hybrid::encryption::StepEncryptResources>();
@@ -110,7 +108,6 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<hybrid::configuration::StepParse>(true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
-      AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<hybrid::encryption::StepEncryptResources>();
@@ -168,7 +165,6 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<hybrid::configuration::StepParse>(true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
-      AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<hybrid::encryption::StepEncryptResources>();
