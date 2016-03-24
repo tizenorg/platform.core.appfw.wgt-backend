@@ -303,7 +303,7 @@ ci::AppInstaller::Result Reinstall(const bf::path& path,
 ci::AppInstaller::Result DeltaInstall(const bf::path& path,
     const bf::path& delta_package, PackageType type) {
   if (Install(path, type) != ci::AppInstaller::Result::OK) {
-    LOG(ERROR) << "Failed to install application. Cannot perform RDS";
+    LOG(ERROR) << "Failed to install application. Cannot perform delta update";
     return ci::AppInstaller::Result::UNKNOWN;
   }
   return Install(delta_package, type);
