@@ -13,6 +13,7 @@
 #include <common/step/filesystem/step_clear_data.h>
 #include <common/step/filesystem/step_copy.h>
 #include <common/step/filesystem/step_copy_storage_directories.h>
+#include <common/step/filesystem/step_copy_tep.h>
 #include <common/step/filesystem/step_create_icons.h>
 #include <common/step/filesystem/step_create_per_user_storage_directories.h>
 #include <common/step/filesystem/step_create_storage_directories.h>
@@ -34,6 +35,7 @@
 #include <common/step/pkgmgr/step_run_parser_plugins.h>
 #include <common/step/pkgmgr/step_unregister_app.h>
 #include <common/step/pkgmgr/step_update_app.h>
+#include <common/step/pkgmgr/step_update_tep.h>
 #include <common/step/recovery/step_open_recovery_file.h>
 #include <common/step/security/step_check_signature.h>
 #include <common/step/security/step_privilege_compatibility.h>
@@ -86,6 +88,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::filesystem::StepCopy>();
+      AddStep<ci::filesystem::StepCopyTep>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
@@ -122,6 +125,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
+      AddStep<ci::filesystem::StepCopyTep>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
@@ -134,6 +138,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
+      // TODO(t.iwanek): this step is supposed to be removed as it is quickfix
+      AddStep<ci::pkgmgr::StepUpdateTep>();
       break;
     case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
