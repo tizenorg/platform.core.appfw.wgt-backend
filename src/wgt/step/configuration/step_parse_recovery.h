@@ -47,13 +47,6 @@ class StepParseRecovery : public StepParse {
    */
   Status precheck() override;
 
-  /**
-   * \brief Locate config.xml file
-   *
-   * \return true if config.xml is found
-   */
-  bool LocateConfigFile() override;
-
   SCOPE_LOG_TAG(ParseRecovery)
 };
 

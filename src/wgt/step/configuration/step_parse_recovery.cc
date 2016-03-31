@@ -18,11 +18,13 @@ namespace configuration {
 
 StepParseRecovery::StepParseRecovery(
     common_installer::InstallerContext* context)
-    : StepParse(context, false) {
+    : StepParse(context, StepParse::ConfigLocation::RECOVERY, false) {
 }
 
 common_installer::Step::Status StepParseRecovery::process() {
   (void) StepParse::process();
+  context_->pkg_path.set(
+      context_->root_application_path.get() / context_->pkgid.get());
   return Status::OK;
 }
 
@@ -36,20 +38,6 @@ common_installer::Step::Status StepParseRecovery::precheck() {
     return Status::OK;
   }
   return Status::OK;
-}
-
-bool StepParseRecovery::LocateConfigFile() {
-  context_->pkg_path.set(
-      context_->root_application_path.get() / context_->pkgid.get());
-
-  if (Check(common_installer::GetBackupPathForPackagePath(
-      context_->pkg_path.get()) / kResWgtPath))
-    return true;
-
-  if (Check(context_->pkg_path.get() / kResWgtPath))
-    return true;
-
-  return false;
 }
 
 }  // namespace configuration
