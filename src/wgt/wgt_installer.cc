@@ -75,6 +75,7 @@
 #include "wgt/step/security/step_check_settings_level.h"
 #include "wgt/step/security/step_check_wgt_background_category.h"
 #include "wgt/step/security/step_check_wgt_notification_category.h"
+#include "wgt/step/security/step_direct_manifest_check_signature.h"
 
 namespace ci = common_installer;
 
@@ -89,7 +90,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     case ci::RequestType::Install : {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
-      AddStep<wgt::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+        wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
       AddStep<ci::pkgmgr::StepCheckBlacklist>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -117,7 +119,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     case ci::RequestType::Update: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
-      AddStep<wgt::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
       AddStep<ci::pkgmgr::StepCheckBlacklist>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -170,7 +173,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::Reinstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
-      AddStep<wgt::configuration::StepParse>(false);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::PACKAGE, false);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
@@ -186,10 +190,12 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepUnzip>();
       // TODO(t.iwanek): manifest is parsed twice...
-      AddStep<wgt::configuration::StepParse>(false);
+      AddStep<wgt::configuration::StepParse>(
+            wgt::configuration::StepParse::ConfigLocation::PACKAGE, false);
       // start file may not have changed
       AddStep<ci::filesystem::StepDeltaPatch>("res/wgt/");
-      AddStep<wgt::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
       AddStep<ci::pkgmgr::StepCheckBlacklist>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -239,7 +245,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     case ci::RequestType::MountInstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::mount::StepMountUnpacked>();
-      AddStep<wgt::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
       AddStep<ci::pkgmgr::StepCheckBlacklist>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -266,7 +273,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     case ci::RequestType::MountUpdate: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::mount::StepMountUnpacked>();
-      AddStep<wgt::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
       AddStep<ci::pkgmgr::StepCheckBlacklist>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -288,6 +296,43 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<ci::security::StepUpdateSecurity>();
+      AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::Plugin::ActionType::Upgrade);
+      AddStep<ci::pkgmgr::StepUpdateApplication>();
+      break;
+    }
+    case ci::RequestType::ManifestDirectInstall: {
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
+      AddStep<ci::pkgmgr::StepCheckBlacklist>();
+      AddStep<wgt::security::StepDirectManifestCheckSignature>();
+      AddStep<ci::security::StepPrivilegeCompatibility>();
+      AddStep<wgt::security::StepCheckSettingsLevel>();
+      AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRegisterApplication>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(ci::Plugin::ActionType::Install);
+      AddStep<ci::security::StepRegisterSecurity>();
+      break;
+    }
+    case ci::RequestType::ManifestDirectUpdate: {
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
+      AddStep<ci::pkgmgr::StepCheckBlacklist>();
+      AddStep<wgt::security::StepDirectManifestCheckSignature>();
+      AddStep<ci::security::StepPrivilegeCompatibility>();
+      AddStep<wgt::security::StepCheckSettingsLevel>();
+      AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepCopyTep>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(

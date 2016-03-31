@@ -58,9 +58,9 @@
 
 #include "hybrid/hybrid_backend_data.h"
 #include "hybrid/step/configuration/step_merge_tpk_config.h"
-#include "hybrid/step/configuration/step_parse.h"
 #include "hybrid/step/configuration/step_stash_tpk_config.h"
 #include "hybrid/step/encryption/step_encrypt_resources.h"
+#include "wgt/step/configuration/step_parse.h"
 #include "wgt/step/configuration/step_parse_recovery.h"
 #include "wgt/step/encryption/step_remove_encryption_data.h"
 #include "wgt/step/filesystem/step_create_symbolic_link.h"
@@ -86,7 +86,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::configuration::StepParseManifest::ManifestLocation::PACKAGE,
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<hybrid::configuration::StepStashTpkConfig>();
-      AddStep<hybrid::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -117,7 +118,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::configuration::StepParseManifest::ManifestLocation::PACKAGE,
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<hybrid::configuration::StepStashTpkConfig>();
-      AddStep<hybrid::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -179,7 +181,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::filesystem::StepDeltaPatch>();
       AddStep<hybrid::configuration::StepStashTpkConfig>();
-      AddStep<hybrid::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -236,7 +239,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::configuration::StepParseManifest::ManifestLocation::PACKAGE,
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<hybrid::configuration::StepStashTpkConfig>();
-      AddStep<hybrid::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -268,7 +272,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::configuration::StepParseManifest::ManifestLocation::PACKAGE,
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<hybrid::configuration::StepStashTpkConfig>();
-      AddStep<hybrid::configuration::StepParse>(true);
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -293,6 +298,52 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<tpk::filesystem::StepCreateSymbolicLink>();
+      AddStep<ci::security::StepUpdateSecurity>();
+      AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::Plugin::ActionType::Upgrade);
+      break;
+    case ci::RequestType::ManifestDirectInstall:
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<hybrid::configuration::StepStashTpkConfig>();
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
+      AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::security::StepCheckSignature>();
+      AddStep<ci::security::StepPrivilegeCompatibility>();
+      AddStep<wgt::security::StepCheckSettingsLevel>();
+      AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::Plugin::ActionType::Install);
+      AddStep<ci::pkgmgr::StepRegisterApplication>();
+      AddStep<ci::security::StepRegisterSecurity>();
+      AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      break;
+    case ci::RequestType::ManifestDirectUpdate:
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::filesystem::StepUnzip>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<hybrid::configuration::StepStashTpkConfig>();
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
+      AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::security::StepCheckSignature>();
+      AddStep<ci::security::StepPrivilegeCompatibility>();
+      AddStep<wgt::security::StepCheckSettingsLevel>();
+      AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
