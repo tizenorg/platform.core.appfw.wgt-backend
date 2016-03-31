@@ -41,7 +41,7 @@ std::string GetInstallationRequestInfo(int argc, char** argv) {
   for (int i = 0; i < argc; ++i) {
     if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "-r") ||
         !strcmp(argv[i], "-d") || !strcmp(argv[i], "-b") ||
-        !strcmp(argv[i], "-w")) {
+        !strcmp(argv[i], "-w") || !strcmp(argv[i], "-y")) {
       if (i + 1 < argc) {
         path = argv[i + 1];
         break;
@@ -102,10 +102,16 @@ std::string ReadPkgidFromRecovery(const std::string& recovery_path) {
 namespace wgt {
 
 bool WgtAppQueryInterface::IsAppInstalledByArgv(int argc, char** argv) {
-  std::string path = GetInstallationRequestInfo(argc, argv);
-  if (path.empty())
+  std::string arg = GetInstallationRequestInfo(argc, argv);
+  if (arg.empty())
     return false;
-  std::string pkg_id = GetPkgIdFromPath(path);
+
+  // argument from commandline is package id
+  if (ci::IsPackageInstalled(arg, ci::GetRequestMode()))
+    return true;
+
+  // argument from commandline is path to file
+  std::string pkg_id = GetPkgIdFromPath(arg);
   if (pkg_id.empty())
     return false;
   return ci::IsPackageInstalled(pkg_id, ci::GetRequestMode());

@@ -8,6 +8,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include <common/app_installer.h>
+#include <common/backup_paths.h>
 #include <common/installer_context.h>
 #include <common/step/step.h>
 #include <common/utils/glist_range.h>
@@ -51,6 +52,8 @@ const char kCategoryWatchClock[] = "com.samsung.wmanager.WATCH_CLOCK";
 const std::string kManifestVersion = "1.0.0";
 const char kTizenPackageXmlNamespace[] = "http://tizen.org/ns/packages";
 
+const char kResWgt[] = "res/wgt";
+
 GList* GenerateMetadataListX(const wgt::parse::MetaDataInfo& meta_info) {
   GList* list = nullptr;
   for (auto& meta : meta_info.metadata()) {
@@ -90,8 +93,10 @@ namespace app_keys = wgt::application_widget_keys;
 namespace sc = std::chrono;
 
 StepParse::StepParse(common_installer::InstallerContext* context,
+                     ConfigLocation config_location,
                      bool check_start_file)
     : Step(context),
+      config_location_(config_location),
       check_start_file_(check_start_file) {
 }
 
@@ -519,7 +524,27 @@ bool StepParse::FillManifestX(manifest_x* manifest) {
 }
 
 bool StepParse::LocateConfigFile() {
-  return StepParse::Check(context_->unpacked_dir_path.get());
+  switch (config_location_) {
+    case ConfigLocation::PACKAGE:
+      return StepParse::Check(context_->unpacked_dir_path.get());
+    case ConfigLocation::INSTALLED:
+      return StepParse::Check(context_->pkg_path.get() / kResWgt);
+    case ConfigLocation::RECOVERY:
+      if (StepParse::Check(common_installer::GetBackupPathForPackagePath(
+          context_->root_application_path.get()
+              / context_->pkgid.get()) / kResWgt))
+        return true;
+      if (StepParse::Check(
+          context_->root_application_path.get()
+              / context_->pkgid.get() / kResWgt))
+        return true;
+      return false;
+    case ConfigLocation::RESOURCE_WGT:
+      return StepParse::Check(context_->unpacked_dir_path.get() / kResWgt);
+    default:
+      LOG(ERROR) << "Unknown config location";
+      return false;
+  }
 }
 
 common_installer::Step::Status StepParse::process() {

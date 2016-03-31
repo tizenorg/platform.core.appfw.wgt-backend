@@ -27,8 +27,15 @@ namespace configuration {
  */
 class StepParse : public common_installer::Step {
  public:
+  enum class ConfigLocation {
+    PACKAGE,      // parse config file from unpacking diretory
+    INSTALLED,    // parse config file from current package installation
+    RECOVERY,     // parse config file from backup location or package location
+    RESOURCE_WGT  // parse config file from unpacking subdiretory "res/wgt"
+  };
+
   explicit StepParse(common_installer::InstallerContext* context,
-      bool check_start_file);
+      ConfigLocation config_location, bool check_start_file);
 
   Status process() override;
   Status clean() override { return Status::OK; }
@@ -63,6 +70,7 @@ class StepParse : public common_installer::Step {
   bool FillManifestX(manifest_x* manifest);
 
   std::unique_ptr<wgt::parse::WidgetConfigParser> parser_;
+  ConfigLocation config_location_;
   bool check_start_file_;
 
   SCOPE_LOG_TAG(Parse)

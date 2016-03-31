@@ -48,7 +48,9 @@ class StepParseRunner {
 
   bool Run() {
     PrepareContext();
-    wgt::configuration::StepParse step(context_.get(), !ignore_start_files_);
+    wgt::configuration::StepParse step(context_.get(),
+        wgt::configuration::StepParse::ConfigLocation::PACKAGE,
+        !ignore_start_files_);
     return step.process() == ci::Step::Status::OK;
   }
 

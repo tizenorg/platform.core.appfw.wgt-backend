@@ -18,6 +18,7 @@ SET(SRCS
   step/security/step_check_wgt_background_category.cc
   step/security/step_check_wgt_notification_category.cc
   step/security/step_check_wgt_ime_privilege.cc
+  step/security/step_direct_manifest_check_signature.cc
   wgt_app_query_interface.cc
   wgt_installer.cc
 )
