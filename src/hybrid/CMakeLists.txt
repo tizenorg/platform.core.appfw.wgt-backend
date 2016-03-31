@@ -1,6 +1,5 @@
 SET(SRCS
   step/configuration/step_merge_tpk_config.cc
-  step/configuration/step_parse.cc
   step/configuration/step_stash_tpk_config.cc
   step/encryption/step_encrypt_resources.cc
   hybrid_installer.cc
