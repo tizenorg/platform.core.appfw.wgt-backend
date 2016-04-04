@@ -22,21 +22,6 @@ namespace wgt {
 class WgtBackendData : public common_installer::BackendData {
  public:
   /**
-   * \brief Property of vector of files to add
-   */
-  Property<std::vector<std::string>> files_to_add;
-
-  /**
-   * \brief Property of vector of files to modify
-   */
-  Property<std::vector<std::string>> files_to_modify;
-
-  /**
-   * \brief Property of vector of files to delete
-   */
-  Property<std::vector<std::string>> files_to_delete;
-
-  /**
    * \brief Property of SettingInfo
    */
   Property<parse::SettingInfo> settings;
