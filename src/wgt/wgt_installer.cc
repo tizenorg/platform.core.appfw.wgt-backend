@@ -51,6 +51,8 @@
 #include <common/step/security/step_update_security.h>
 
 #include <wgt_manifest_handlers/widget_config_parser.h>
+#include <common/step/rds/step_rds_modify.h>
+#include <common/step/rds/step_rds_parse.h>
 
 #include "wgt/step/configuration/step_parse.h"
 #include "wgt/step/configuration/step_parse_recovery.h"
@@ -61,8 +63,7 @@
 #include "wgt/step/filesystem/step_wgt_patch_storage_directories.h"
 #include "wgt/step/filesystem/step_wgt_resource_directory.h"
 #include "wgt/step/pkgmgr/step_generate_xml.h"
-#include "wgt/step/rds/step_rds_modify.h"
-#include "wgt/step/rds/step_rds_parse.h"
+#include "wgt/step/rds/step_wgt_rds_modify.h"
 #include "wgt/step/security/step_add_default_privileges.h"
 #include "wgt/step/security/step_check_settings_level.h"
 #include "wgt/step/security/step_check_wgt_background_category.h"
@@ -164,8 +165,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::pkgmgr::StepCheckBlacklist>();
-      AddStep<wgt::rds::StepRDSParse>();
-      AddStep<wgt::rds::StepRDSModify>();
+      AddStep<ci::rds::StepRDSParse>();
+      AddStep<wgt::rds::StepWgtRDSModify>();
       AddStep<ci::security::StepUpdateSecurity>();
       break;
     }

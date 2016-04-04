@@ -1,6 +1,5 @@
 # Target - sources
 SET(SRCS
-  rds_parser.cc
   step/configuration/step_parse.cc
   step/configuration/step_parse_recovery.cc
   step/encryption/step_encrypt_resources.cc
@@ -10,8 +9,7 @@ SET(SRCS
   step/filesystem/step_wgt_patch_storage_directories.cc
   step/filesystem/step_wgt_resource_directory.cc
   step/pkgmgr/step_generate_xml.cc
-  step/rds/step_rds_modify.cc
-  step/rds/step_rds_parse.cc
+  step/rds/step_wgt_rds_modify.cc
   step/security/step_add_default_privileges.cc
   step/security/step_check_settings_level.cc
   step/security/step_check_wgt_background_category.cc
