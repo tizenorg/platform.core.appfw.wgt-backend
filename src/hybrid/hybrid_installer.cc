@@ -126,6 +126,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<ci::filesystem::StepCopyTep>();
+      AddStep<ci::pkgmgr::StepUpdateTep>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
@@ -138,8 +139,6 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
-      // TODO(t.iwanek): this step is supposed to be removed as it is quickfix
-      AddStep<ci::pkgmgr::StepUpdateTep>();
       break;
     case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);

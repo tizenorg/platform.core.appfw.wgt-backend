@@ -124,6 +124,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<ci::filesystem::StepCopyTep>();
+      AddStep<ci::pkgmgr::StepUpdateTep>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
@@ -134,8 +135,6 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
-      // TODO(t.iwanek): this step is supposed to be removed as it is quickfix
-      AddStep<ci::pkgmgr::StepUpdateTep>();
       break;
     }
     case ci::RequestType::Uninstall: {
