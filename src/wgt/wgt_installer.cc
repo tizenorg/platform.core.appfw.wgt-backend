@@ -38,7 +38,6 @@
 #include <common/step/pkgmgr/step_run_parser_plugins.h>
 #include <common/step/pkgmgr/step_unregister_app.h>
 #include <common/step/pkgmgr/step_update_app.h>
-#include <common/step/pkgmgr/step_update_tep.h>
 #include <common/step/recovery/step_open_recovery_file.h>
 #include <common/step/security/step_check_old_certificate.h>
 #include <common/step/security/step_check_signature.h>
@@ -134,8 +133,6 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
-      // TODO(t.iwanek): this step is supposed to be removed as it is quickfix
-      AddStep<ci::pkgmgr::StepUpdateTep>();
       break;
     }
     case ci::RequestType::Uninstall: {
