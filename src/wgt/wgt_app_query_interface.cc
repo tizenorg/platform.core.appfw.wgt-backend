@@ -40,7 +40,8 @@ std::string GetInstallationRequestInfo(int argc, char** argv) {
   std::string path;
   for (int i = 0; i < argc; ++i) {
     if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "-r") ||
-        !strcmp(argv[i], "-d") || !strcmp(argv[i], "-b")) {
+        !strcmp(argv[i], "-d") || !strcmp(argv[i], "-b") ||
+        !strcmp(argv[i], "-w")) {
       if (i + 1 < argc) {
         path = argv[i + 1];
         break;
