@@ -28,7 +28,11 @@
 #include <common/step/filesystem/step_remove_icons.h>
 #include <common/step/filesystem/step_remove_per_user_storage_directories.h>
 #include <common/step/filesystem/step_remove_temporary_directory.h>
+#include <common/step/filesystem/step_remove_zip_image.h>
 #include <common/step/filesystem/step_unzip.h>
+#include <common/step/mount/step_mount_install.h>
+#include <common/step/mount/step_mount_unpacked.h>
+#include <common/step/mount/step_mount_update.h>
 #include <common/step/pkgmgr/step_check_blacklist.h>
 #include <common/step/pkgmgr/step_check_removable.h>
 #include <common/step/pkgmgr/step_kill_apps.h>
@@ -61,6 +65,7 @@
 #include "wgt/step/filesystem/step_create_symbolic_link.h"
 #include "wgt/step/filesystem/step_wgt_patch_icons.h"
 #include "wgt/step/filesystem/step_wgt_patch_storage_directories.h"
+#include "wgt/step/filesystem/step_wgt_prepare_package_directory.h"
 #include "wgt/step/filesystem/step_wgt_resource_directory.h"
 #include "wgt/step/pkgmgr/step_generate_xml.h"
 #include "wgt/step/rds/step_wgt_rds_modify.h"
@@ -150,6 +155,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveFiles>();
+      AddStep<ci::filesystem::StepRemoveZipImage>();
       AddStep<ci::filesystem::StepRemoveIcons>();
       AddStep<wgt::encryption::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
@@ -219,6 +225,67 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     case ci::RequestType::Clear: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepClearData>();
+      break;
+    }
+    case ci::RequestType::MountInstall: {
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::mount::StepMountUnpacked>();
+      AddStep<wgt::configuration::StepParse>(true);
+      AddStep<ci::pkgmgr::StepCheckBlacklist>();
+      AddStep<ci::security::StepCheckSignature>();
+      AddStep<ci::security::StepPrivilegeCompatibility>();
+      AddStep<wgt::security::StepCheckSettingsLevel>();
+      AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<wgt::encryption::StepEncryptResources>();
+      AddStep<wgt::filesystem::StepWgtResourceDirectory>();
+      AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::mount::StepMountInstall>();
+      AddStep<wgt::filesystem::StepWgtPreparePackageDirectory>();
+      AddStep<ci::filesystem::StepCopyTep>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateStorageDirectories>();
+      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<wgt::filesystem::StepWgtPatchIcons>();
+      AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRegisterApplication>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::Plugin::ActionType::Install);
+      AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      AddStep<ci::security::StepRegisterSecurity>();
+      break;
+    }
+    case ci::RequestType::MountUpdate: {
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::mount::StepMountUnpacked>();
+      AddStep<wgt::configuration::StepParse>(true);
+      AddStep<ci::pkgmgr::StepCheckBlacklist>();
+      AddStep<ci::security::StepCheckSignature>();
+      AddStep<ci::security::StepPrivilegeCompatibility>();
+      AddStep<wgt::security::StepCheckSettingsLevel>();
+      AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<ci::security::StepCheckOldCertificate>();
+      AddStep<wgt::filesystem::StepWgtResourceDirectory>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::backup::StepBackupManifest>();
+      AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::mount::StepMountUpdate>();
+      AddStep<wgt::filesystem::StepWgtPreparePackageDirectory>();
+      AddStep<ci::filesystem::StepCopyTep>();
+      AddStep<ci::pkgmgr::StepUpdateTep>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<wgt::filesystem::StepWgtPatchIcons>();
+      AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<ci::filesystem::StepCopyStorageDirectories>();
+      AddStep<ci::security::StepUpdateSecurity>();
+      AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::Plugin::ActionType::Upgrade);
+      AddStep<ci::pkgmgr::StepUpdateApplication>();
       break;
     }
     default: {
