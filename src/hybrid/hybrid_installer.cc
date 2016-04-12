@@ -7,6 +7,7 @@
 #include <common/step/backup/step_backup_icons.h>
 #include <common/step/backup/step_backup_manifest.h>
 #include <common/step/backup/step_copy_backup.h>
+#include <common/step/configuration/step_block_cross_update.h>
 #include <common/step/configuration/step_configure.h>
 #include <common/step/configuration/step_fail.h>
 #include <common/step/configuration/step_parse_manifest.h>
@@ -26,7 +27,11 @@
 #include <common/step/filesystem/step_remove_icons.h>
 #include <common/step/filesystem/step_remove_per_user_storage_directories.h>
 #include <common/step/filesystem/step_remove_temporary_directory.h>
+#include <common/step/filesystem/step_remove_zip_image.h>
 #include <common/step/filesystem/step_unzip.h>
+#include <common/step/mount/step_mount_install.h>
+#include <common/step/mount/step_mount_unpacked.h>
+#include <common/step/mount/step_mount_update.h>
 #include <common/step/pkgmgr/step_check_removable.h>
 #include <common/step/pkgmgr/step_kill_apps.h>
 #include <common/step/pkgmgr/step_recover_application.h>
@@ -48,6 +53,8 @@
 
 #include <tpk/step/filesystem/step_create_symbolic_link.h>
 #include <tpk/step/filesystem/step_tpk_patch_icons.h>
+#include <tpk/step/filesystem/step_tpk_prepare_package_directory.h>
+#include <tpk/step/filesystem/step_tpk_update_package_directory.h>
 
 #include "hybrid/hybrid_backend_data.h"
 #include "hybrid/step/configuration/step_merge_tpk_config.h"
@@ -121,6 +128,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::configuration::StepBlockCrossUpdate>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
@@ -153,6 +161,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveFiles>();
+      AddStep<ci::filesystem::StepRemoveZipImage>();
       AddStep<ci::filesystem::StepRemoveIcons>();
       AddStep<wgt::encryption::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
@@ -181,6 +190,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::configuration::StepBlockCrossUpdate>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
@@ -218,6 +228,76 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
     case ci::RequestType::Clear:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<ci::filesystem::StepClearData>();
+      break;
+    case ci::RequestType::MountInstall:
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::mount::StepMountUnpacked>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::PACKAGE,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<hybrid::configuration::StepStashTpkConfig>();
+      AddStep<hybrid::configuration::StepParse>(true);
+      AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::security::StepCheckSignature>();
+      AddStep<ci::security::StepPrivilegeCompatibility>();
+      AddStep<wgt::security::StepCheckSettingsLevel>();
+      AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<hybrid::encryption::StepEncryptResources>();
+      AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::mount::StepMountInstall>();
+      AddStep<tpk::filesystem::StepTpkPreparePackageDirectory>();
+      AddStep<ci::filesystem::StepCopyTep>();
+      AddStep<tpk::filesystem::StepTpkPatchIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchIcons>();
+      AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateStorageDirectories>();
+      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
+      AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::Plugin::ActionType::Install);
+      AddStep<ci::pkgmgr::StepRegisterApplication>();
+      AddStep<ci::security::StepRegisterSecurity>();
+      AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      break;
+    case ci::RequestType::MountUpdate:
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::mount::StepMountUnpacked>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::PACKAGE,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<hybrid::configuration::StepStashTpkConfig>();
+      AddStep<hybrid::configuration::StepParse>(true);
+      AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::security::StepCheckSignature>();
+      AddStep<ci::security::StepPrivilegeCompatibility>();
+      AddStep<wgt::security::StepCheckSettingsLevel>();
+      AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<hybrid::encryption::StepEncryptResources>();
+      AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::configuration::StepBlockCrossUpdate>();
+      AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::backup::StepBackupManifest>();
+      AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::mount::StepMountUpdate>();
+      AddStep<tpk::filesystem::StepTpkUpdatePackageDirectory>();
+      AddStep<ci::filesystem::StepCopyTep>();
+      AddStep<ci::pkgmgr::StepUpdateTep>();
+      AddStep<tpk::filesystem::StepTpkPatchIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchIcons>();
+      AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
+      AddStep<wgt::filesystem::StepCreateSymbolicLink>();
+      AddStep<tpk::filesystem::StepCreateSymbolicLink>();
+      AddStep<ci::security::StepUpdateSecurity>();
+      AddStep<wgt::pkgmgr::StepGenerateXml>();
+      AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+          ci::Plugin::ActionType::Upgrade);
       break;
     default:
       AddStep<ci::configuration::StepFail>();
