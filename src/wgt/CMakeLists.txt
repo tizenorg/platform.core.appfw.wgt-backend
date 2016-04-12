@@ -7,6 +7,7 @@ SET(SRCS
   step/filesystem/step_create_symbolic_link.cc
   step/filesystem/step_wgt_patch_icons.cc
   step/filesystem/step_wgt_patch_storage_directories.cc
+  step/filesystem/step_wgt_prepare_package_directory.cc
   step/filesystem/step_wgt_resource_directory.cc
   step/pkgmgr/step_generate_xml.cc
   step/rds/step_wgt_rds_modify.cc
