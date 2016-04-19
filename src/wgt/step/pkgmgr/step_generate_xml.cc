@@ -421,6 +421,35 @@ common_installer::Step::Status StepGenerateXml::process() {
     xmlTextWriterEndElement(writer);
   }
 
+  const auto &ime = context_->manifest_plugins_data.get().ime_info.get();
+  const auto imeUuid = ime.getUuid();
+
+  if (!imeUuid.empty()) {
+    xmlTextWriterStartElement(writer, BAD_CAST "ime");
+
+    GListRange<application_x *> appRange(context_->manifest_data.get()->application);
+    if (!appRange.Empty()) {
+      // wgt app have only one application element.
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "appid", BAD_CAST (*appRange.begin())->appid);
+    }
+
+    xmlTextWriterStartElement(writer, BAD_CAST "uuid");
+    xmlTextWriterWriteString(writer, BAD_CAST imeUuid.c_str());
+    xmlTextWriterEndElement(writer);
+
+    xmlTextWriterStartElement(writer, BAD_CAST "languages");
+
+    for (auto it = ime.languagesBegin(); it != ime.languagesEnd(); ++it) {
+      xmlTextWriterStartElement(writer, BAD_CAST "language");
+      xmlTextWriterWriteString(writer, BAD_CAST it->c_str());
+      xmlTextWriterEndElement(writer);
+    }
+
+    xmlTextWriterEndElement(writer);
+
+    xmlTextWriterEndElement(writer);
+  }
+
   for (const char* profile :
        GListRange<char*>(context_->manifest_data.get()->deviceprofile)) {
     xmlTextWriterStartElement(writer, BAD_CAST "profile");
