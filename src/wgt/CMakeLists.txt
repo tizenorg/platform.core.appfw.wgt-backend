@@ -1,5 +1,6 @@
 # Target - sources
 SET(SRCS
+  step/common/privileges.cc
   step/configuration/step_parse.cc
   step/configuration/step_parse_recovery.cc
   step/encryption/step_encrypt_resources.cc
@@ -16,6 +17,7 @@ SET(SRCS
   step/security/step_check_settings_level.cc
   step/security/step_check_wgt_background_category.cc
   step/security/step_check_wgt_notification_category.cc
+  step/security/step_check_wgt_ime_privilege.cc
   wgt_app_query_interface.cc
   wgt_installer.cc
 )

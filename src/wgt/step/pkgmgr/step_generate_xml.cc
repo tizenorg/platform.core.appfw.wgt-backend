@@ -22,6 +22,7 @@
 #include <cstring>
 #include <string>
 
+#include "wgt/step/common/privileges.h"
 
 namespace bs = boost::system;
 namespace bf = boost::filesystem;
@@ -360,6 +361,9 @@ common_installer::Step::Status StepGenerateXml::process() {
     xmlTextWriterEndElement(writer);
   }
 
+  const auto &ime = context_->manifest_plugins_data.get().ime_info.get();
+  const auto ime_uuid = ime.uuid();
+
   // add privilege element
   if (context_->manifest_data.get()->privileges) {
     xmlTextWriterStartElement(writer, BAD_CAST "privileges");
@@ -368,6 +372,7 @@ common_installer::Step::Status StepGenerateXml::process() {
       xmlTextWriterWriteFormatElement(writer, BAD_CAST "privilege",
         "%s", BAD_CAST priv);
     }
+
     xmlTextWriterEndElement(writer);
   }
 
@@ -418,6 +423,33 @@ common_installer::Step::Status StepGenerateXml::process() {
 
       xmlTextWriterEndElement(writer);
     }
+    xmlTextWriterEndElement(writer);
+  }
+
+  if (!ime_uuid.empty()) {
+    xmlTextWriterStartElement(writer, BAD_CAST "ime");
+
+    GListRange<application_x *> app_range(context_->manifest_data.get()->application);
+    if (!app_range.Empty()) {
+      // wgt app have ui-application as first application element.
+      // there may be service-applications but not as first element.
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "appid", BAD_CAST (*app_range.begin())->appid);
+    }
+
+    xmlTextWriterStartElement(writer, BAD_CAST "uuid");
+    xmlTextWriterWriteString(writer, BAD_CAST ime_uuid.c_str());
+    xmlTextWriterEndElement(writer);
+
+    xmlTextWriterStartElement(writer, BAD_CAST "languages");
+
+    for (auto it = ime.LanguagesBegin(); it != ime.LanguagesEnd(); ++it) {
+      xmlTextWriterStartElement(writer, BAD_CAST "language");
+      xmlTextWriterWriteString(writer, BAD_CAST it->c_str());
+      xmlTextWriterEndElement(writer);
+    }
+
+    xmlTextWriterEndElement(writer);
+
     xmlTextWriterEndElement(writer);
   }
 
