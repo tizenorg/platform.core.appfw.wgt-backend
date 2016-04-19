@@ -58,6 +58,7 @@ class StepParse : public common_installer::Step {
   bool FillMetadata(manifest_x* manifest);
   bool FillExtraManifestInfo(manifest_x* manifest);
   bool FillAccounts(manifest_x* manifest);
+  bool FillImeInfo();
   bool FillBackgroundCategoryInfo(manifest_x* manifest);
   bool FillManifestX(manifest_x* manifest);
 
