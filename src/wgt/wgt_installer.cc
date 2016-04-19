@@ -68,6 +68,7 @@
 #include "wgt/step/security/step_check_settings_level.h"
 #include "wgt/step/security/step_check_wgt_background_category.h"
 #include "wgt/step/security/step_check_wgt_notification_category.h"
+#include "wgt/step/security/step_check_wgt_ime_privilege.h"
 
 namespace ci = common_installer;
 
@@ -89,6 +90,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<wgt::security::StepCheckWgtNotificationCategory>();
+      AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<wgt::encryption::StepEncryptResources>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
@@ -117,6 +119,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<wgt::security::StepCheckWgtNotificationCategory>();
+      AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<ci::security::StepCheckOldCertificate>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
       AddStep<ci::configuration::StepParseManifest>(
@@ -186,6 +189,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<wgt::security::StepCheckWgtNotificationCategory>();
+      AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<ci::security::StepCheckOldCertificate>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
       AddStep<ci::configuration::StepParseManifest>(
