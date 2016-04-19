@@ -24,6 +24,7 @@
 #include <wgt_manifest_handlers/setting_handler.h>
 #include <wgt_manifest_handlers/tizen_application_handler.h>
 #include <wgt_manifest_handlers/widget_handler.h>
+#include <wgt_manifest_handlers/ime_handler.h>
 
 #include <pkgmgr/pkgmgr_parser.h>
 
@@ -466,8 +467,25 @@ bool StepParse::FillAccounts(manifest_x* manifest) {
   return true;
 }
 
+bool StepParse::FillImeInfo() {
+  const auto ime_info = std::static_pointer_cast<const wgt::parse::ImeInfo>(
+      parser_->GetManifestData(app_keys::kTizenImeKey));
+  if (!ime_info)
+    return true;
+
+  common_installer::ImeInfo info;
+  info.setUuid(ime_info->uuid());
+
+  const auto &languages = ime_info->languages();
+  for (const auto &language : languages)
+    info.AddLanguage(language);
+
+  context_->manifest_plugins_data.get().ime_info.set(std::move(info));
+  return true;
+}
+
 bool StepParse::FillExtraManifestInfo(manifest_x* manifest) {
-  return FillAccounts(manifest);
+  return FillAccounts(manifest) && FillImeInfo();
 }
 
 bool StepParse::FillManifestX(manifest_x* manifest) {
