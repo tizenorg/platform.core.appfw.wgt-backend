@@ -69,6 +69,8 @@
 #include "wgt/step/pkgmgr/step_generate_xml.h"
 #include "wgt/step/security/step_check_settings_level.h"
 #include "wgt/step/security/step_check_wgt_background_category.h"
+#include "wgt/step/security/step_check_wgt_notification_category.h"
+#include "wgt/step/security/step_check_wgt_ime_privilege.h"
 
 namespace ci = common_installer;
 
@@ -92,6 +94,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<wgt::security::StepCheckWgtNotificationCategory>();
+      AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::filesystem::StepCopy>();
@@ -123,6 +127,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<wgt::security::StepCheckWgtNotificationCategory>();
+      AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::configuration::StepParseManifest>(
@@ -185,6 +191,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<wgt::security::StepCheckWgtNotificationCategory>();
+      AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::configuration::StepParseManifest>(
@@ -242,6 +250,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<wgt::security::StepCheckWgtNotificationCategory>();
+      AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::mount::StepMountInstall>();
@@ -274,6 +284,8 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
+      AddStep<wgt::security::StepCheckWgtNotificationCategory>();
+      AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
       AddStep<ci::configuration::StepParseManifest>(
