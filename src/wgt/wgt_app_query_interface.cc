@@ -64,9 +64,9 @@ std::string GetPkgIdFromPath(const std::string& path) {
     return {};
   }
   bf::path config_path = tmp_path / "config.xml";
-  std::vector<parser::ManifestHandler*> handlers = {
-    new wgt::parse::WidgetHandler(),
-    new wgt::parse::TizenApplicationHandler()
+  std::vector<std::shared_ptr<parser::ManifestHandler>> handlers = {
+    std::make_shared<wgt::parse::WidgetHandler>(),
+    std::make_shared<wgt::parse::TizenApplicationHandler>()
   };
   std::unique_ptr<parser::ManifestHandlerRegistry> registry(
       new parser::ManifestHandlerRegistry(handlers));
