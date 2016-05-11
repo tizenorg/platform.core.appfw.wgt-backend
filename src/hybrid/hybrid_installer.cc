@@ -186,13 +186,13 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::configuration::StepParseManifest::ManifestLocation::PACKAGE,
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<hybrid::configuration::StepStashTpkConfig>();
-      AddStep<wgt::configuration::StepParse>(
-          wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
-      AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::filesystem::StepDeltaPatch>();
+      AddStep<wgt::configuration::StepParse>(
+          wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
+      AddStep<hybrid::configuration::StepMergeTpkConfig>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
