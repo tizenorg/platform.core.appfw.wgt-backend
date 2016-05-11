@@ -196,6 +196,9 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::configuration::StepParse>(
             wgt::configuration::StepParse::ConfigLocation::PACKAGE, false);
       // start file may not have changed
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::filesystem::StepDeltaPatch>("res/wgt/");
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
@@ -208,9 +211,6 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<ci::security::StepCheckOldCertificate>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
-      AddStep<ci::configuration::StepParseManifest>(
-          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
-          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::configuration::StepBlockCrossUpdate>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
