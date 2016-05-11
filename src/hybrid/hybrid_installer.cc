@@ -183,10 +183,13 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::PACKAGE,
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
-      AddStep<ci::filesystem::StepDeltaPatch>();
       AddStep<hybrid::configuration::StepStashTpkConfig>();
       AddStep<hybrid::configuration::StepParse>(true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::filesystem::StepDeltaPatch>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -195,9 +198,6 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
-      AddStep<ci::configuration::StepParseManifest>(
-          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
-          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::configuration::StepBlockCrossUpdate>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();

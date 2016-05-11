@@ -191,6 +191,9 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       // TODO(t.iwanek): manifest is parsed twice...
       AddStep<wgt::configuration::StepParse>(false);
       // start file may not have changed
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::filesystem::StepDeltaPatch>("res/wgt/");
       AddStep<wgt::configuration::StepParse>(true);
       AddStep<ci::pkgmgr::StepCheckBlacklist>();
@@ -202,9 +205,6 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<ci::security::StepCheckOldCertificate>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
-      AddStep<ci::configuration::StepParseManifest>(
-          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
-          ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::configuration::StepBlockCrossUpdate>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
