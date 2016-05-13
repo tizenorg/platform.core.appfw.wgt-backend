@@ -131,6 +131,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckWgtNotificationCategory>();
       AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<ci::security::StepCheckOldCertificate>();
+      AddStep<wgt::encryption::StepEncryptResources>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
@@ -210,6 +211,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckWgtNotificationCategory>();
       AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<ci::security::StepCheckOldCertificate>();
+      AddStep<wgt::encryption::StepEncryptResources>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
       AddStep<ci::configuration::StepBlockCrossUpdate>();
       AddStep<ci::pkgmgr::StepKillApps>();
