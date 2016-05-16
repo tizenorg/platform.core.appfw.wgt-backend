@@ -429,11 +429,14 @@ common_installer::Step::Status StepGenerateXml::process() {
   if (!ime_uuid.empty()) {
     xmlTextWriterStartElement(writer, BAD_CAST "ime");
 
-    GListRange<application_x *> app_range(context_->manifest_data.get()->application);
+    GListRange<application_x*> app_range(
+        context_->manifest_data.get()->application);
     if (!app_range.Empty()) {
       // wgt app have ui-application as first application element.
       // there may be service-applications but not as first element.
-      xmlTextWriterWriteAttribute(writer, BAD_CAST "appid", BAD_CAST (*app_range.begin())->appid);
+      application_x* app = *app_range.begin();
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "appid",
+                                  BAD_CAST app->appid);
     }
 
     xmlTextWriterStartElement(writer, BAD_CAST "uuid");

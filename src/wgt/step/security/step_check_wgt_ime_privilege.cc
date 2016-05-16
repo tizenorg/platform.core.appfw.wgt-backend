@@ -10,6 +10,8 @@
 
 #include <common/utils/glist_range.h>
 
+#include <string>
+
 namespace {
 const char kImeCategoryName[] = "http://tizen.org/category/ime";
 }
