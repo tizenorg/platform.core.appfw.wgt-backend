@@ -593,5 +593,4 @@ TEST_F(ManifestTest, CategoryElement_MultipleElements) {
                  "http://tizen.org/category/category_1");
   ASSERT_CSTR_EQ(categories[2].c_str(),
                  "http://tizen.org/category/category_2");
-
 }

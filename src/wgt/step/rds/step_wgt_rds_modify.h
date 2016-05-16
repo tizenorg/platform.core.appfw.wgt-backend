@@ -33,7 +33,7 @@ class StepWgtRDSModify : public common_installer::rds::StepRDSModify {
   std::string GetAppPath() override;
 };
 
-}  // rds
-}  // wgt
+}  // namespace rds
+}  // namespace wgt
 
 #endif  // WGT_STEP_RDS_STEP_WGT_RDS_MODIFY_H_
