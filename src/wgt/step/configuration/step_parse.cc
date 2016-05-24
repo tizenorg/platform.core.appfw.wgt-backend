@@ -51,6 +51,7 @@ const char kCategoryWatchClock[] = "com.samsung.wmanager.WATCH_CLOCK";
 
 const std::string kManifestVersion = "1.0.0";
 const char kTizenPackageXmlNamespace[] = "http://tizen.org/ns/packages";
+const char kImeCategoryName[] = "http://tizen.org/category/ime";
 
 const char kResWgt[] = "res/wgt";
 
@@ -80,7 +81,6 @@ void SetApplicationXDefaults(application_x* application) {
   application->screenreader = strdup("use-system-setting");
   application->submode = strdup("false");
   application->support_disable = strdup("false");
-  application->taskmanage = strdup("true");
   application->ui_gadget = strdup("false");
 }
 
@@ -252,6 +252,7 @@ bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
     return false;
   }
   bool has_watch_catergory = false;
+  bool has_ime = false;
   std::shared_ptr<const wgt::parse::CategoryInfoList> category_info =
       std::static_pointer_cast<const wgt::parse::CategoryInfoList>(
           parser_->GetManifestData(app_keys::kTizenCategoryKey));
@@ -262,6 +263,10 @@ bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
       return category == kCategoryWearableClock ||
              category == kCategoryWatchClock;
     }) != category_info->categories.end();
+    has_ime = std::find(category_info->categories.begin(),
+                                       category_info->categories.end(),
+                                       kImeCategoryName
+    ) != category_info->categories.end();
   }
 
   // application data
@@ -270,9 +275,10 @@ bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
   application->component_type =
       has_watch_catergory ? strdup("watchapp") : strdup("uiapp");
   application->mainapp = strdup("true");
-  application->nodisplay = strdup("false");
   application->multiple = strdup("false");
   application->appid = strdup(app_info->id().c_str());
+  application->nodisplay = has_ime ? strdup("true") : strdup("false");
+  application->taskmanage = has_ime ? strdup("false") : strdup("true");
   SetApplicationXDefaults(application);
   if (has_watch_catergory)
     application->ambient_support =
@@ -309,12 +315,21 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
           parser_->GetManifestData(app_keys::kTizenServiceKey));
   if (!service_list)
     return true;
+  bool has_ime = false;
+  std::shared_ptr<const wgt::parse::CategoryInfoList> category_info =
+      std::static_pointer_cast<const wgt::parse::CategoryInfoList>(
+          parser_->GetManifestData(app_keys::kTizenCategoryKey));
+  if (category_info) {
+      has_ime = std::find(category_info->categories.begin(),
+                                      category_info->categories.end(),
+                                      kImeCategoryName
+      ) != category_info->categories.end();
+  }
   for (auto& service_info : service_list->services) {
     application_x* application = reinterpret_cast<application_x*>
         (calloc(1, sizeof(application_x)));
     application->component_type = strdup("svcapp");
     application->mainapp = strdup("false");
-    application->nodisplay = strdup("false");
     application->multiple = strdup("false");
     application->appid = strdup(service_info.id().c_str());
     application->exec =
@@ -325,6 +340,8 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
         service_info.on_boot() ? strdup("true") : strdup("false");
     application->autorestart =
         service_info.auto_restart() ? strdup("true") : strdup("false");
+    application->nodisplay = has_ime ? strdup("true") : strdup("false");
+    application->taskmanage = has_ime ? strdup("false") : strdup("true");
     SetApplicationXDefaults(application);
     application->ambient_support = strdup("false");
     application->package = strdup(manifest->package);
