@@ -468,6 +468,19 @@ bool StepParse::FillMetadata(manifest_x* manifest) {
   return true;
 }
 
+bool StepParse::FillAppWidget() {
+  WgtBackendData* backend_data =
+      static_cast<WgtBackendData*>(context_->backend_data.get());
+
+  std::shared_ptr<const wgt::parse::AppWidgetInfo> appwidget_info =
+      std::static_pointer_cast<const wgt::parse::AppWidgetInfo>(
+          parser_->GetManifestData(
+              wgt::application_widget_keys::kTizenAppWidgetFullKey));
+  if (appwidget_info)
+    backend_data->appwidgets.set(*appwidget_info);
+  return true;
+}
+
 bool StepParse::FillAccounts(manifest_x* manifest) {
   std::shared_ptr<const wgt::parse::AccountInfo> account_info =
       std::static_pointer_cast<const wgt::parse::AccountInfo>(
@@ -507,7 +520,7 @@ bool StepParse::FillImeInfo() {
 }
 
 bool StepParse::FillExtraManifestInfo(manifest_x* manifest) {
-  return FillAccounts(manifest) && FillImeInfo();
+  return FillAccounts(manifest) && FillImeInfo() && FillAppWidget();
 }
 
 bool StepParse::FillManifestX(manifest_x* manifest) {
