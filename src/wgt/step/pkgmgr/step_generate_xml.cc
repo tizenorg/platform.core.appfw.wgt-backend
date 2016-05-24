@@ -31,8 +31,9 @@ namespace {
 
 void WriteUIApplicationAttributes(
     xmlTextWriterPtr writer, application_x *app) {
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "taskmanage",
-      BAD_CAST "true");
+  if (app->taskmanage)
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "taskmanage",
+        BAD_CAST app->taskmanage);
   if (app->nodisplay)
     xmlTextWriterWriteAttribute(writer, BAD_CAST "nodisplay",
         BAD_CAST app->nodisplay);
@@ -74,8 +75,9 @@ void WriteServiceApplicationAttributes(
       BAD_CAST(app->autorestart ? app->autorestart : "false"));
   xmlTextWriterWriteAttribute(writer, BAD_CAST "on-boot",
       BAD_CAST(app->onboot ? app->onboot : "false"));
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "taskmanage",
-      BAD_CAST "false");
+  if (app->taskmanage)
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "taskmanage",
+         BAD_CAST app->taskmanage);
 }
 
 void WriteWidgetApplicationAttributes(
