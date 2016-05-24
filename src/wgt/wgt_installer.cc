@@ -62,6 +62,7 @@
 #include "wgt/step/configuration/step_parse_recovery.h"
 #include "wgt/step/encryption/step_encrypt_resources.h"
 #include "wgt/step/encryption/step_remove_encryption_data.h"
+#include "wgt/step/filesystem/step_copy_preview_icons.h"
 #include "wgt/step/filesystem/step_create_symbolic_link.h"
 #include "wgt/step/filesystem/step_wgt_patch_icons.h"
 #include "wgt/step/filesystem/step_wgt_patch_storage_directories.h"
@@ -108,6 +109,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
@@ -144,6 +146,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
@@ -217,6 +220,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
@@ -264,6 +268,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
@@ -299,6 +304,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(

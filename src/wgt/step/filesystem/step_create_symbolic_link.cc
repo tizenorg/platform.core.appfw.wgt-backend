@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/system/error_code.hpp>
 #include <common/utils/file_util.h>
 #include <common/utils/glist_range.h>
 #include <cassert>
@@ -16,20 +17,22 @@
 #include <cstdio>
 #include <string>
 
+#include "wgt/wgt_backend_data.h"
+
+namespace bf = boost::filesystem;
+namespace bs = boost::system;
 
 namespace {
 
 const char kWrtServiceBinaryPath[] = "/usr/bin/wrt-service";
+const char kWidgetClientBinaryPath[] = "/usr/bin/widget-client";
 
 }  // namespace
 
 namespace wgt {
 namespace filesystem {
 
-namespace bf = boost::filesystem;
-
-common_installer::Step::Status StepCreateSymbolicLink::process() {
-  assert(context_->manifest_data.get());
+bool StepCreateSymbolicLink::CreateSymlinksForApps() {
   boost::system::error_code error;
   for (application_x* app :
        GListRange<application_x*>(context_->manifest_data.get()->application)) {
@@ -52,11 +55,38 @@ common_installer::Step::Status StepCreateSymbolicLink::process() {
     if (error) {
       LOG(ERROR) << "Failed to set symbolic link "
         << boost::system::system_error(error).what();
-      return Step::Status::ERROR;
+      return false;
     }
   }
-  LOG(DEBUG) << "Symlinks created successfully";
+  return true;
+}
 
+bool StepCreateSymbolicLink::CreateSymlinksForAppWidgets() {
+  WgtBackendData* backend_data =
+      static_cast<WgtBackendData*>(context_->backend_data.get());
+  for (auto& appwidget : backend_data->appwidgets.get().app_widgets()) {
+    bf::path exec_path = context_->pkg_path.get() / "bin" / appwidget.id;
+    bs::error_code error;
+    bf::create_symlink(kWidgetClientBinaryPath, exec_path, error);
+    if (error) {
+      LOG(ERROR) << "Failed to create symlink for app widget: "
+                 << appwidget.id;
+      return false;
+    }
+  }
+  return true;
+}
+
+common_installer::Step::Status StepCreateSymbolicLink::process() {
+  assert(context_->manifest_data.get());
+
+  if (!CreateSymlinksForApps())
+    return Status::APP_DIR_ERROR;
+
+  if (!CreateSymlinksForAppWidgets())
+    return Status::APP_DIR_ERROR;
+
+  LOG(DEBUG) << "Symlinks created successfully";
   return Status::OK;
 }
 

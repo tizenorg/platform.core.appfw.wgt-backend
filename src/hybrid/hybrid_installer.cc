@@ -63,6 +63,7 @@
 #include "wgt/step/configuration/step_parse.h"
 #include "wgt/step/configuration/step_parse_recovery.h"
 #include "wgt/step/encryption/step_remove_encryption_data.h"
+#include "wgt/step/filesystem/step_copy_preview_icons.h"
 #include "wgt/step/filesystem/step_create_symbolic_link.h"
 #include "wgt/step/filesystem/step_wgt_patch_icons.h"
 #include "wgt/step/filesystem/step_wgt_patch_storage_directories.h"
@@ -104,6 +105,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<ci::filesystem::StepCreateStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -146,6 +148,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -209,6 +212,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -264,6 +268,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<ci::filesystem::StepCreateStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
@@ -307,6 +312,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
+      AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<tpk::filesystem::StepCreateSymbolicLink>();

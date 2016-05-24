@@ -52,6 +52,10 @@ class StepCreateSymbolicLink : public common_installer::Step {
    */
   Status precheck() override { return Status::OK; }
 
+ private:
+  bool CreateSymlinksForApps();
+  bool CreateSymlinksForAppWidgets();
+
   SCOPE_LOG_TAG(SymbolicLink)
 };
 
