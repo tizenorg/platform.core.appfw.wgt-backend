@@ -5,6 +5,7 @@ SET(SRCS
   step/configuration/step_parse_recovery.cc
   step/encryption/step_encrypt_resources.cc
   step/encryption/step_remove_encryption_data.cc
+  step/filesystem/step_copy_preview_icons.cc
   step/filesystem/step_create_symbolic_link.cc
   step/filesystem/step_wgt_patch_icons.cc
   step/filesystem/step_wgt_patch_storage_directories.cc
