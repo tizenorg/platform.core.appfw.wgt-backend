@@ -23,11 +23,14 @@
 #include <string>
 
 #include "wgt/step/common/privileges.h"
+#include "wgt/wgt_backend_data.h"
 
 namespace bs = boost::system;
 namespace bf = boost::filesystem;
 
 namespace {
+
+const char kResWgt[] = "res/wgt";
 
 void WriteUIApplicationAttributes(
     xmlTextWriterPtr writer, application_x *app) {
@@ -494,6 +497,65 @@ common_installer::Step::Status StepGenerateXml::process() {
       }
       xmlTextWriterEndElement(writer);
     }
+    xmlTextWriterEndElement(writer);
+  }
+
+  WgtBackendData* backend_data =
+      static_cast<WgtBackendData*>(context_->backend_data.get());
+  bf::path widget_content_path = context_->pkg_path.get() / kResWgt;
+  for (auto& appwidget : backend_data->appwidgets.get().app_widgets()) {
+    xmlTextWriterStartElement(writer, BAD_CAST "widget");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "appid",
+                                BAD_CAST appwidget.id.c_str());
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "primary",
+        BAD_CAST (appwidget.primary ? "true" : "false"));  // NOLINT
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "abi",
+                                BAD_CAST "html");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "network",
+                                BAD_CAST "true");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "nodisplay",
+                                BAD_CAST "false");
+
+    if (!appwidget.label.default_value.empty()) {
+      xmlTextWriterStartElement(writer, BAD_CAST "label");
+      xmlTextWriterWriteString(writer,
+                               BAD_CAST appwidget.label.default_value.c_str());
+      xmlTextWriterEndElement(writer);
+    }
+    for (auto& pair : appwidget.label.lang_value_map) {
+      xmlTextWriterStartElement(writer, BAD_CAST "label");
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
+                                  BAD_CAST pair.first.c_str());
+      xmlTextWriterWriteString(writer, BAD_CAST pair.second.c_str());
+      xmlTextWriterEndElement(writer);
+    }
+
+    if (!appwidget.icon_src.empty()) {
+      xmlTextWriterStartElement(writer, BAD_CAST "icon");
+      xmlTextWriterWriteString(writer, BAD_CAST appwidget.icon_src.c_str());
+      xmlTextWriterEndElement(writer);
+    }
+
+    xmlTextWriterStartElement(writer, BAD_CAST "box");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "type", BAD_CAST "buffer");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "mouse_event",
+        BAD_CAST (appwidget.content_mouse_event ? "true" : "false"));  // NOLINT
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "touch_effect",
+        BAD_CAST (appwidget.content_touch_effect ? "true" : "false"));  // NOLINT
+    xmlTextWriterStartElement(writer, BAD_CAST "script");
+    bf::path src = widget_content_path / appwidget.content_src;
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "src",
+        BAD_CAST src.c_str());
+    xmlTextWriterEndElement(writer);
+    for (auto& size : appwidget.content_size) {
+      xmlTextWriterStartElement(writer, BAD_CAST "size");
+      // TODO(t.iwanek): generate preview...
+      xmlTextWriterWriteString(writer,
+          BAD_CAST wgt::parse::AppWidgetSizeTypeToString(size.type).c_str());
+      xmlTextWriterEndElement(writer);
+    }
+    xmlTextWriterEndElement(writer);
+
     xmlTextWriterEndElement(writer);
   }
 
