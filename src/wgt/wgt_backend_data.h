@@ -8,6 +8,7 @@
 #include <common/installer_context.h>
 #include <common/utils/property.h>
 
+#include <wgt_manifest_handlers/appwidget_handler.h>
 #include <wgt_manifest_handlers/setting_handler.h>
 
 #include <string>
@@ -25,6 +26,8 @@ class WgtBackendData : public common_installer::BackendData {
    * \brief Property of SettingInfo
    */
   Property<parse::SettingInfo> settings;
+
+  Property<parse::AppWidgetInfo> appwidgets;
 };
 
 }  // namespace wgt
