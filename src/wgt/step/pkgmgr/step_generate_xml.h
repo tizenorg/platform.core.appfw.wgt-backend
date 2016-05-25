@@ -37,6 +37,19 @@ class StepGenerateXml : public common_installer::Step {
                                             xmlTextWriterPtr writer,
                                             AppCompType type);
 
+  Step::Status GenerateManifestElement(xmlTextWriterPtr writer);
+  void GenerateManifestElementAttributes(xmlTextWriterPtr writer);
+  void GenerateLangLabels(xmlTextWriterPtr writer);
+  void GenerateAuthor(xmlTextWriterPtr writer);
+  void GenerateDescription(xmlTextWriterPtr writer);
+  Step::Status GenerateApplications(xmlTextWriterPtr writer);
+  void GeneratePrivilege(xmlTextWriterPtr writer);
+  void GenerateAccount(xmlTextWriterPtr writer);
+  void GenerateIme(xmlTextWriterPtr writer);
+  void GenerateProfiles(xmlTextWriterPtr writer);
+  void GenerateShortcuts(xmlTextWriterPtr writer);
+  void GenerateWidget(xmlTextWriterPtr writer);
+
   SCOPE_LOG_TAG(GenerateXML)
 };
 
