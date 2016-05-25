@@ -278,7 +278,6 @@ common_installer::Step::Status StepGenerateXml::process() {
   }
 
   xmlTextWriterPtr writer;
-
   writer = xmlNewTextWriterFilename(context_->xml_path.get().c_str(), 0);
   if (!writer) {
     LOG(ERROR) << "Failed to create new file";
@@ -286,102 +285,92 @@ common_installer::Step::Status StepGenerateXml::process() {
   }
 
   xmlTextWriterStartDocument(writer, nullptr, nullptr, nullptr);
-
   xmlTextWriterSetIndent(writer, 1);
 
-  // add manifest Element
-  xmlTextWriterStartElement(writer, BAD_CAST "manifest");
+  GenerateManifestElement(writer);
+  GenerateLangLabels(writer);
+  GenerateAuthor(writer);
+  GenerateDescription(writer);
 
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "xmlns",
-      BAD_CAST "http://tizen.org/ns/packages");
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "package",
-      BAD_CAST context_->manifest_data.get()->package);
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "type",
-      BAD_CAST context_->manifest_data.get()->type);
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "version",
-      BAD_CAST context_->manifest_data.get()->version);
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "api-version",
-      BAD_CAST context_->manifest_data.get()->api_version);
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "nodisplay-setting",
-      BAD_CAST context_->manifest_data.get()->nodisplay_setting);
-
-  for (label_x* label :
-       GListRange<label_x*>(context_->manifest_data.get()->label)) {
-    xmlTextWriterStartElement(writer, BAD_CAST "label");
-    if (label->lang && strcmp(DEFAULT_LOCALE, label->lang) != 0) {
-      xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
-                                  BAD_CAST label->lang);
-    }
-    xmlTextWriterWriteString(writer, BAD_CAST label->name);
-    xmlTextWriterEndElement(writer);
+  Status status = GenerateApplications(writer);
+  if(status != Status::OK) {
+    return status;
   }
 
-  for (author_x* author :
-       GListRange<author_x*>(context_->manifest_data.get()->author)) {
-    xmlTextWriterStartElement(writer, BAD_CAST "author");
-    if (author->email && strlen(author->email)) {
-      xmlTextWriterWriteAttribute(writer, BAD_CAST "email",
-                                  BAD_CAST author->email);
-    }
-    if (author->href && strlen(author->href)) {
-      xmlTextWriterWriteAttribute(writer, BAD_CAST "href",
-                                  BAD_CAST author->href);
-    }
-    xmlTextWriterWriteString(writer, BAD_CAST author->text);
-    xmlTextWriterEndElement(writer);
+  GeneratePrivilege(writer);
+  GenerateAccount(writer);
+  GenerateIme(writer);
+  GenerateProfiles(writer);
+  GenerateShortcuts(writer);
+  GenerateWidget(writer);
+
+
+  xmlTextWriterEndElement(writer);
+  xmlTextWriterEndDocument(writer);
+  xmlFreeTextWriter(writer);
+
+  if (pkgmgr_parser_check_manifest_validation(
+      context_->xml_path.get().c_str()) != 0) {
+    LOG(ERROR) << "Manifest is not valid";
+    return Step::Status::MANIFEST_ERROR;
   }
 
-  for (description_x* description :
-       GListRange<description_x*>(context_->manifest_data.get()->description)) {
-    xmlTextWriterStartElement(writer, BAD_CAST "description");
-    if (description->lang && strcmp(DEFAULT_LOCALE, description->lang) != 0) {
-      xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
-                                  BAD_CAST description->lang);
+  LOG(DEBUG) << "Successfully create manifest xml "
+      << context_->xml_path.get();
+  return Status::OK;
+}
+
+common_installer::Step::Status StepGenerateXml::undo() {
+  bs::error_code error;
+  if (bf::exists(context_->xml_path.get()))
+    bf::remove_all(context_->xml_path.get(), error);
+  return Status::OK;
+}
+
+void StepGenerateXml::GenerateShortcuts(xmlTextWriterPtr writer) {
+  const auto& shortcuts =
+      context_->manifest_plugins_data.get().shortcut_info.get();
+  if (!shortcuts.empty()) {
+    xmlTextWriterStartElement(writer, BAD_CAST "shortcut-list");
+    for (auto& shortcut : shortcuts) {
+      xmlTextWriterStartElement(writer, BAD_CAST "shortcut");
+      if (!shortcut.app_id.empty())
+        xmlTextWriterWriteAttribute(writer, BAD_CAST "appid",
+                                    BAD_CAST shortcut.app_id.c_str());
+      if (!shortcut.app_id.empty())
+        xmlTextWriterWriteAttribute(writer, BAD_CAST "extra_data",
+                                    BAD_CAST shortcut.extra_data.c_str());
+      if (!shortcut.app_id.empty())
+        xmlTextWriterWriteAttribute(writer, BAD_CAST "extra_key",
+                                    BAD_CAST shortcut.extra_key.c_str());
+      if (!shortcut.icon.empty()) {
+        xmlTextWriterStartElement(writer, BAD_CAST "icon");
+        xmlTextWriterWriteString(writer, BAD_CAST shortcut.icon.c_str());
+        xmlTextWriterEndElement(writer);
+      }
+      for (auto& label : shortcut.labels) {
+        xmlTextWriterStartElement(writer, BAD_CAST "label");
+        if (!label.first.empty())
+          xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
+                                      BAD_CAST label.first.c_str());
+        xmlTextWriterWriteString(writer, BAD_CAST label.second.c_str());
+        xmlTextWriterEndElement(writer);
+      }
+      xmlTextWriterEndElement(writer);
     }
-    xmlTextWriterWriteString(writer, BAD_CAST description->text);
     xmlTextWriterEndElement(writer);
   }
-
-  // add application
-  for (application_x* app :
-       GListRange<application_x*>(context_->manifest_data.get()->application)) {
-    AppCompType type;
-    if (strcmp(app->component_type, "uiapp") == 0) {
-      type = AppCompType::UIAPP;
-      xmlTextWriterStartElement(writer, BAD_CAST "ui-application");
-    } else if (strcmp(app->component_type, "svcapp") == 0) {
-      type = AppCompType::SVCAPP;
-      xmlTextWriterStartElement(writer, BAD_CAST "service-application");
-    } else if (strcmp(app->component_type, "widgetapp") == 0) {
-      type = AppCompType::WIDGETAPP;
-      xmlTextWriterStartElement(writer, BAD_CAST "widget-application");
-    } else if (strcmp(app->component_type, "watchapp") == 0) {
-      type = AppCompType::WATCHAPP;
-      xmlTextWriterStartElement(writer, BAD_CAST "watch-application");
-    } else {
-      LOG(ERROR) << "Unknown application component_type";
-      xmlFreeTextWriter(writer);
-      return Status::ERROR;
-    }
-    GenerateApplicationCommonXml(app, writer, type);
+}
+void StepGenerateXml::GenerateProfiles(xmlTextWriterPtr writer) {
+  for (const char* profile :
+       GListRange<char*>(context_->manifest_data.get()->deviceprofile)) {
+    xmlTextWriterStartElement(writer, BAD_CAST "profile");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "name",
+                                BAD_CAST profile);
     xmlTextWriterEndElement(writer);
   }
-
-  const auto &ime = context_->manifest_plugins_data.get().ime_info.get();
-  const auto ime_uuid = ime.uuid();
-
-  // add privilege element
-  if (context_->manifest_data.get()->privileges) {
-    xmlTextWriterStartElement(writer, BAD_CAST "privileges");
-    for (const char* priv :
-         GListRange<char*>(context_->manifest_data.get()->privileges)) {
-      xmlTextWriterWriteFormatElement(writer, BAD_CAST "privilege",
-        "%s", BAD_CAST priv);
-    }
-
-    xmlTextWriterEndElement(writer);
-  }
-
+}
+void StepGenerateXml::GenerateAccount(xmlTextWriterPtr writer) {
   const auto& accounts =
       context_->manifest_plugins_data.get().account_info.get().accounts();
   if (!accounts.empty()) {
@@ -431,78 +420,8 @@ common_installer::Step::Status StepGenerateXml::process() {
     }
     xmlTextWriterEndElement(writer);
   }
-
-  if (!ime_uuid.empty()) {
-    xmlTextWriterStartElement(writer, BAD_CAST "ime");
-
-    GListRange<application_x*> app_range(
-        context_->manifest_data.get()->application);
-    if (!app_range.Empty()) {
-      // wgt app have ui-application as first application element.
-      // there may be service-applications but not as first element.
-      application_x* app = *app_range.begin();
-      xmlTextWriterWriteAttribute(writer, BAD_CAST "appid",
-                                  BAD_CAST app->appid);
-    }
-
-    xmlTextWriterStartElement(writer, BAD_CAST "uuid");
-    xmlTextWriterWriteString(writer, BAD_CAST ime_uuid.c_str());
-    xmlTextWriterEndElement(writer);
-
-    xmlTextWriterStartElement(writer, BAD_CAST "languages");
-
-    for (auto it = ime.LanguagesBegin(); it != ime.LanguagesEnd(); ++it) {
-      xmlTextWriterStartElement(writer, BAD_CAST "language");
-      xmlTextWriterWriteString(writer, BAD_CAST it->c_str());
-      xmlTextWriterEndElement(writer);
-    }
-
-    xmlTextWriterEndElement(writer);
-
-    xmlTextWriterEndElement(writer);
-  }
-
-  for (const char* profile :
-       GListRange<char*>(context_->manifest_data.get()->deviceprofile)) {
-    xmlTextWriterStartElement(writer, BAD_CAST "profile");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "name",
-                                BAD_CAST profile);
-    xmlTextWriterEndElement(writer);
-  }
-
-  const auto& shortcuts =
-      context_->manifest_plugins_data.get().shortcut_info.get();
-  if (!shortcuts.empty()) {
-    xmlTextWriterStartElement(writer, BAD_CAST "shortcut-list");
-    for (auto& shortcut : shortcuts) {
-      xmlTextWriterStartElement(writer, BAD_CAST "shortcut");
-      if (!shortcut.app_id.empty())
-        xmlTextWriterWriteAttribute(writer, BAD_CAST "appid",
-                                    BAD_CAST shortcut.app_id.c_str());
-      if (!shortcut.app_id.empty())
-        xmlTextWriterWriteAttribute(writer, BAD_CAST "extra_data",
-                                    BAD_CAST shortcut.extra_data.c_str());
-      if (!shortcut.app_id.empty())
-        xmlTextWriterWriteAttribute(writer, BAD_CAST "extra_key",
-                                    BAD_CAST shortcut.extra_key.c_str());
-      if (!shortcut.icon.empty()) {
-        xmlTextWriterStartElement(writer, BAD_CAST "icon");
-        xmlTextWriterWriteString(writer, BAD_CAST shortcut.icon.c_str());
-        xmlTextWriterEndElement(writer);
-      }
-      for (auto& label : shortcut.labels) {
-        xmlTextWriterStartElement(writer, BAD_CAST "label");
-        if (!label.first.empty())
-          xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
-                                      BAD_CAST label.first.c_str());
-        xmlTextWriterWriteString(writer, BAD_CAST label.second.c_str());
-        xmlTextWriterEndElement(writer);
-      }
-      xmlTextWriterEndElement(writer);
-    }
-    xmlTextWriterEndElement(writer);
-  }
-
+}
+void StepGenerateXml::GenerateWidget(xmlTextWriterPtr writer) {
   WgtBackendData* backend_data =
       static_cast<WgtBackendData*>(context_->backend_data.get());
   bf::path widget_content_path = context_->pkg_path.get() / kResWgt;
@@ -573,29 +492,133 @@ common_installer::Step::Status StepGenerateXml::process() {
 
     xmlTextWriterEndElement(writer);
   }
+}
+void StepGenerateXml::GenerateIme(xmlTextWriterPtr writer) {
+  const auto &ime = context_->manifest_plugins_data.get().ime_info.get();
+  const auto ime_uuid = ime.uuid();
+  if (!ime_uuid.empty()) {
+    xmlTextWriterStartElement(writer, BAD_CAST "ime");
 
-  xmlTextWriterEndElement(writer);
+    GListRange<application_x*> app_range(
+        context_->manifest_data.get()->application);
+    if (!app_range.Empty()) {
+      // wgt app have ui-application as first application element.
+      // there may be service-applications but not as first element.
+      application_x* app = *app_range.begin();
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "appid",
+                                  BAD_CAST app->appid);
+    }
 
-  xmlTextWriterEndDocument(writer);
-  xmlFreeTextWriter(writer);
+    xmlTextWriterStartElement(writer, BAD_CAST "uuid");
+    xmlTextWriterWriteString(writer, BAD_CAST ime_uuid.c_str());
+    xmlTextWriterEndElement(writer);
 
-  if (pkgmgr_parser_check_manifest_validation(
-      context_->xml_path.get().c_str()) != 0) {
-    LOG(ERROR) << "Manifest is not valid";
-    return Step::Status::MANIFEST_ERROR;
+    xmlTextWriterStartElement(writer, BAD_CAST "languages");
+
+    for (auto it = ime.LanguagesBegin(); it != ime.LanguagesEnd(); ++it) {
+      xmlTextWriterStartElement(writer, BAD_CAST "language");
+      xmlTextWriterWriteString(writer, BAD_CAST it->c_str());
+      xmlTextWriterEndElement(writer);
+    }
+
+    xmlTextWriterEndElement(writer);
+
+    xmlTextWriterEndElement(writer);
   }
+}
+void StepGenerateXml::GenerateAuthor(xmlTextWriterPtr writer) {
+  for (author_x* author :
+       GListRange<author_x*>(context_->manifest_data.get()->author)) {
+    xmlTextWriterStartElement(writer, BAD_CAST "author");
+    if (author->email && strlen(author->email)) {
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "email",
+                                  BAD_CAST author->email);
+    }
+    if (author->href && strlen(author->href)) {
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "href",
+                                  BAD_CAST author->href);
+    }
+    xmlTextWriterWriteString(writer, BAD_CAST author->text);
+    xmlTextWriterEndElement(writer);
+  }
+}
+void StepGenerateXml::GenerateDescription(xmlTextWriterPtr writer) {
+  for (description_x* description :
+       GListRange<description_x*>(context_->manifest_data.get()->description)) {
+    xmlTextWriterStartElement(writer, BAD_CAST "description");
+    if (description->lang && strcmp(DEFAULT_LOCALE, description->lang) != 0) {
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
+                                  BAD_CAST description->lang);
+    }
+    xmlTextWriterWriteString(writer, BAD_CAST description->text);
+    xmlTextWriterEndElement(writer);
+  }
+}
+void StepGenerateXml::GenerateManifestElement(xmlTextWriterPtr writer) {
+  xmlTextWriterStartElement(writer, BAD_CAST "manifest");
 
-  LOG(DEBUG) << "Successfully create manifest xml "
-      << context_->xml_path.get();
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "xmlns",
+      BAD_CAST "http://tizen.org/ns/packages");
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "package",
+      BAD_CAST context_->manifest_data.get()->package);
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "type",
+      BAD_CAST context_->manifest_data.get()->type);
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "version",
+      BAD_CAST context_->manifest_data.get()->version);
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "api-version",
+      BAD_CAST context_->manifest_data.get()->api_version);
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "nodisplay-setting",
+      BAD_CAST context_->manifest_data.get()->nodisplay_setting);
+}
+void StepGenerateXml::GenerateLangLabels(xmlTextWriterPtr writer) {
+  for (label_x* label :
+       GListRange<label_x*>(context_->manifest_data.get()->label)) {
+    xmlTextWriterStartElement(writer, BAD_CAST "label");
+    if (label->lang && strcmp(DEFAULT_LOCALE, label->lang) != 0) {
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
+                                  BAD_CAST label->lang);
+    }
+    xmlTextWriterWriteString(writer, BAD_CAST label->name);
+    xmlTextWriterEndElement(writer);
+  }
+}
+common_installer::Step::Status StepGenerateXml::GenerateApplications(xmlTextWriterPtr writer) {
+  for (application_x* app :
+       GListRange<application_x*>(context_->manifest_data.get()->application)) {
+    AppCompType type;
+    if (strcmp(app->component_type, "uiapp") == 0) {
+      type = AppCompType::UIAPP;
+      xmlTextWriterStartElement(writer, BAD_CAST "ui-application");
+    } else if (strcmp(app->component_type, "svcapp") == 0) {
+      type = AppCompType::SVCAPP;
+      xmlTextWriterStartElement(writer, BAD_CAST "service-application");
+    } else if (strcmp(app->component_type, "widgetapp") == 0) {
+      type = AppCompType::WIDGETAPP;
+      xmlTextWriterStartElement(writer, BAD_CAST "widget-application");
+    } else if (strcmp(app->component_type, "watchapp") == 0) {
+      type = AppCompType::WATCHAPP;
+      xmlTextWriterStartElement(writer, BAD_CAST "watch-application");
+    } else {
+      LOG(ERROR) << "Unknown application component_type";
+      xmlFreeTextWriter(writer);
+      return Status::ERROR;
+    }
+    GenerateApplicationCommonXml(app, writer, type);
+    xmlTextWriterEndElement(writer);
+  }
   return Status::OK;
 }
+void StepGenerateXml::GeneratePrivilege(xmlTextWriterPtr writer) {
+   if (context_->manifest_data.get()->privileges) {
+    xmlTextWriterStartElement(writer, BAD_CAST "privileges");
+    for (const char* priv :
+         GListRange<char*>(context_->manifest_data.get()->privileges)) {
+      xmlTextWriterWriteFormatElement(writer, BAD_CAST "privilege",
+        "%s", BAD_CAST priv);
+    }
 
-common_installer::Step::Status StepGenerateXml::undo() {
-  bs::error_code error;
-  if (bf::exists(context_->xml_path.get()))
-    bf::remove_all(context_->xml_path.get(), error);
-  return Status::OK;
+    xmlTextWriterEndElement(writer);
+  }
 }
-
 }  // namespace pkgmgr
 }  // namespace wgt
