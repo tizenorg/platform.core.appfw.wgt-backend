@@ -346,8 +346,10 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
     }
 
     if (!service_info.icon().empty()) {
+      bf::path icon_path = context_->root_application_path.get()
+          / manifest->package / "res" / "wgt" / service_info.icon();
       icon_x* icon = reinterpret_cast<icon_x*>(calloc(1, sizeof(icon_x)));
-      icon->text = strdup(service_info.icon().c_str());
+      icon->text = strdup(icon_path.c_str());
       icon->lang = strdup(DEFAULT_LOCALE);
       application->icon = g_list_append(application->icon, icon);
     }

@@ -13,10 +13,6 @@ namespace bf = boost::filesystem;
 namespace bs = boost::system;
 namespace ci = common_installer;
 
-namespace {
-const char kResWgt[] = "res/wgt";
-}  // namespace
-
 namespace wgt {
 namespace filesystem {
 
