@@ -8,6 +8,7 @@
 #include <common/step/backup/step_backup_manifest.h>
 #include <common/step/backup/step_copy_backup.h>
 #include <common/step/configuration/step_block_cross_update.h>
+#include <common/step/configuration/step_check_tizen_version.h>
 #include <common/step/configuration/step_configure.h>
 #include <common/step/configuration/step_fail.h>
 #include <common/step/configuration/step_parse_manifest.h>
@@ -92,6 +93,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -127,6 +129,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -196,6 +199,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -254,6 +258,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -290,6 +295,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -331,6 +337,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -353,6 +360,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();

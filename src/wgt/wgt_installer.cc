@@ -10,6 +10,7 @@
 #include <common/step/backup/step_backup_manifest.h>
 #include <common/step/backup/step_copy_backup.h>
 #include <common/step/configuration/step_block_cross_update.h>
+#include <common/step/configuration/step_check_tizen_version.h>
 #include <common/step/configuration/step_configure.h>
 #include <common/step/configuration/step_fail.h>
 #include <common/step/configuration/step_parse_manifest.h>
@@ -93,6 +94,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepUnzip>();
       AddStep<wgt::configuration::StepParse>(
         wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -123,6 +125,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepUnzip>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -179,6 +182,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, false);
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
@@ -199,6 +203,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::filesystem::StepDeltaPatch>("res/wgt/");
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
@@ -252,6 +257,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::mount::StepMountUnpacked>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -282,6 +288,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::mount::StepMountUnpacked>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckSettingsLevel>();
@@ -316,6 +323,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<wgt::security::StepDirectManifestCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckWgtNotificationCategory>();
@@ -333,6 +341,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
+      AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<wgt::security::StepDirectManifestCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
       AddStep<wgt::security::StepCheckWgtNotificationCategory>();
