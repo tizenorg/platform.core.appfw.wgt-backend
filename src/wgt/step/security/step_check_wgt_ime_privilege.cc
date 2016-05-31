@@ -3,12 +3,12 @@
 // found in the LICENSE file.
 
 #include <wgt/step/security/step_check_wgt_ime_privilege.h>
-#include <wgt/step/common/privileges.h>
 
 #include <manifest_parser/utils/version_number.h>
 #include <manifest_parser/utils/logging.h>
 
 #include <common/utils/glist_range.h>
+#include <common/privileges.h>
 
 #include <string>
 

@@ -3,19 +3,13 @@
 // found in the LICENSE file.
 
 #include "wgt/step/security/step_add_default_privileges.h"
+#include <common/privileges.h>
 
 #include <pkgmgrinfo_basic.h>
 
 #include <cstdlib>
 #include <cstring>
 #include <memory>
-
-namespace {
-
-const char kPrivForWebApp[] =
-    "http://tizen.org/privilege/internal/webappdefault";
-
-}  // namespace
 
 namespace wgt {
 namespace security {
@@ -30,7 +24,8 @@ common_installer::Step::Status StepAddDefaultPrivileges::precheck() {
 
 common_installer::Step::Status StepAddDefaultPrivileges::process() {
   manifest_x* m = context_->manifest_data.get();
-  m->privileges = g_list_append(m->privileges, strdup(kPrivForWebApp));
+  m->privileges = g_list_append(m->privileges,
+          strdup(common::privileges::kPrivForWebApp));
   return Status::OK;
 }
 
