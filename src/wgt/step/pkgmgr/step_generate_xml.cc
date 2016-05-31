@@ -10,6 +10,7 @@
 
 #include <common/utils/file_util.h>
 #include <common/utils/glist_range.h>
+#include <common/privileges.h>
 
 #include <libxml/parser.h>
 #include <libxml/xmlreader.h>
@@ -22,7 +23,6 @@
 #include <cstring>
 #include <string>
 
-#include "wgt/step/common/privileges.h"
 #include "wgt/wgt_backend_data.h"
 
 namespace bs = boost::system;
