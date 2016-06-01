@@ -265,8 +265,8 @@ bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
     }) != category_info->categories.end();
     has_ime = std::find(category_info->categories.begin(),
                                        category_info->categories.end(),
-                                       kImeCategoryName
-    ) != category_info->categories.end();
+                                       kImeCategoryName)
+        != category_info->categories.end();
   }
 
   // application data
@@ -315,16 +315,6 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
           parser_->GetManifestData(app_keys::kTizenServiceKey));
   if (!service_list)
     return true;
-  bool has_ime = false;
-  std::shared_ptr<const wgt::parse::CategoryInfoList> category_info =
-      std::static_pointer_cast<const wgt::parse::CategoryInfoList>(
-          parser_->GetManifestData(app_keys::kTizenCategoryKey));
-  if (category_info) {
-      has_ime = std::find(category_info->categories.begin(),
-                                      category_info->categories.end(),
-                                      kImeCategoryName
-      ) != category_info->categories.end();
-  }
   for (auto& service_info : service_list->services) {
     application_x* application = reinterpret_cast<application_x*>
         (calloc(1, sizeof(application_x)));
@@ -340,8 +330,8 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
         service_info.on_boot() ? strdup("true") : strdup("false");
     application->autorestart =
         service_info.auto_restart() ? strdup("true") : strdup("false");
-    application->nodisplay = has_ime ? strdup("true") : strdup("false");
-    application->taskmanage = has_ime ? strdup("false") : strdup("true");
+    application->nodisplay = strdup("false");
+    application->taskmanage = strdup("true");
     SetApplicationXDefaults(application);
     application->ambient_support = strdup("false");
     application->package = strdup(manifest->package);
