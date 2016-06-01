@@ -17,8 +17,6 @@
 #include <cstdio>
 #include <string>
 
-#include "wgt/wgt_backend_data.h"
-
 namespace bf = boost::filesystem;
 namespace bs = boost::system;
 
@@ -49,6 +47,8 @@ bool StepCreateSymbolicLink::CreateSymlinksForApps() {
       bf::create_symlink(bf::path(WRT_LAUNCHER), exec_path, error);
     } else if (strcmp(app->component_type, "watchapp") == 0) {
       bf::create_symlink(bf::path(WRT_LAUNCHER), exec_path, error);
+    } else if (strcmp(app->component_type, "widgetapp") == 0) {
+      bf::create_symlink(kWidgetClientBinaryPath, exec_path, error);
     } else {
       bf::create_symlink(kWrtServiceBinaryPath, exec_path, error);
     }
@@ -61,29 +61,10 @@ bool StepCreateSymbolicLink::CreateSymlinksForApps() {
   return true;
 }
 
-bool StepCreateSymbolicLink::CreateSymlinksForAppWidgets() {
-  WgtBackendData* backend_data =
-      static_cast<WgtBackendData*>(context_->backend_data.get());
-  for (auto& appwidget : backend_data->appwidgets.get().app_widgets()) {
-    bf::path exec_path = context_->pkg_path.get() / "bin" / appwidget.id;
-    bs::error_code error;
-    bf::create_symlink(kWidgetClientBinaryPath, exec_path, error);
-    if (error) {
-      LOG(ERROR) << "Failed to create symlink for app widget: "
-                 << appwidget.id;
-      return false;
-    }
-  }
-  return true;
-}
-
 common_installer::Step::Status StepCreateSymbolicLink::process() {
   assert(context_->manifest_data.get());
 
   if (!CreateSymlinksForApps())
-    return Status::APP_DIR_ERROR;
-
-  if (!CreateSymlinksForAppWidgets())
     return Status::APP_DIR_ERROR;
 
   LOG(DEBUG) << "Symlinks created successfully";

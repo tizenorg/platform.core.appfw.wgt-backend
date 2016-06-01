@@ -48,7 +48,6 @@ class StepGenerateXml : public common_installer::Step {
   void GenerateIme(xmlTextWriterPtr writer);
   void GenerateProfiles(xmlTextWriterPtr writer);
   void GenerateShortcuts(xmlTextWriterPtr writer);
-  void GenerateWidget(xmlTextWriterPtr writer);
 
   STEP_NAME(GenerateXML)
 };

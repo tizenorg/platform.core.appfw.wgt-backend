@@ -54,7 +54,6 @@ class StepCreateSymbolicLink : public common_installer::Step {
 
  private:
   bool CreateSymlinksForApps();
-  bool CreateSymlinksForAppWidgets();
 
   STEP_NAME(SymbolicLink)
 };
