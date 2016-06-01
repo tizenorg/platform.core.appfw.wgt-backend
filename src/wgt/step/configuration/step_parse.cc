@@ -84,6 +84,17 @@ void SetApplicationXDefaults(application_x* application) {
   application->ui_gadget = strdup("false");
 }
 
+template<typename T>
+void AppendLabel(T* root, const std::string& label,
+                 const std::string& locale) {
+  label_x* label_item = reinterpret_cast<label_x*>(calloc(1, sizeof(label_x)));
+  label_item->name = strdup(label.c_str());
+  label_item->text = strdup(label.c_str());
+  label_item->lang = !locale.empty() ?
+      strdup(locale.c_str()) : strdup(DEFAULT_LOCALE);
+  root->label = g_list_append(root->label, label_item);
+}
+
 }  // namespace
 
 namespace wgt {
@@ -182,12 +193,7 @@ bool StepParse::FillWidgetInfo(manifest_x* manifest) {
   }
 
   for (auto& item : wgt_info->name_set()) {
-    label_x* label = reinterpret_cast<label_x*>(calloc(1, sizeof(label_x)));
-    label->name = strdup(item.second.c_str());
-    label->text = strdup(item.second.c_str());
-    label->lang = !item.first.empty() ?
-        strdup(item.first.c_str()) : strdup(DEFAULT_LOCALE);
-    manifest->label = g_list_append(manifest->label, label);
+    AppendLabel(manifest, item.second, item.first);
   }
 
   manifest->type = strdup("wgt");
@@ -199,12 +205,7 @@ bool StepParse::FillWidgetInfo(manifest_x* manifest) {
   for (auto& item : wgt_info->name_set()) {
     application_x* app =
         reinterpret_cast<application_x*>(manifest->application->data);
-    label_x* label = reinterpret_cast<label_x*>(calloc(1, sizeof(label_x)));
-    label->name = strdup(item.second.c_str());
-    label->text = strdup(item.second.c_str());
-    label->lang = !item.first.empty() ?
-        strdup(item.first.c_str()) : strdup(DEFAULT_LOCALE);
-    app->label = g_list_append(app->label, label);
+    AppendLabel(app, item.second, item.first);
   }
 
   author_x* author = reinterpret_cast<author_x*>(calloc(1, sizeof(author_x)));
@@ -347,12 +348,7 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
     application->package = strdup(manifest->package);
 
     for (auto& pair : service_info.names()) {
-      label_x* label = reinterpret_cast<label_x*>(calloc(1, sizeof(label_x)));
-      label->lang = !pair.first.empty() ?
-          strdup(pair.first.c_str()) : strdup(DEFAULT_LOCALE);
-      label->name = strdup(pair.second.c_str());
-      label->text = strdup(pair.second.c_str());
-      application->label = g_list_append(application->label, label);
+      AppendLabel(application, pair.second, pair.first);
     }
 
     if (!service_info.icon().empty()) {
@@ -382,6 +378,51 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
   }
   return true;
 }
+
+bool StepParse::FillWidgetApplicationInfo(manifest_x* manifest) {
+  std::shared_ptr<const wgt::parse::AppWidgetInfo> appwidget_info =
+      std::static_pointer_cast<const wgt::parse::AppWidgetInfo>(
+          parser_->GetManifestData(
+              wgt::application_widget_keys::kTizenAppWidgetFullKey));
+  if (!appwidget_info)
+    return true;
+  for (auto& app_widget : appwidget_info->app_widgets()) {
+    application_x* application = reinterpret_cast<application_x*>
+        (calloc(1, sizeof(application_x)));
+    application->component_type = strdup("widgetapp");
+    application->mainapp = strdup("false");
+    application->multiple = strdup("false");
+    application->appid = strdup(app_widget.id.c_str());
+    application->exec =
+        strdup((context_->root_application_path.get() / manifest->package
+                / "bin" / application->appid).c_str());
+    application->type = strdup("webapp");
+    application->nodisplay = strdup("false");
+    application->taskmanage = strdup("false");
+    SetApplicationXDefaults(application);
+    application->ambient_support = strdup("false");
+    application->package = strdup(manifest->package);
+
+    if (!app_widget.label.default_value.empty()) {
+      AppendLabel(application, app_widget.label.default_value, std::string());
+    }
+
+    for (auto& pair : app_widget.label.lang_value_map) {
+      AppendLabel(application, pair.second, pair.first);
+    }
+
+    if (!app_widget.icon_src.empty()) {
+      icon_x* icon = reinterpret_cast<icon_x*>(calloc(1, sizeof(icon_x)));
+      icon->text = strdup(app_widget.icon_src.c_str());
+      icon->lang = strdup(DEFAULT_LOCALE);
+      application->icon = g_list_append(application->icon, icon);
+    }
+
+    manifest->application = g_list_append(manifest->application, application);
+  }
+  return true;
+}
+
 
 bool StepParse::FillBackgroundCategoryInfo(manifest_x* manifest) {
   auto manifest_data = parser_->GetManifestData(
@@ -469,6 +510,7 @@ bool StepParse::FillMetadata(manifest_x* manifest) {
 }
 
 bool StepParse::FillAppWidget() {
+  // This is needed to store preview icons which are not saved into manifest_x
   WgtBackendData* backend_data =
       static_cast<WgtBackendData*>(context_->backend_data.get());
 
@@ -543,8 +585,10 @@ bool StepParse::FillManifestX(manifest_x* manifest) {
   // TODO(t.iwanek): fix adding ui application element
   // for now adding application service is added here because rest of code
   // assumes that there is one application at manifest->application
-  // so this must execute last
+  // so this must execute last. Don't move it above any item
   if (!FillServiceApplicationInfo(manifest))
+    return false;
+  if (!FillWidgetApplicationInfo(manifest))
     return false;
   if (!FillBackgroundCategoryInfo(manifest))
     return false;

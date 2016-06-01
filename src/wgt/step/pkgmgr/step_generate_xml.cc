@@ -84,18 +84,53 @@ void WriteServiceApplicationAttributes(
          BAD_CAST app->taskmanage);
 }
 
-void WriteWidgetApplicationAttributes(
-    xmlTextWriterPtr writer, application_x *app) {
+bool WriteWidgetApplicationAttributesAndElements(
+    xmlTextWriterPtr writer, application_x *app,
+    const wgt::parse::AppWidgetInfo& widget_info) {
   if (app->nodisplay)
     xmlTextWriterWriteAttribute(writer, BAD_CAST "nodisplay",
         BAD_CAST app->nodisplay);
   if (app->multiple)
     xmlTextWriterWriteAttribute(writer, BAD_CAST "multiple",
         BAD_CAST app->multiple);
+
+  // Generate attributes and elements not covered in manifest.xsd
+  auto& appwidgets = widget_info.app_widgets();
+  const auto& appwidget = std::find_if(appwidgets.begin(), appwidgets.end(),
+                                 [app](const wgt::parse::AppWidget& widget) {
+                                    return widget.id == app->appid;
+                                 });
+  if (appwidget == appwidgets.end()) {
+    LOG(ERROR) << "Failed to generate appwidget extra elements";
+    return false;
+  }
+
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "main",
+      BAD_CAST (appwidget->primary ? "true" : "false"));  // NOLINT
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "update-period", BAD_CAST "0");
+
+  for (auto& size : appwidget->content_size) {
+    xmlTextWriterStartElement(writer, BAD_CAST "support-size");
+
+    std::string type = wgt::parse::AppWidgetSizeTypeToString(size.type);
+    if (!size.preview.empty()) {
+      std::string icon_name = appwidget->id + "." + type + "." + "preview" +
+          bf::path(size.preview).extension().string();
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "preview",
+          BAD_CAST icon_name.c_str());  // NOLINT
+    }
+
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "need_frame",
+                                BAD_CAST "true");
+    xmlTextWriterWriteString(writer,
+        BAD_CAST type.c_str());
+    xmlTextWriterEndElement(writer);
+  }
+  return true;
 }
 
 void WriteWatchApplicationAttributes(
-    xmlTextWriterPtr writer, application_x *app) {
+    xmlTextWriterPtr writer, application_x* app) {
   if (app->ambient_support)
     xmlTextWriterWriteAttribute(writer, BAD_CAST "ambient-support",
         BAD_CAST app->ambient_support);
@@ -132,7 +167,10 @@ common_installer::Step::Status StepGenerateXml::GenerateApplicationCommonXml(
     WriteServiceApplicationAttributes(writer, app);
     break;
   case AppCompType::WIDGETAPP:
-    WriteWidgetApplicationAttributes(writer, app);
+    if (!WriteWidgetApplicationAttributesAndElements(writer, app,
+        static_cast<WgtBackendData*>(
+            context_->backend_data.get())->appwidgets.get()))
+      return Status::MANIFEST_ERROR;
     break;
   case AppCompType::WATCHAPP:
     WriteWatchApplicationAttributes(writer, app);
@@ -500,77 +538,6 @@ common_installer::Step::Status StepGenerateXml::process() {
       }
       xmlTextWriterEndElement(writer);
     }
-    xmlTextWriterEndElement(writer);
-  }
-
-  WgtBackendData* backend_data =
-      static_cast<WgtBackendData*>(context_->backend_data.get());
-  bf::path widget_content_path = context_->pkg_path.get() / kResWgt;
-  for (auto& appwidget : backend_data->appwidgets.get().app_widgets()) {
-    xmlTextWriterStartElement(writer, BAD_CAST "widget");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "appid",
-                                BAD_CAST appwidget.id.c_str());
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "primary",
-        BAD_CAST (appwidget.primary ? "true" : "false"));  // NOLINT
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "abi",
-                                BAD_CAST "html");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "network",
-                                BAD_CAST "true");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "nodisplay",
-                                BAD_CAST "false");
-
-    if (!appwidget.label.default_value.empty()) {
-      xmlTextWriterStartElement(writer, BAD_CAST "label");
-      xmlTextWriterWriteString(writer,
-                               BAD_CAST appwidget.label.default_value.c_str());
-      xmlTextWriterEndElement(writer);
-    }
-    for (auto& pair : appwidget.label.lang_value_map) {
-      xmlTextWriterStartElement(writer, BAD_CAST "label");
-      xmlTextWriterWriteAttribute(writer, BAD_CAST "xml:lang",
-                                  BAD_CAST pair.first.c_str());
-      xmlTextWriterWriteString(writer, BAD_CAST pair.second.c_str());
-      xmlTextWriterEndElement(writer);
-    }
-
-    if (!appwidget.icon_src.empty()) {
-      xmlTextWriterStartElement(writer, BAD_CAST "icon");
-      xmlTextWriterWriteString(writer, BAD_CAST appwidget.icon_src.c_str());
-      xmlTextWriterEndElement(writer);
-    }
-
-    xmlTextWriterStartElement(writer, BAD_CAST "box");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "type", BAD_CAST "buffer");
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "mouse_event",
-        BAD_CAST (appwidget.content_mouse_event ? "true" : "false"));  // NOLINT
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "touch_effect",
-        BAD_CAST (appwidget.content_touch_effect ? "true" : "false"));  // NOLINT
-    xmlTextWriterStartElement(writer, BAD_CAST "script");
-    bf::path src = widget_content_path / appwidget.content_src;
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "src",
-        BAD_CAST src.c_str());
-    xmlTextWriterEndElement(writer);
-    for (auto& size : appwidget.content_size) {
-      xmlTextWriterStartElement(writer, BAD_CAST "size");
-
-      std::string type = wgt::parse::AppWidgetSizeTypeToString(size.type);
-      if (!size.preview.empty()) {
-        std::string icon_name = appwidget.id + "." + type + "." + "preview" +
-            bf::path(size.preview).extension().string();
-        bf::path preview_icon =
-            context_->pkg_path.get() / kSharedRes / icon_name;
-        xmlTextWriterWriteAttribute(writer, BAD_CAST "preview",
-            BAD_CAST preview_icon.c_str());  // NOLINT
-      }
-
-      xmlTextWriterWriteAttribute(writer, BAD_CAST "need_frame",
-                                  BAD_CAST "true");
-      xmlTextWriterWriteString(writer,
-          BAD_CAST type.c_str());
-      xmlTextWriterEndElement(writer);
-    }
-    xmlTextWriterEndElement(writer);
-
     xmlTextWriterEndElement(writer);
   }
 
