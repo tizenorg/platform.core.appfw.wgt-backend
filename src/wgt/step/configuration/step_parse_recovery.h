@@ -47,7 +47,7 @@ class StepParseRecovery : public StepParse {
    */
   Status precheck() override;
 
-  SCOPE_LOG_TAG(ParseRecovery)
+  STEP_NAME(ParseRecovery)
 };
 
 }  // namespace configuration

@@ -50,7 +50,7 @@ class StepCheckSettingsLevel : public common_installer::Step {
    */
   Status precheck() override { return Status::OK; }
 
-  SCOPE_LOG_TAG(CheckSettingsLevel)
+  STEP_NAME(CheckSettingsLevel)
 };
 
 }  // namespace security

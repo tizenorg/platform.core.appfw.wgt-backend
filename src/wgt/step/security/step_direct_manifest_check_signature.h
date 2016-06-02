@@ -19,7 +19,7 @@ class StepDirectManifestCheckSignature
  private:
   boost::filesystem::path GetSignatureRoot() const override;
 
-  SCOPE_LOG_TAG(StepDirectManifestCheckSignature)
+  STEP_NAME(StepDirectManifestCheckSignature)
 };
 
 }  // namespace security

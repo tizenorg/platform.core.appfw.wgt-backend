@@ -37,7 +37,7 @@ class StepGenerateXml : public common_installer::Step {
                                             xmlTextWriterPtr writer,
                                             AppCompType type);
 
-  SCOPE_LOG_TAG(GenerateXML)
+  STEP_NAME(GenerateXML)
 };
 
 }  // namespace pkgmgr

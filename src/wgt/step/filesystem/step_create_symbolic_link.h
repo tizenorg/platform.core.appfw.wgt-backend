@@ -56,7 +56,7 @@ class StepCreateSymbolicLink : public common_installer::Step {
   bool CreateSymlinksForApps();
   bool CreateSymlinksForAppWidgets();
 
-  SCOPE_LOG_TAG(SymbolicLink)
+  STEP_NAME(SymbolicLink)
 };
 
 }  // namespace filesystem

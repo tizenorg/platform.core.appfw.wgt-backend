@@ -25,7 +25,7 @@ class StepMergeTpkConfig : public common_installer::Step {
   Status undo() override { return Status::OK; }
   Status precheck() override { return Status::OK; }
 
-  SCOPE_LOG_TAG(MergeTpkConfig)
+  STEP_NAME(MergeTpkConfig)
 };
 
 }  // namespace configuration
