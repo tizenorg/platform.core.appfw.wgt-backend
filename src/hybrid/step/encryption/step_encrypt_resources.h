@@ -24,7 +24,7 @@ class StepEncryptResources : public wgt::encryption::StepEncryptResources {
  private:
   void SetEncryptionRoot() override;
 
-  SCOPE_LOG_TAG(EncryptResources)
+  STEP_NAME(EncryptResources)
 };
 
 }  // namespace encryption

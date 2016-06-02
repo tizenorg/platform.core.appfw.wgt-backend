@@ -36,7 +36,7 @@ class StepWgtPreparePackageDirectory : public common_installer::Step {
  private:
   Status CreateSymlinkToMountPoint();
 
-  SCOPE_LOG_TAG(WgtPreparePackageDirectory)
+  STEP_NAME(WgtPreparePackageDirectory)
 };
 
 }  // namespace filesystem

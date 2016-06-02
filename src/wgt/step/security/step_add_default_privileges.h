@@ -50,7 +50,7 @@ class StepAddDefaultPrivileges : public common_installer::Step {
    */
   Status precheck() override;
 
-  SCOPE_LOG_TAG(AddDefaultPrivileges)
+  STEP_NAME(AddDefaultPrivileges)
 };
 
 }  // namespace security

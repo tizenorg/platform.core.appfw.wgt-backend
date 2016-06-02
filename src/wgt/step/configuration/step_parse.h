@@ -74,7 +74,7 @@ class StepParse : public common_installer::Step {
   ConfigLocation config_location_;
   bool check_start_file_;
 
-  SCOPE_LOG_TAG(Parse)
+  STEP_NAME(Parse)
 };
 
 }  // namespace configuration

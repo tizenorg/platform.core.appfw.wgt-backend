@@ -63,7 +63,7 @@ class StepEncryptResources : public common_installer::Step {
   bool EncryptFile(const boost::filesystem::path &src);
   bool ToBeEncrypted(const boost::filesystem::path &file);
   WgtBackendData* backend_data_;
-  SCOPE_LOG_TAG(EncryptResources)
+  STEP_NAME(EncryptResources)
 };
 
 }  // namespace encryption

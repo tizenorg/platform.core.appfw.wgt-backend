@@ -31,7 +31,7 @@ class StepCheckWgtImePrivilege :
 
   Status CheckImePrivilege() const;
 
-  SCOPE_LOG_TAG(CheckWgtImePrivilege)
+  STEP_NAME(CheckWgtImePrivilege)
 };
 }  // namespace security
 }  // namespace wgt
