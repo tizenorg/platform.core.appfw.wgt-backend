@@ -24,7 +24,7 @@ class StepWgtUpdatePackageDirectory : public StepWgtPreparePackageDirectory {
   Status CreateBackupOfDirectories();
   Status RecoverBackupOfDirectories();
 
-  SCOPE_LOG_TAG(WgtUpdatePackageDirectory)
+  STEP_NAME(WgtUpdatePackageDirectory)
 };
 
 }  // namespace filesystem

@@ -31,7 +31,7 @@ class StepRemoveEncryptionData : public common_installer::Step {
   Status undo() override { return Status::OK; }
   Status precheck() override { return Status::OK; }
 
-  SCOPE_LOG_TAG(RemoveEncryptionData)
+  STEP_NAME(RemoveEncryptionData)
 };
 }  // namespace encryption
 }  // namespace wgt

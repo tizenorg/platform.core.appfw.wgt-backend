@@ -28,7 +28,7 @@ class StepWgtPatchIcons : public common_installer::Step {
   Status clean() override { return Status::OK; }
   Status precheck() override { return Status::OK; }
 
-  SCOPE_LOG_TAG(WgtPatchIcons)
+  STEP_NAME(WgtPatchIcons)
 };
 
 }  // namespace filesystem
