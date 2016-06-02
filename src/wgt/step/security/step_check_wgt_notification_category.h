@@ -24,6 +24,8 @@ class StepCheckWgtNotificationCategory :
   Status clean() override { return Status::OK; }
   Status undo() override { return Status::OK; }
   Status precheck() override { return Status::OK; }
+
+  STEP_NAME(CheckWgtNotificationCategory)
 };
 }  // namespace security
 }  // namespace wgt

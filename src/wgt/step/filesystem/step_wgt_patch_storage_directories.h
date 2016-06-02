@@ -30,7 +30,7 @@ class StepWgtPatchStorageDirectories :
   bool ShareDirFor3x();
   bool CreatePrivateTmpDir();
 
-  SCOPE_LOG_TAG(PatchWgtStorageDirectories)
+  STEP_NAME(PatchWgtStorageDirectories)
 };
 
 }  // namespace filesystem
