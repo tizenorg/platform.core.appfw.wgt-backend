@@ -23,7 +23,7 @@ namespace bs = boost::system;
 namespace {
 
 const char kWrtServiceBinaryPath[] = "/usr/bin/wrt-service";
-const char kWidgetClientBinaryPath[] = "/usr/bin/widget-client";
+const char kWebWidgetRuntimeBinaryPath[] = "/usr/bin/web-widget-runtime";
 
 }  // namespace
 
@@ -48,7 +48,7 @@ bool StepCreateSymbolicLink::CreateSymlinksForApps() {
     } else if (strcmp(app->component_type, "watchapp") == 0) {
       bf::create_symlink(bf::path(WRT_LAUNCHER), exec_path, error);
     } else if (strcmp(app->component_type, "widgetapp") == 0) {
-      bf::create_symlink(kWidgetClientBinaryPath, exec_path, error);
+      bf::create_symlink(kWebWidgetRuntimeBinaryPath, exec_path, error);
     } else {
       bf::create_symlink(kWrtServiceBinaryPath, exec_path, error);
     }
