@@ -23,6 +23,7 @@
 #include <common/step/filesystem/step_create_per_user_storage_directories.h>
 #include <common/step/filesystem/step_create_storage_directories.h>
 #include <common/step/filesystem/step_delta_patch.h>
+#include <common/step/filesystem/step_move_installed_storage.h>
 #include <common/step/filesystem/step_recover_files.h>
 #include <common/step/filesystem/step_recover_icons.h>
 #include <common/step/filesystem/step_recover_manifest.h>
@@ -375,6 +376,16 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      break;
+    }
+    case ci::RequestType::Move: {
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepMoveInstalledStorage>();
+      AddStep<ci::security::StepRegisterSecurity>();
       break;
     }
     default: {
