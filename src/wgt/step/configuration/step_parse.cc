@@ -200,6 +200,7 @@ bool StepParse::FillWidgetInfo(manifest_x* manifest) {
   manifest->appsetting = strdup("false");
   manifest->nodisplay_setting = strdup("false");
   manifest->preload = strdup("false");
+  manifest->installed_storage = strdup("installed_internal");
 
   // For wgt package use the long name
   for (auto& item : wgt_info->name_set()) {
