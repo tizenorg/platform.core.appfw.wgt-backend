@@ -4,7 +4,7 @@
 
 #include "wgt/step/configuration/step_parse_recovery.h"
 
-#include <common/backup_paths.h>
+#include <common/paths.h>
 #include <common/installer_context.h>
 
 namespace {
