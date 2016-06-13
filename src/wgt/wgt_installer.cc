@@ -38,6 +38,7 @@
 #include <common/step/mount/step_mount_unpacked.h>
 #include <common/step/mount/step_mount_update.h>
 #include <common/step/pkgmgr/step_check_removable.h>
+#include <common/step/pkgmgr/step_check_restriction.h>
 #include <common/step/pkgmgr/step_kill_apps.h>
 #include <common/step/pkgmgr/step_recover_application.h>
 #include <common/step/pkgmgr/step_register_app.h>
@@ -95,6 +96,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepUnzip>();
       AddStep<wgt::configuration::StepParse>(
         wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -163,6 +165,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::Uninstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::pkgmgr::StepCheckRemovable>();
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
@@ -186,6 +189,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, false);
+      AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::configuration::StepParseManifest>(
@@ -269,6 +273,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::mount::StepMountUnpacked>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
