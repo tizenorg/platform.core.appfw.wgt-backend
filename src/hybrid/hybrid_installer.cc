@@ -31,7 +31,9 @@
 #include <common/step/filesystem/step_remove_per_user_storage_directories.h>
 #include <common/step/filesystem/step_remove_temporary_directory.h>
 #include <common/step/filesystem/step_remove_zip_image.h>
+#include <common/step/filesystem/step_remove_tep.h>
 #include <common/step/filesystem/step_unzip.h>
+#include <common/step/filesystem/step_update_tep.h>
 #include <common/step/mount/step_mount_install.h>
 #include <common/step/mount/step_mount_unpacked.h>
 #include <common/step/mount/step_mount_update.h>
@@ -44,7 +46,6 @@
 #include <common/step/pkgmgr/step_run_parser_plugins.h>
 #include <common/step/pkgmgr/step_unregister_app.h>
 #include <common/step/pkgmgr/step_update_app.h>
-#include <common/step/pkgmgr/step_update_tep.h>
 #include <common/step/recovery/step_open_recovery_file.h>
 #include <common/step/security/step_check_signature.h>
 #include <common/step/security/step_privilege_compatibility.h>
@@ -151,8 +152,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
-      AddStep<ci::filesystem::StepCopyTep>();
-      AddStep<ci::pkgmgr::StepUpdateTep>();
+      AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
@@ -181,6 +181,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::filesystem::StepRemovePerUserStorageDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveTep>();
       AddStep<ci::filesystem::StepRemoveFiles>();
       AddStep<ci::filesystem::StepRemoveZipImage>();
       AddStep<ci::filesystem::StepRemoveIcons>();
@@ -221,6 +222,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
+      AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
@@ -323,8 +325,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::mount::StepMountUpdate>();
       AddStep<tpk::filesystem::StepTpkUpdatePackageDirectory>();
-      AddStep<ci::filesystem::StepCopyTep>();
-      AddStep<ci::pkgmgr::StepUpdateTep>();
+      AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<tpk::filesystem::StepTpkPatchIcons>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
