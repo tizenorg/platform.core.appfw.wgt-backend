@@ -33,8 +33,10 @@
 #include <common/step/filesystem/step_remove_icons.h>
 #include <common/step/filesystem/step_remove_per_user_storage_directories.h>
 #include <common/step/filesystem/step_remove_temporary_directory.h>
+#include <common/step/filesystem/step_remove_tep.h>
 #include <common/step/filesystem/step_remove_zip_image.h>
 #include <common/step/filesystem/step_unzip.h>
+#include <common/step/filesystem/step_update_tep.h>
 #include <common/step/mount/step_mount_install.h>
 #include <common/step/mount/step_mount_unpacked.h>
 #include <common/step/mount/step_mount_update.h>
@@ -47,7 +49,6 @@
 #include <common/step/pkgmgr/step_run_parser_plugins.h>
 #include <common/step/pkgmgr/step_unregister_app.h>
 #include <common/step/pkgmgr/step_update_app.h>
-#include <common/step/pkgmgr/step_update_tep.h>
 #include <common/step/recovery/step_open_recovery_file.h>
 #include <common/step/security/step_check_old_certificate.h>
 #include <common/step/security/step_check_signature.h>
@@ -149,8 +150,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
-      AddStep<ci::filesystem::StepCopyTep>();
-      AddStep<ci::pkgmgr::StepUpdateTep>();
+      AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
@@ -178,6 +178,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepRemovePerUserStorageDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveTep>();
       AddStep<ci::filesystem::StepRemoveFiles>();
       AddStep<ci::filesystem::StepRemoveZipImage>();
       AddStep<ci::filesystem::StepRemoveIcons>();
@@ -199,6 +200,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepBlockCrossUpdate>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::rds::StepRDSParse>();
+      AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<wgt::rds::StepWgtRDSModify>();
       AddStep<ci::security::StepUpdateSecurity>();
       break;
@@ -232,6 +234,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
+      AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
@@ -323,8 +326,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::backup::StepBackupIcons>();
       AddStep<ci::mount::StepMountUpdate>();
       AddStep<wgt::filesystem::StepWgtUpdatePackageDirectory>();
-      AddStep<ci::filesystem::StepCopyTep>();
-      AddStep<ci::pkgmgr::StepUpdateTep>();
+      AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
       AddStep<wgt::filesystem::StepCreateSymbolicLink>();
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
