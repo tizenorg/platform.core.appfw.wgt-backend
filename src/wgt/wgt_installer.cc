@@ -38,6 +38,7 @@
 #include <common/step/mount/step_mount_unpacked.h>
 #include <common/step/mount/step_mount_update.h>
 #include <common/step/pkgmgr/step_check_removable.h>
+#include <common/step/pkgmgr/step_check_restriction.h>
 #include <common/step/pkgmgr/step_kill_apps.h>
 #include <common/step/pkgmgr/step_recover_application.h>
 #include <common/step/pkgmgr/step_register_app.h>
@@ -92,6 +93,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
   switch (pkgmgr_->GetRequestType()) {
     case ci::RequestType::Install : {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::filesystem::StepUnzip>();
       AddStep<wgt::configuration::StepParse>(
         wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
@@ -163,6 +165,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::Uninstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::pkgmgr::StepCheckRemovable>();
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
@@ -184,6 +187,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::Reinstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, false);
       AddStep<ci::configuration::StepCheckTizenVersion>();
@@ -266,6 +270,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
     }
     case ci::RequestType::MountInstall: {
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::mount::StepMountUnpacked>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
