@@ -8,7 +8,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include <common/app_installer.h>
-#include <common/backup_paths.h>
+#include <common/paths.h>
 #include <common/installer_context.h>
 #include <common/step/step.h>
 #include <common/utils/glist_range.h>
