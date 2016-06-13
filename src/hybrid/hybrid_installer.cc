@@ -31,6 +31,7 @@
 #include <common/step/filesystem/step_remove_per_user_storage_directories.h>
 #include <common/step/filesystem/step_remove_temporary_directory.h>
 #include <common/step/filesystem/step_remove_zip_image.h>
+#include <common/step/filesystem/step_remove_tep.h>
 #include <common/step/filesystem/step_unzip.h>
 #include <common/step/mount/step_mount_install.h>
 #include <common/step/mount/step_mount_unpacked.h>
@@ -178,6 +179,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::filesystem::StepRemovePerUserStorageDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveTep>();
       AddStep<ci::filesystem::StepRemoveFiles>();
       AddStep<ci::filesystem::StepRemoveZipImage>();
       AddStep<ci::filesystem::StepRemoveIcons>();
