@@ -82,6 +82,7 @@
 #include "wgt/step/security/step_check_wgt_notification_category.h"
 #include "wgt/step/security/step_check_wgt_ime_privilege.h"
 #include "wgt/step/security/step_direct_manifest_check_signature.h"
+#include "wgt/step/security/step_check_extension_privileges.h"
 
 namespace ci = common_installer;
 
@@ -118,6 +119,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepCopyPreviewIcons>();
+      AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
@@ -157,6 +159,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
+      AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
@@ -202,6 +205,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::rds::StepRDSParse>();
       AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<wgt::rds::StepWgtRDSModify>();
+      AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<ci::security::StepUpdateSecurity>();
       break;
     }
@@ -241,6 +245,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepCopyPreviewIcons>();
       AddStep<ci::filesystem::StepCopyStorageDirectories>();
+      AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
@@ -301,6 +306,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Install);
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<ci::security::StepRegisterSecurity>();
       break;
     }
@@ -332,6 +338,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::filesystem::StepWgtPatchIcons>();
       AddStep<ci::filesystem::StepCreateIcons>();
       AddStep<wgt::filesystem::StepCopyPreviewIcons>();
+      AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<ci::security::StepUpdateSecurity>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
