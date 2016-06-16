@@ -11,7 +11,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/system/error_code.hpp>
 
-#include <common/pkgmgr_registration.h>
+#include <common/pkgmgr_query.h>
 #include <common/recovery_file.h>
 #include <common/request.h>
 #include <common/utils/file_util.h>
@@ -107,21 +107,21 @@ bool WgtAppQueryInterface::IsAppInstalledByArgv(int argc, char** argv) {
     return false;
 
   // argument from commandline is package id
-  if (ci::IsPackageInstalled(arg, ci::GetRequestMode()))
+  if (ci::QueryIsPackageInstalled(arg, ci::GetRequestMode()))
     return true;
 
   // argument from commandline is path to file
   std::string pkg_id = GetPkgIdFromPath(arg);
   if (pkg_id.empty())
     return false;
-  return ci::IsPackageInstalled(pkg_id, ci::GetRequestMode());
+  return ci::QueryIsPackageInstalled(pkg_id, ci::GetRequestMode());
 }
 
 bool WgtAppQueryInterface::IsHybridApplication(int argc, char** argv) {
   std::string arg = GetInstallationRequestInfo(argc, argv);
   if (arg.find("apps_rw/recovery-") != std::string::npos)
     arg = ReadPkgidFromRecovery(arg);
-  if (ci::IsPackageInstalled(arg, ci::GetRequestMode())) {
+  if (ci::QueryIsPackageInstalled(arg, ci::GetRequestMode())) {
     bf::path package_directory(ci::GetRootAppPath(false));
     if (bf::exists(package_directory / arg / kTizenManifestLocation) &&
         bf::exists(package_directory / arg / kHybridConfigLocation))
