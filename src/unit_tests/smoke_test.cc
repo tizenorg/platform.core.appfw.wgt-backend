@@ -8,7 +8,7 @@
 #include <boost/system/error_code.hpp>
 #include <common/paths.h>
 #include <common/pkgmgr_interface.h>
-#include <common/pkgmgr_registration.h>
+#include <common/pkgmgr_query.h>
 #include <common/request.h>
 #include <common/step/configuration/step_fail.h>
 #include <common/tzip_interface.h>
@@ -217,13 +217,13 @@ void PackageCheckCleanup(const std::string& pkgid,
 
 void ValidatePackage(const std::string& pkgid,
                      const std::vector<std::string>& appids) {
-  ASSERT_TRUE(ci::IsPackageInstalled(pkgid, ci::GetRequestMode()));
+  ASSERT_TRUE(ci::QueryIsPackageInstalled(pkgid, ci::GetRequestMode()));
   ValidatePackageFS(pkgid, appids);
 }
 
 void CheckPackageNonExistance(const std::string& pkgid,
                               const std::vector<std::string>& appids) {
-  ASSERT_FALSE(ci::IsPackageInstalled(pkgid, ci::GetRequestMode()));
+  ASSERT_FALSE(ci::QueryIsPackageInstalled(pkgid, ci::GetRequestMode()));
   PackageCheckCleanup(pkgid, appids);
 }
 
