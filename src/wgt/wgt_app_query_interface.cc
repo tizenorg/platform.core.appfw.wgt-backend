@@ -11,7 +11,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/system/error_code.hpp>
 
-#include <common/pkgmgr_registration.h>
+#include <common/pkgmgr_query.h>
 #include <common/recovery_file.h>
 #include <common/request.h>
 #include <common/utils/file_util.h>
