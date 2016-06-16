@@ -18,8 +18,10 @@ SET(SRCS
   step/security/step_check_wgt_notification_category.cc
   step/security/step_check_wgt_ime_privilege.cc
   step/security/step_direct_manifest_check_signature.cc
+  step/security/step_check_extension_privileges.cc
   wgt_app_query_interface.cc
   wgt_installer.cc
+  extension_config_parser.cc
 )
 
 IF(WRT_LAUNCHER)
