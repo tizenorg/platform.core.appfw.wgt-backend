@@ -82,6 +82,7 @@ void SetApplicationXDefaults(application_x* application) {
   application->submode = strdup("false");
   application->support_disable = strdup("false");
   application->ui_gadget = strdup("false");
+  application->multiple = strdup("false");
 }
 
 template<typename T>
@@ -94,7 +95,6 @@ void AppendLabel(T* root, const std::string& label,
       strdup(locale.c_str()) : strdup(DEFAULT_LOCALE);
   root->label = g_list_append(root->label, label_item);
 }
-
 }  // namespace
 
 namespace wgt {
@@ -146,16 +146,16 @@ bool StepParse::FillInstallationInfo(manifest_x* manifest) {
 }
 
 bool StepParse::FillIconPaths(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::TizenApplicationInfo> app_info =
-      std::static_pointer_cast<const wgt::parse::TizenApplicationInfo>(
-          parser_->GetManifestData(app_keys::kTizenApplicationKey));
+  auto app_info =
+      GetManifestDataForKey<const wgt::parse::TizenApplicationInfo>(
+             app_keys::kTizenApplicationKey);
   if (!app_info) {
     LOG(ERROR) << "Application info manifest data has not been found.";
     return false;
   }
-  std::shared_ptr<const wgt::parse::ApplicationIconsInfo> icons_info =
-      std::static_pointer_cast<const wgt::parse::ApplicationIconsInfo>(
-          parser_->GetManifestData(app_keys::kIconsKey));
+  auto icons_info =
+      GetManifestDataForKey<const wgt::parse::ApplicationIconsInfo>(
+             app_keys::kIconsKey);
   if (icons_info.get()) {
     for (auto& application_icon : icons_info->icons()) {
       icon_x* icon = reinterpret_cast<icon_x*> (calloc(1, sizeof(icon_x)));
@@ -170,9 +170,10 @@ bool StepParse::FillIconPaths(manifest_x* manifest) {
 }
 
 bool StepParse::FillWidgetInfo(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::WidgetInfo> wgt_info =
-      std::static_pointer_cast<const wgt::parse::WidgetInfo>(
-          parser_->GetManifestData(app_keys::kWidgetKey));
+  auto wgt_info =
+      GetManifestDataForKey<const wgt::parse::WidgetInfo>(
+             app_keys::kWidgetKey);
+
   if (!wgt_info.get()) {
     LOG(ERROR) << "Widget info manifest data has not been found.";
     return false;
@@ -203,9 +204,9 @@ bool StepParse::FillWidgetInfo(manifest_x* manifest) {
   manifest->installed_storage = strdup("installed_internal");
 
   // For wgt package use the long name
+  application_x* app =
+      reinterpret_cast<application_x*>(manifest->application->data);
   for (auto& item : wgt_info->name_set()) {
-    application_x* app =
-        reinterpret_cast<application_x*>(manifest->application->data);
     AppendLabel(app, item.second, item.first);
   }
 
@@ -219,10 +220,9 @@ bool StepParse::FillWidgetInfo(manifest_x* manifest) {
   author->lang = strdup(DEFAULT_LOCALE);
   manifest->author = g_list_append(manifest->author, author);
 
-  std::shared_ptr<const wgt::parse::SettingInfo> settings_info =
-      std::static_pointer_cast<const wgt::parse::SettingInfo>(
-          parser_->GetManifestData(
-              wgt::application_widget_keys::kTizenSettingKey));
+  auto settings_info =
+      GetManifestDataForKey<const wgt::parse::SettingInfo>(
+             wgt::application_widget_keys::kTizenSettingKey);
   if (settings_info) {
     switch (settings_info->install_location()) {
     case wgt::parse::SettingInfo::InstallLocation::AUTO: {
@@ -246,18 +246,19 @@ bool StepParse::FillWidgetInfo(manifest_x* manifest) {
 }
 
 bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::TizenApplicationInfo> app_info =
-      std::static_pointer_cast<const wgt::parse::TizenApplicationInfo>(
-          parser_->GetManifestData(app_keys::kTizenApplicationKey));
+  auto app_info =
+      GetManifestDataForKey<const wgt::parse::TizenApplicationInfo>(
+             app_keys::kTizenApplicationKey);
   if (!app_info) {
     LOG(ERROR) << "Application info manifest data has not been found.";
     return false;
   }
   bool has_watch_catergory = false;
   bool has_ime = false;
-  std::shared_ptr<const wgt::parse::CategoryInfoList> category_info =
-      std::static_pointer_cast<const wgt::parse::CategoryInfoList>(
-          parser_->GetManifestData(app_keys::kTizenCategoryKey));
+  auto category_info =
+      GetManifestDataForKey<const wgt::parse::CategoryInfoList>(
+             app_keys::kTizenCategoryKey);
+
   if (category_info) {
     has_watch_catergory = std::find_if(category_info->categories.begin(),
                                        category_info->categories.end(),
@@ -277,7 +278,6 @@ bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
   application->component_type =
       has_watch_catergory ? strdup("watchapp") : strdup("uiapp");
   application->mainapp = strdup("true");
-  application->multiple = strdup("false");
   application->appid = strdup(app_info->id().c_str());
   application->nodisplay = has_ime ? strdup("true") : strdup("false");
   application->taskmanage = has_ime ? strdup("false") : strdup("true");
@@ -304,7 +304,8 @@ bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
     app_icon->lang = strdup(icon->lang);
     application->icon = g_list_append(application->icon, app_icon);
   }
-  manifest->application = g_list_append(manifest->application, application);
+  // guarantees that the main app will be at the begining of the list
+  manifest->application = g_list_insert(manifest->application, application, 0);
 
   manifest->package = strdup(app_info->package().c_str());
   manifest->mainapp_id = strdup(app_info->id().c_str());
@@ -312,9 +313,9 @@ bool StepParse::FillMainApplicationInfo(manifest_x* manifest) {
 }
 
 bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::ServiceList> service_list =
-      std::static_pointer_cast<const wgt::parse::ServiceList>(
-          parser_->GetManifestData(app_keys::kTizenServiceKey));
+  auto service_list =
+      GetManifestDataForKey<const wgt::parse::ServiceList>(
+             app_keys::kTizenServiceKey);
   if (!service_list)
     return true;
   for (auto& service_info : service_list->services) {
@@ -322,7 +323,6 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
         (calloc(1, sizeof(application_x)));
     application->component_type = strdup("svcapp");
     application->mainapp = strdup("false");
-    application->multiple = strdup("false");
     application->appid = strdup(service_info.id().c_str());
     application->exec =
         strdup((context_->root_application_path.get() / manifest->package
@@ -373,10 +373,9 @@ bool StepParse::FillServiceApplicationInfo(manifest_x* manifest) {
 }
 
 bool StepParse::FillWidgetApplicationInfo(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::AppWidgetInfo> appwidget_info =
-      std::static_pointer_cast<const wgt::parse::AppWidgetInfo>(
-          parser_->GetManifestData(
-              wgt::application_widget_keys::kTizenAppWidgetFullKey));
+  auto appwidget_info =
+      GetManifestDataForKey<const wgt::parse::AppWidgetInfo>(
+             wgt::application_widget_keys::kTizenAppWidgetFullKey);
   if (!appwidget_info)
     return true;
   for (auto& app_widget : appwidget_info->app_widgets()) {
@@ -384,7 +383,6 @@ bool StepParse::FillWidgetApplicationInfo(manifest_x* manifest) {
         (calloc(1, sizeof(application_x)));
     application->component_type = strdup("widgetapp");
     application->mainapp = strdup("false");
-    application->multiple = strdup("false");
     application->appid = strdup(app_widget.id.c_str());
     application->exec =
         strdup((context_->root_application_path.get() / manifest->package
@@ -439,9 +437,9 @@ bool StepParse::FillBackgroundCategoryInfo(manifest_x* manifest) {
 }
 
 bool StepParse::FillAppControl(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::AppControlInfoList> app_info_list =
-      std::static_pointer_cast<const wgt::parse::AppControlInfoList>(
-          parser_->GetManifestData(app_keys::kTizenApplicationAppControlsKey));
+  auto app_info_list =
+      GetManifestDataForKey<const wgt::parse::AppControlInfoList>(
+             app_keys::kTizenApplicationAppControlsKey);
 
   application_x* app =
       reinterpret_cast<application_x*>(manifest->application->data);
@@ -459,9 +457,9 @@ bool StepParse::FillAppControl(manifest_x* manifest) {
 }
 
 bool StepParse::FillPrivileges(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::PermissionsInfo> perm_info =
-      std::static_pointer_cast<const wgt::parse::PermissionsInfo>(
-          parser_->GetManifestData(app_keys::kTizenPermissionsKey));
+  auto perm_info =
+      GetManifestDataForKey<const wgt::parse::PermissionsInfo>(
+             app_keys::kTizenPermissionsKey);
   std::set<std::string> privileges;
   if (perm_info)
     privileges = ExtractPrivileges(perm_info);
@@ -474,9 +472,9 @@ bool StepParse::FillPrivileges(manifest_x* manifest) {
 }
 
 bool StepParse::FillCategories(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::CategoryInfoList> category_info =
-      std::static_pointer_cast<const wgt::parse::CategoryInfoList>(
-          parser_->GetManifestData(app_keys::kTizenCategoryKey));
+  auto category_info =
+      GetManifestDataForKey<const wgt::parse::CategoryInfoList>(
+             app_keys::kTizenCategoryKey);
   if (!category_info)
     return true;
 
@@ -490,9 +488,9 @@ bool StepParse::FillCategories(manifest_x* manifest) {
 }
 
 bool StepParse::FillMetadata(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::MetaDataInfo> meta_info =
-      std::static_pointer_cast<const wgt::parse::MetaDataInfo>(
-          parser_->GetManifestData(app_keys::kTizenMetaDataKey));
+  auto meta_info =
+      GetManifestDataForKey<const wgt::parse::MetaDataInfo>(
+             app_keys::kTizenMetaDataKey);
   if (!meta_info)
     return true;
 
@@ -507,19 +505,18 @@ bool StepParse::FillAppWidget() {
   WgtBackendData* backend_data =
       static_cast<WgtBackendData*>(context_->backend_data.get());
 
-  std::shared_ptr<const wgt::parse::AppWidgetInfo> appwidget_info =
-      std::static_pointer_cast<const wgt::parse::AppWidgetInfo>(
-          parser_->GetManifestData(
-              wgt::application_widget_keys::kTizenAppWidgetFullKey));
+  auto appwidget_info =
+      GetManifestDataForKey<const wgt::parse::AppWidgetInfo>(
+             wgt::application_widget_keys::kTizenAppWidgetFullKey);
   if (appwidget_info)
     backend_data->appwidgets.set(*appwidget_info);
   return true;
 }
 
 bool StepParse::FillAccounts(manifest_x* manifest) {
-  std::shared_ptr<const wgt::parse::AccountInfo> account_info =
-      std::static_pointer_cast<const wgt::parse::AccountInfo>(
-          parser_->GetManifestData(app_keys::kAccountKey));
+  auto account_info =
+      GetManifestDataForKey<const wgt::parse::AccountInfo>(
+             app_keys::kAccountKey);
   if (!account_info)
     return true;
   common_installer::AccountInfo info;
@@ -538,8 +535,9 @@ bool StepParse::FillAccounts(manifest_x* manifest) {
 }
 
 bool StepParse::FillImeInfo() {
-  const auto ime_info = std::static_pointer_cast<const wgt::parse::ImeInfo>(
-      parser_->GetManifestData(app_keys::kTizenImeKey));
+  auto ime_info =
+      GetManifestDataForKey<const wgt::parse::ImeInfo>(
+             app_keys::kAccountKey);
   if (!ime_info)
     return true;
 
@@ -645,14 +643,12 @@ common_installer::Step::Status StepParse::process() {
   }
 
   // Copy data from ManifestData to InstallerContext
-  std::shared_ptr<const wgt::parse::TizenApplicationInfo> info =
-      std::static_pointer_cast<const wgt::parse::TizenApplicationInfo>(
-          parser_->GetManifestData(
-              wgt::application_widget_keys::kTizenApplicationKey));
-  std::shared_ptr<const wgt::parse::WidgetInfo> wgt_info =
-      std::static_pointer_cast<const wgt::parse::WidgetInfo>(
-          parser_->GetManifestData(
-              wgt::application_widget_keys::kTizenWidgetKey));
+  auto info =
+      GetManifestDataForKey<const wgt::parse::TizenApplicationInfo>(
+              wgt::application_widget_keys::kTizenApplicationKey);
+  auto wgt_info =
+      GetManifestDataForKey<const wgt::parse::WidgetInfo>(
+              wgt::application_widget_keys::kTizenWidgetKey);
 
   std::string name;
   const auto& name_set = wgt_info->name_set();
@@ -681,10 +677,9 @@ common_installer::Step::Status StepParse::process() {
     context_->recovery_info.get().recovery_file->WriteAndCommitFileContent();
   }
 
-  std::shared_ptr<const wgt::parse::PermissionsInfo> perm_info =
-      std::static_pointer_cast<const wgt::parse::PermissionsInfo>(
-          parser_->GetManifestData(
-              wgt::application_widget_keys::kTizenPermissionsKey));
+  auto perm_info =
+      GetManifestDataForKey<const wgt::parse::PermissionsInfo>(
+              wgt::application_widget_keys::kTizenPermissionsKey);
   parser::PermissionSet permissions;
   if (perm_info)
      permissions = perm_info->GetAPIPermissions();
@@ -692,10 +687,9 @@ common_installer::Step::Status StepParse::process() {
   WgtBackendData* backend_data =
       static_cast<WgtBackendData*>(context_->backend_data.get());
 
-  std::shared_ptr<const wgt::parse::SettingInfo> settings_info =
-      std::static_pointer_cast<const wgt::parse::SettingInfo>(
-          parser_->GetManifestData(
-              wgt::application_widget_keys::kTizenSettingKey));
+  auto settings_info =
+      GetManifestDataForKey<const wgt::parse::SettingInfo>(
+              wgt::application_widget_keys::kTizenSettingKey);
   if (settings_info)
     backend_data->settings.set(*settings_info);
 
