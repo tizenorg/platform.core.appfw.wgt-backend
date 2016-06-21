@@ -1,7 +1,6 @@
 // Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a apache 2.0 license that can be
 // found in the LICENSE file.
-
 #ifndef WGT_STEP_CONFIGURATION_STEP_PARSE_H_
 #define WGT_STEP_CONFIGURATION_STEP_PARSE_H_
 
@@ -15,6 +14,8 @@
 #include <wgt_manifest_handlers/permissions_handler.h>
 #include <wgt_manifest_handlers/widget_config_parser.h>
 
+#include <type_traits>
+#include <cassert>
 #include <memory>
 #include <set>
 #include <string>
@@ -74,6 +75,14 @@ class StepParse : public common_installer::Step {
   std::unique_ptr<wgt::parse::WidgetConfigParser> parser_;
   ConfigLocation config_location_;
   bool check_start_file_;
+
+  template<typename T>
+  std::shared_ptr<const T> GetManifestDataForKey(const std::string& key) {
+      assert(!key.empty());
+      static_assert(std::is_base_of<parser::ManifestData, T>::value,
+              "Type is not base of parser::ManifestData");
+      return std::static_pointer_cast<const T>(parser_->GetManifestData(key));
+  }
 
   STEP_NAME(Parse)
 };
