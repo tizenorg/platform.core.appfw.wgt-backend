@@ -499,6 +499,10 @@ void StepGenerateXml::GenerateAccount(xmlTextWriterPtr writer) {
         xmlTextWriterWriteAttribute(writer,
                                     BAD_CAST "multiple-accounts-support",
                                     BAD_CAST "true");
+      else
+        xmlTextWriterWriteAttribute(writer,
+                                    BAD_CAST "multiple-accounts-support",
+                                    BAD_CAST "false");
       for (auto& icon_pair : account.icon_paths) {
         xmlTextWriterStartElement(writer, BAD_CAST "icon");
         if (icon_pair.first == "AccountSmall")
