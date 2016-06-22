@@ -1,4 +1,4 @@
-/* 2014, Copyright © Intel Coporation, license APACHE-2.0, see LICENSE file */
+/* 2014,opyright © Intel Coporation, license APACHE-2.0, see LICENSE file */
 // Copyright (c) 2015 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a apache 2.0 license that can be
 // found in the LICENSE file.
@@ -108,7 +108,11 @@ bool WriteWidgetApplicationAttributesAndElements(
 
   xmlTextWriterWriteAttribute(writer, BAD_CAST "main",
       BAD_CAST (appwidget->primary ? "true" : "false"));  // NOLINT
-  xmlTextWriterWriteAttribute(writer, BAD_CAST "update-period", BAD_CAST "0");
+  if (!appwidget->update_period.empty()) {
+        xmlTextWriterWriteAttribute(writer, BAD_CAST "update-period", BAD_CAST
+            std::to_string(static_cast<int>(
+                    appwidget->update_period.front())).c_str());
+  }
 
   for (auto& size : appwidget->content_size) {
     xmlTextWriterStartElement(writer, BAD_CAST "support-size");
@@ -297,7 +301,8 @@ common_installer::Step::Status StepGenerateXml::precheck() {
   }
   if (context_->pkgid.get().empty()) {
     LOG(ERROR) << "pkgid attribute is empty";
-    return Step::Status::PACKAGE_NOT_FOUND;   }
+    return Step::Status::PACKAGE_NOT_FOUND;
+  }
 
   if (!context_->manifest_data.get()->application) {
     LOG(ERROR) << "No application in package";
