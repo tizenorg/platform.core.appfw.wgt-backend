@@ -388,7 +388,7 @@ bool StepParse::FillWidgetApplicationInfo(manifest_x* manifest) {
         strdup((context_->root_application_path.get() / manifest->package
                 / "bin" / application->appid).c_str());
     application->type = strdup("webapp");
-    application->nodisplay = strdup("false");
+    application->nodisplay = strdup("true");
     application->taskmanage = strdup("false");
     SetApplicationXDefaults(application);
     application->ambient_support = strdup("false");
