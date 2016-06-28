@@ -119,7 +119,8 @@ bool WriteWidgetApplicationAttributesAndElements(
 
     std::string type = wgt::parse::AppWidgetSizeTypeToString(size.type);
     if (!size.preview.empty()) {
-      std::string icon_name = shared_path.string() + "/" + appwidget->id + "." + type + "." + "preview" +
+      std::string icon_name = shared_path.string() + "/"
+          + appwidget->id + "." + type + "." + "preview" +
           bf::path(size.preview).extension().string();
       xmlTextWriterWriteAttribute(writer, BAD_CAST "preview",
           BAD_CAST icon_name.c_str());  // NOLINT
