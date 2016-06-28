@@ -208,7 +208,6 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::configuration::StepBlockCrossUpdate>();
-      AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::rds::StepRDSParse>();
       AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<wgt::rds::StepWgtRDSModify>();
