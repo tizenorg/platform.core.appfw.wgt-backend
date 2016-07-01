@@ -52,6 +52,10 @@ bool StepWgtPatchStorageDirectories::ShareDirFor3x() {
   bf::path src = context_->pkg_path.get() / kResWgtSubPath / kSharedResLocation;
   if (!bf::exists(src))
     return true;
+  if (!bf::is_directory(src)) {
+    LOG(WARNING) << "Widget's shared/res/ is not directory";
+    return true;
+  }
   bf::path dst = context_->pkg_path.get() / kSharedResLocation;
   if (!common_installer::MoveDir(src, dst,
                                  common_installer::FS_MERGE_DIRECTORIES)) {
