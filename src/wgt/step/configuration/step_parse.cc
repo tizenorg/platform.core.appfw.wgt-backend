@@ -537,7 +537,7 @@ bool StepParse::FillAccounts(manifest_x* manifest) {
 bool StepParse::FillImeInfo() {
   auto ime_info =
       GetManifestDataForKey<const wgt::parse::ImeInfo>(
-             app_keys::kAccountKey);
+             app_keys::kTizenImeKey);
   if (!ime_info)
     return true;
 
