@@ -65,7 +65,7 @@ common_installer::Step::Status StepCheckExtensionPrivileges::process() {
   }
 
   if (!privileges.empty()) {
-    if (!CheckPriviligeLevel(privileges)) {
+    if (!CheckPrivilegeLevel(privileges)) {
       LOG(DEBUG) << "Fail to validation of privilege";
       return Status::ERROR;
     }
@@ -103,7 +103,7 @@ std::string StepCheckExtensionPrivileges::GetExtensionPath() {
   return app_ext_config_pattern;
 }
 
-bool StepCheckExtensionPrivileges::CheckPriviligeLevel(
+bool StepCheckExtensionPrivileges::CheckPrivilegeLevel(
     std::set<std::string> priv_set) {
   GList* privileges = nullptr;
   for (auto it = priv_set.begin(); it != priv_set.end(); ++it) {
@@ -119,12 +119,13 @@ bool StepCheckExtensionPrivileges::CheckPriviligeLevel(
          context_->manifest_data.get()->api_version,
          privileges,
          &error_message)) {
+         g_list_free(privileges);
     if (!error_message.empty()) {
       LOG(ERROR) << "error_message: " << error_message;
-      return false;
     }
     return false;
   }
+  g_list_free(privileges);
   return true;
 }
 
