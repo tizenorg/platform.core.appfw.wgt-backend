@@ -45,7 +45,7 @@ class StepCheckExtensionPrivileges : public common_installer::Step {
   Status precheck() override;
  private:
   std::string GetExtensionPath();
-  bool CheckPriviligeLevel(std::set<std::string> priv_set);
+  bool CheckPrivilegeLevel(std::set<std::string> priv_set);
   STEP_NAME(CheckExtensionPrivileges)
 };
 
