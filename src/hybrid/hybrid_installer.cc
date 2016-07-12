@@ -46,6 +46,7 @@
 #include <common/step/pkgmgr/step_run_parser_plugins.h>
 #include <common/step/pkgmgr/step_unregister_app.h>
 #include <common/step/pkgmgr/step_update_app.h>
+#include <common/step/pkgmgr/step_update_pkg_disable_info.h>
 #include <common/step/recovery/step_open_recovery_file.h>
 #include <common/step/security/step_check_signature.h>
 #include <common/step/security/step_privilege_compatibility.h>
@@ -386,6 +387,28 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
+      break;
+    case ci::RequestType::EnablePkg:
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::pkgmgr::StepUpdatePkgDisableInfo>(
+        ci::pkgmgr::StepUpdatePkgDisableInfo::ActionType::Enable);
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+        ci::Plugin::ActionType::Uninstall);
+      break;
+    case ci::RequestType::DisablePkg:
+      AddStep<ci::configuration::StepConfigure>(pkgmgr_);
+      AddStep<ci::configuration::StepParseManifest>(
+          ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
+          ci::configuration::StepParseManifest::StoreLocation::NORMAL);
+      AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::pkgmgr::StepUpdatePkgDisableInfo>(
+        ci::pkgmgr::StepUpdatePkgDisableInfo::ActionType::Disable);
+      AddStep<ci::pkgmgr::StepRunParserPlugin>(
+        ci::Plugin::ActionType::Uninstall);
       break;
     default:
       AddStep<ci::configuration::StepFail>();
