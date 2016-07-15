@@ -21,6 +21,8 @@
 #include <common/step/filesystem/step_create_per_user_storage_directories.h>
 #include <common/step/filesystem/step_create_storage_directories.h>
 #include <common/step/filesystem/step_delta_patch.h>
+#include <common/step/filesystem/step_disable_external_mount.h>
+#include <common/step/filesystem/step_enable_external_mount.h>
 #include <common/step/filesystem/step_recover_files.h>
 #include <common/step/filesystem/step_recover_icons.h>
 #include <common/step/filesystem/step_recover_manifest.h>
@@ -203,7 +205,9 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::configuration::StepParseManifest>(
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
+      AddStep<ci::filesystem::StepEnableExternalMount>();
       AddStep<ci::filesystem::StepDeltaPatch>();
+      AddStep<ci::filesystem::StepDisableExternalMount>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::RESOURCE_WGT, true);
       AddStep<hybrid::configuration::StepMergeTpkConfig>();
