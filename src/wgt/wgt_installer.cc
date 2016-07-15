@@ -220,6 +220,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::configuration::StepCheckTizenVersion>();
+      AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::filesystem::StepDeltaPatch>("res/wgt/");
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
@@ -236,7 +237,6 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
-      AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<wgt::filesystem::StepWgtPatchStorageDirectories>();
