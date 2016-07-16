@@ -123,6 +123,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     case ci::RequestType::Update:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -188,6 +189,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::encryption::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
       AddStep<ci::pkgmgr::StepRemoveManifest>();
+      AddStep<ci::filesystem::StepDeleteLegacyDirectories>();
       break;
     case ci::RequestType::Reinstall:
       // RDS is not supported for hybrid apps
@@ -296,6 +298,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     case ci::RequestType::MountUpdate:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -360,6 +363,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     case ci::RequestType::ManifestDirectUpdate:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);

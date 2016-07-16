@@ -126,6 +126,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::Plugin::ActionType::Install);
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
       AddStep<ci::security::StepRegisterSecurity>();
+      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     }
     case ci::RequestType::Update: {
@@ -188,6 +189,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::encryption::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
       AddStep<ci::pkgmgr::StepRemoveManifest>();
+      AddStep<ci::filesystem::StepDeleteLegacyDirectories>();
       break;
     }
     case ci::RequestType::Reinstall: {
@@ -308,6 +310,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
       AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<ci::security::StepRegisterSecurity>();
+      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     }
     case ci::RequestType::MountUpdate: {
