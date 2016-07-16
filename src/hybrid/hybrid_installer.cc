@@ -19,6 +19,7 @@
 #include <common/step/filesystem/step_copy_tep.h>
 #include <common/step/filesystem/step_create_icons.h>
 #include <common/step/filesystem/step_create_per_user_storage_directories.h>
+#include <common/step/filesystem/step_create_legacy_directories.h>
 #include <common/step/filesystem/step_create_storage_directories.h>
 #include <common/step/filesystem/step_delta_patch.h>
 #include <common/step/filesystem/step_recover_files.h>
@@ -29,6 +30,7 @@
 #include <common/step/filesystem/step_remove_files.h>
 #include <common/step/filesystem/step_remove_icons.h>
 #include <common/step/filesystem/step_remove_per_user_storage_directories.h>
+#include <common/step/filesystem/step_remove_legacy_directories.h>
 #include <common/step/filesystem/step_remove_temporary_directory.h>
 #include <common/step/filesystem/step_remove_zip_image.h>
 #include <common/step/filesystem/step_remove_tep.h>
@@ -124,6 +126,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     case ci::RequestType::Update:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -184,6 +187,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveTep>();
       AddStep<ci::filesystem::StepRemoveFiles>();
+      AddStep<ci::filesystem::StepRemoveLegacyDirectories>();
       AddStep<ci::filesystem::StepRemoveZipImage>();
       AddStep<ci::filesystem::StepRemoveIcons>();
       AddStep<wgt::encryption::StepRemoveEncryptionData>();
@@ -297,6 +301,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     case ci::RequestType::MountUpdate:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -361,6 +366,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
+      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     case ci::RequestType::ManifestDirectUpdate:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
