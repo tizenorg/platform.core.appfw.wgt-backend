@@ -54,7 +54,7 @@ enum class RequestResult {
 class ScopedTzipInterface {
  public:
   explicit ScopedTzipInterface(const std::string& pkgid)
-      : pkg_path_(bf::path(ci::GetRootAppPath(false)) / pkgid),
+      : pkg_path_(bf::path(ci::GetRootAppPath(false, getuid())) / pkgid),
         interface_(ci::GetMountLocation(pkg_path_)) {
     interface_.MountZip(ci::GetZipPackageLocation(pkg_path_, pkgid));
   }
@@ -98,7 +98,7 @@ bool TouchFile(const bf::path& path) {
 }
 
 void RemoveAllRecoveryFiles() {
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   if (!bf::exists(root_path))
     return;
   for (auto& dir_entry : boost::make_iterator_range(
@@ -113,7 +113,7 @@ void RemoveAllRecoveryFiles() {
 }
 
 bf::path FindRecoveryFile() {
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   for (auto& dir_entry : boost::make_iterator_range(
          bf::directory_iterator(root_path), bf::directory_iterator())) {
     if (bf::is_regular_file(dir_entry)) {
@@ -128,7 +128,7 @@ bf::path FindRecoveryFile() {
 bool ValidateFileContentInPackage(const std::string& pkgid,
                                   const std::string& relative,
                                   const std::string& expected) {
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   bf::path file_path = root_path / pkgid / relative;
   if (!bf::exists(file_path)) {
     LOG(ERROR) << file_path << " doesn't exist";
@@ -150,7 +150,7 @@ bool ValidateFileContentInPackage(const std::string& pkgid,
 
 void ValidatePackageFS(const std::string& pkgid,
                        const std::vector<std::string>& appids) {
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   bf::path package_path = root_path / pkgid;
   bf::path data_path = package_path / "data";
   bf::path shared_path = package_path / "shared";
@@ -192,7 +192,7 @@ void ValidatePackageFS(const std::string& pkgid,
 
 void PackageCheckCleanup(const std::string& pkgid,
                          const std::vector<std::string>& appids) {
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   bf::path package_path = root_path / pkgid;
   ASSERT_FALSE(bf::exists(package_path));
 
@@ -217,13 +217,15 @@ void PackageCheckCleanup(const std::string& pkgid,
 
 void ValidatePackage(const std::string& pkgid,
                      const std::vector<std::string>& appids) {
-  ASSERT_TRUE(ci::QueryIsPackageInstalled(pkgid, ci::GetRequestMode()));
+  ASSERT_TRUE(ci::QueryIsPackageInstalled(
+      pkgid, ci::GetRequestMode(getuid()), getuid()));
   ValidatePackageFS(pkgid, appids);
 }
 
 void CheckPackageNonExistance(const std::string& pkgid,
                               const std::vector<std::string>& appids) {
-  ASSERT_FALSE(ci::QueryIsPackageInstalled(pkgid, ci::GetRequestMode()));
+  ASSERT_FALSE(ci::QueryIsPackageInstalled(
+      pkgid, ci::GetRequestMode(getuid()), getuid()));
   PackageCheckCleanup(pkgid, appids);
 }
 
@@ -483,7 +485,7 @@ TEST_F(SmokeTest, RDSMode) {
   ValidatePackage(pkgid, {appid});
 
   // Check delta modifications
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   ASSERT_FALSE(bf::exists(root_path / pkgid / "res" / "wgt" / "DELETED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "ADDED"));
   ValidateFileContentInPackage(pkgid, "res/wgt/MODIFIED", "2\n");
@@ -495,7 +497,7 @@ TEST_F(SmokeTest, ClearMode) {
   std::string appid = "smokeapp20.ClearMode";
   ASSERT_EQ(Install(path, PackageType::WGT),
             ci::AppInstaller::Result::OK);
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   bs::error_code error;
   bf::create_directory(root_path / pkgid / "data" / "dir", error);
   ASSERT_FALSE(error);
@@ -517,7 +519,7 @@ TEST_F(SmokeTest, DeltaMode) {
   ValidatePackage(pkgid, {appid});
 
   // Check delta modifications
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   ASSERT_FALSE(bf::exists(root_path / pkgid / "res" / "wgt" / "DELETED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "ADDED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "css" / "style.css"));  // NOLINT
@@ -639,7 +641,7 @@ TEST_F(SmokeTest, DeltaMode_Hybrid) {
   ValidatePackage(pkgid, {appid1, appid2});
 
   // Check delta modifications
-  bf::path root_path = ci::GetRootAppPath(false);
+  bf::path root_path = ci::GetRootAppPath(false, getuid());
   ASSERT_FALSE(bf::exists(root_path / pkgid / "res" / "wgt" / "DELETED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "ADDED"));
   ASSERT_FALSE(bf::exists(root_path / pkgid / "lib" / "DELETED"));

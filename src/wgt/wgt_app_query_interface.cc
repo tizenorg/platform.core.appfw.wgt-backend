@@ -36,6 +36,20 @@ namespace {
 const char kHybridConfigLocation[] = "res/wgt/config.xml";
 const char kTizenManifestLocation[] = "tizen-manifest.xml";
 
+uid_t GetUid(int argc, char** argv) {
+  uid_t uid = 0;
+  for (int i = 0; i < argc; ++i) {
+    if (!strcmp(argv[i], "-u")) {
+      if (i + 1 < argc) {
+        uid = atoi(argv[i + 1]);
+        break;
+      }
+    }
+  }
+
+  return uid;
+}
+
 std::string GetInstallationRequestInfo(int argc, char** argv) {
   std::string path;
   for (int i = 0; i < argc; ++i) {
@@ -106,23 +120,26 @@ bool WgtAppQueryInterface::IsAppInstalledByArgv(int argc, char** argv) {
   if (arg.empty())
     return false;
 
+  uid_t uid = GetUid(argc, argv);
   // argument from commandline is package id
-  if (ci::QueryIsPackageInstalled(arg, ci::GetRequestMode()))
+  if (ci::QueryIsPackageInstalled(arg, ci::GetRequestMode(uid), uid))
     return true;
 
   // argument from commandline is path to file
   std::string pkg_id = GetPkgIdFromPath(arg);
   if (pkg_id.empty())
     return false;
-  return ci::QueryIsPackageInstalled(pkg_id, ci::GetRequestMode());
+  return ci::QueryIsPackageInstalled(pkg_id, ci::GetRequestMode(uid), uid);
 }
 
 bool WgtAppQueryInterface::IsHybridApplication(int argc, char** argv) {
   std::string arg = GetInstallationRequestInfo(argc, argv);
   if (arg.find("apps_rw/recovery-") != std::string::npos)
     arg = ReadPkgidFromRecovery(arg);
-  if (ci::QueryIsPackageInstalled(arg, ci::GetRequestMode())) {
-    bf::path package_directory(ci::GetRootAppPath(false));
+
+  uid_t uid = GetUid(argc, argv);
+  if (ci::QueryIsPackageInstalled(arg, ci::GetRequestMode(uid), uid)) {
+    bf::path package_directory(ci::GetRootAppPath(false, uid));
     if (bf::exists(package_directory / arg / kTizenManifestLocation) &&
         bf::exists(package_directory / arg / kHybridConfigLocation))
       return true;
