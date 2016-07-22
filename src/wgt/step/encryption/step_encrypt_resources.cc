@@ -135,18 +135,24 @@ bool StepEncryptResources::EncryptFile(const bf::path &src) {
   unsigned char* encrypted_data = nullptr;
   size_t enc_data_len = 0;
   // TODO(p.sikorski) check if it is Preloaded
-  wae_app_type_e enc_type =
-      context_->request_mode.get() == common_installer::RequestMode::GLOBAL ?
-          WAE_DOWNLOADED_GLOBAL_APP : WAE_DOWNLOADED_NORMAL_APP;
-
-
-  int ret = wae_encrypt_web_application(
-              context_->pkgid.get().c_str(),
-              enc_type,
-              reinterpret_cast<const unsigned char*>(input_buffer),
-              length,
-              &encrypted_data,
-              &enc_data_len);
+  int ret;
+  if (context_->request_mode.get() == common_installer::RequestMode::GLOBAL)
+    ret = wae_encrypt_global_web_application(
+            context_->pkgid.get().c_str(),
+            context_->is_preload_request.get() ?
+            true : false,
+            reinterpret_cast<const unsigned char*>(input_buffer),
+            length,
+            &encrypted_data,
+            &enc_data_len);
+  else
+    ret = wae_encrypt_web_application(
+            context_->uid.get(),
+            context_->pkgid.get().c_str(),
+            reinterpret_cast<const unsigned char*>(input_buffer),
+            length,
+            &encrypted_data,
+            &enc_data_len);
   delete []input_buffer;
   if (WAE_ERROR_NONE != ret) {
     switch (ret) {
