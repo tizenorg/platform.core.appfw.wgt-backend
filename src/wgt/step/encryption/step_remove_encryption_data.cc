@@ -12,14 +12,17 @@ namespace wgt {
 namespace encryption {
 
 common_installer::Step::Status StepRemoveEncryptionData::process() {
-  wae_app_type_e enc_type =
-      context_->request_mode.get() == common_installer::RequestMode::GLOBAL ?
-          WAE_DOWNLOADED_GLOBAL_APP : WAE_DOWNLOADED_NORMAL_APP;
-
   // There is no check, if application was encrypted or not
   // (it is not saved anywhere in tizen manifest)
   // so, if WAE_ERROR_NO_KEY error, then application was not encrypted
-  int ret = wae_remove_app_dek(context_->pkgid.get().c_str(), enc_type);
+  int ret;
+  if (context_->request_mode.get() == common_installer::RequestMode::GLOBAL)
+    ret = wae_remove_global_app_dek(context_->pkgid.get().c_str(),
+                context_->is_preload_request.get() ?
+                true : false);
+  else
+    ret = wae_remove_app_dek(context_->uid.get(),
+                context_->pkgid.get().c_str());
   if (WAE_ERROR_NONE == ret || WAE_ERROR_NO_KEY == ret) {
     LOG(DEBUG) << "Encryption data removed (if existed)";
     return common_installer::Step::Status::OK;
