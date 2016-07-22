@@ -19,7 +19,8 @@ common_installer::Step::Status StepRemoveEncryptionData::process() {
   // There is no check, if application was encrypted or not
   // (it is not saved anywhere in tizen manifest)
   // so, if WAE_ERROR_NO_KEY error, then application was not encrypted
-  int ret = wae_remove_app_dek(context_->pkgid.get().c_str(), enc_type);
+  int ret = wae_remove_app_dek(context_->uid.get(),
+      context_->pkgid.get().c_str(), enc_type);
   if (WAE_ERROR_NONE == ret || WAE_ERROR_NO_KEY == ret) {
     LOG(DEBUG) << "Encryption data removed (if existed)";
     return common_installer::Step::Status::OK;

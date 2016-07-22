@@ -141,6 +141,7 @@ bool StepEncryptResources::EncryptFile(const bf::path &src) {
 
 
   int ret = wae_encrypt_web_application(
+              context_->uid.get(),
               context_->pkgid.get().c_str(),
               enc_type,
               reinterpret_cast<const unsigned char*>(input_buffer),
