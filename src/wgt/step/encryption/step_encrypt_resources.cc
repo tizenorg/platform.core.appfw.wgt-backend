@@ -88,7 +88,7 @@ bool StepEncryptResources::Encrypt(const bf::path &src) {
       continue;
     }
 
-    bool is_sym = bf::is_symlink(current, error_code);
+    bool is_sym = bf::is_symlink(symlink_status(current, error_code));
     if (error_code)
       return false;
     if (is_sym)
