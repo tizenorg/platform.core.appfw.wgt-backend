@@ -29,7 +29,7 @@ ci::Step::Status StepWgtPreparePackageDirectory::CreateSymlinkToMountPoint() {
   bf::path mount_point = ci::GetMountLocation(context_->pkg_path.get());
   bf::path res_wgt_link = context_->pkg_path.get() / kResWgtDirectory;
   if (bf::exists(res_wgt_link)) {
-    if (!bf::is_symlink(res_wgt_link)) {
+    if (!bf::is_symlink(symlink_status(res_wgt_link))) {
       LOG(ERROR) << res_wgt_link << " is not symlink. Cannot proceed";
       return Status::APP_DIR_ERROR;
     }
