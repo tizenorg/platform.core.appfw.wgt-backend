@@ -18,8 +18,8 @@
 #include <common/step/filesystem/step_copy_storage_directories.h>
 #include <common/step/filesystem/step_copy_tep.h>
 #include <common/step/filesystem/step_create_icons.h>
+#include <common/step/filesystem/step_create_globalapp_symlinks.h>
 #include <common/step/filesystem/step_create_per_user_storage_directories.h>
-#include <common/step/filesystem/step_create_legacy_directories.h>
 #include <common/step/filesystem/step_create_storage_directories.h>
 #include <common/step/filesystem/step_delta_patch.h>
 #include <common/step/filesystem/step_recover_files.h>
@@ -29,8 +29,8 @@
 #include <common/step/filesystem/step_recover_storage_directories.h>
 #include <common/step/filesystem/step_remove_files.h>
 #include <common/step/filesystem/step_remove_icons.h>
+#include <common/step/filesystem/step_remove_globalapp_symlinks.h>
 #include <common/step/filesystem/step_remove_per_user_storage_directories.h>
-#include <common/step/filesystem/step_remove_legacy_directories.h>
 #include <common/step/filesystem/step_remove_temporary_directory.h>
 #include <common/step/filesystem/step_remove_zip_image.h>
 #include <common/step/filesystem/step_remove_tep.h>
@@ -109,6 +109,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::filesystem::StepCopy>();
       AddStep<ci::filesystem::StepCopyTep>();
@@ -126,7 +127,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
-      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     case ci::RequestType::Update:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -154,6 +155,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<ci::filesystem::StepUpdateTep>();
@@ -170,6 +172,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     case ci::RequestType::Uninstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -181,18 +184,19 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Uninstall);
       AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::filesystem::StepRemovePerUserStorageDirectories>();
       AddStep<ci::pkgmgr::StepUnregisterApplication>();
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveTep>();
       AddStep<ci::filesystem::StepRemoveFiles>();
-      AddStep<ci::filesystem::StepRemoveLegacyDirectories>();
       AddStep<ci::filesystem::StepRemoveZipImage>();
       AddStep<ci::filesystem::StepRemoveIcons>();
       AddStep<wgt::encryption::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
       AddStep<ci::pkgmgr::StepRemoveManifest>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     case ci::RequestType::Reinstall:
       // RDS is not supported for hybrid apps
@@ -225,6 +229,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<ci::filesystem::StepUpdateTep>();
@@ -241,6 +246,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     case ci::RequestType::Recovery:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -284,6 +290,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<hybrid::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::mount::StepMountInstall>();
       AddStep<tpk::filesystem::StepTpkPreparePackageDirectory>();
       AddStep<ci::filesystem::StepCopyTep>();
@@ -301,7 +308,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
-      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     case ci::RequestType::MountUpdate:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -329,6 +336,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::mount::StepMountUpdate>();
       AddStep<tpk::filesystem::StepTpkUpdatePackageDirectory>();
       AddStep<ci::filesystem::StepUpdateTep>();
@@ -344,6 +352,7 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     case ci::RequestType::ManifestDirectInstall:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -360,13 +369,14 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Install);
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::security::StepRegisterSecurity>();
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
-      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     case ci::RequestType::ManifestDirectUpdate:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
@@ -389,10 +399,12 @@ HybridInstaller::HybridInstaller(common_installer::PkgMgrPtr pkgmgr)
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::security::StepUpdateSecurity>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepUpdateApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     case ci::RequestType::EnablePkg:
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
