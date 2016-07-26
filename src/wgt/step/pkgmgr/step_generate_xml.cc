@@ -114,6 +114,9 @@ bool WriteWidgetApplicationAttributesAndElements(
                     appwidget->update_period.front())).c_str());
   }
 
+  xmlTextWriterWriteAttribute(writer, BAD_CAST "max-instance",
+      BAD_CAST std::to_string(appwidget->max_instance).c_str());
+
   for (auto& size : appwidget->content_size) {
     xmlTextWriterStartElement(writer, BAD_CAST "support-size");
 
@@ -130,6 +133,16 @@ bool WriteWidgetApplicationAttributesAndElements(
                                 BAD_CAST "true");
     xmlTextWriterWriteString(writer,
         BAD_CAST type.c_str());
+    xmlTextWriterEndElement(writer);
+  }
+
+  for (auto& pair : appwidget->metadata) {
+    xmlTextWriterStartElement(writer, BAD_CAST "metadata");
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "key",
+                                BAD_CAST pair.first.c_str());
+    if (!pair.second.empty())
+      xmlTextWriterWriteAttribute(writer, BAD_CAST "value",
+                                  BAD_CAST pair.second.c_str());
     xmlTextWriterEndElement(writer);
   }
   return true;
