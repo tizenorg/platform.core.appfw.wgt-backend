@@ -20,8 +20,8 @@
 #include <common/step/filesystem/step_copy_storage_directories.h>
 #include <common/step/filesystem/step_copy_tep.h>
 #include <common/step/filesystem/step_create_icons.h>
+#include <common/step/filesystem/step_create_globalapp_symlinks.h>
 #include <common/step/filesystem/step_create_per_user_storage_directories.h>
-#include <common/step/filesystem/step_create_legacy_directories.h>
 #include <common/step/filesystem/step_create_storage_directories.h>
 #include <common/step/filesystem/step_delta_patch.h>
 #include <common/step/filesystem/step_disable_external_mount.h>
@@ -34,8 +34,8 @@
 #include <common/step/filesystem/step_recover_storage_directories.h>
 #include <common/step/filesystem/step_remove_files.h>
 #include <common/step/filesystem/step_remove_icons.h>
+#include <common/step/filesystem/step_remove_globalapp_symlinks.h>
 #include <common/step/filesystem/step_remove_per_user_storage_directories.h>
-#include <common/step/filesystem/step_remove_legacy_directories.h>
 #include <common/step/filesystem/step_remove_temporary_directory.h>
 #include <common/step/filesystem/step_remove_tep.h>
 #include <common/step/filesystem/step_remove_zip_image.h>
@@ -115,6 +115,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::encryption::StepEncryptResources>();
       AddStep<wgt::filesystem::StepWgtResourceDirectory>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::filesystem::StepCopy>();
       AddStep<ci::filesystem::StepCopyTep>();
@@ -131,7 +132,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::Plugin::ActionType::Install);
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
       AddStep<ci::security::StepRegisterSecurity>();
-      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::Update: {
@@ -156,6 +157,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<ci::filesystem::StepUpdateTep>();
@@ -171,6 +173,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::Uninstall: {
@@ -181,6 +184,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::NORMAL);
       AddStep<ci::pkgmgr::StepKillApps>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Uninstall);
@@ -189,12 +193,12 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::security::StepRollbackDeinstallationSecurity>();
       AddStep<ci::filesystem::StepRemoveTep>();
       AddStep<ci::filesystem::StepRemoveFiles>();
-      AddStep<ci::filesystem::StepRemoveLegacyDirectories>();
       AddStep<ci::filesystem::StepRemoveZipImage>();
       AddStep<ci::filesystem::StepRemoveIcons>();
       AddStep<wgt::encryption::StepRemoveEncryptionData>();
       AddStep<ci::security::StepRevokeSecurity>();
       AddStep<ci::pkgmgr::StepRemoveManifest>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::Reinstall: {
@@ -208,11 +212,13 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
           ci::configuration::StepParseManifest::ManifestLocation::INSTALLED,
           ci::configuration::StepParseManifest::StoreLocation::BACKUP);
       AddStep<ci::configuration::StepBlockCrossUpdate>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::rds::StepRDSParse>();
       AddStep<ci::filesystem::StepUpdateTep>();
       AddStep<wgt::rds::StepWgtRDSModify>();
       AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<ci::security::StepUpdateSecurity>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::Delta: {
@@ -244,6 +250,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::filesystem::StepAcquireExternalStorage>();
       AddStep<ci::backup::StepCopyBackup>();
       AddStep<ci::filesystem::StepUpdateTep>();
@@ -259,6 +266,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::Recovery: {
@@ -300,6 +308,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckWgtImePrivilege>();
       AddStep<wgt::encryption::StepEncryptResources>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::mount::StepMountInstall>();
       AddStep<wgt::filesystem::StepWgtPreparePackageDirectory>();
       AddStep<ci::filesystem::StepCopyTep>();
@@ -316,7 +325,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
       AddStep<wgt::security::StepCheckExtensionPrivileges>();
       AddStep<ci::security::StepRegisterSecurity>();
-      AddStep<ci::filesystem::StepCreateLegacyDirectories>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::MountUpdate: {
@@ -339,6 +348,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::backup::StepBackupManifest>();
       AddStep<ci::backup::StepBackupIcons>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<ci::mount::StepMountUpdate>();
       AddStep<wgt::filesystem::StepWgtUpdatePackageDirectory>();
       AddStep<ci::filesystem::StepUpdateTep>();
@@ -353,6 +363,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::ManifestDirectInstall: {
@@ -367,10 +378,12 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<wgt::security::StepCheckSettingsLevel>();
       AddStep<wgt::security::StepCheckWgtBackgroundCategory>();
       AddStep<ci::security::StepRollbackInstallationSecurity>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(ci::Plugin::ActionType::Install);
       AddStep<ci::security::StepRegisterSecurity>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::ManifestDirectUpdate: {
@@ -390,10 +403,12 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepKillApps>();
       AddStep<ci::filesystem::StepCopyTep>();
       AddStep<ci::security::StepUpdateSecurity>();
+      AddStep<ci::filesystem::StepRemoveGlobalAppSymlinks>();
       AddStep<wgt::pkgmgr::StepGenerateXml>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Upgrade);
       AddStep<ci::pkgmgr::StepUpdateApplication>();
+      AddStep<ci::filesystem::StepCreateGlobalAppSymlinks>();
       break;
     }
     case ci::RequestType::Move: {
