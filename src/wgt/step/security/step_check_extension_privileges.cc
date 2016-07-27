@@ -57,9 +57,9 @@ common_installer::Step::Status StepCheckExtensionPrivileges::process() {
     LOG(DEBUG) << "start to parse extension xml : " << *it;
     ExtensionConfigParser extensionParser(*it);
     std::vector<std::string> list = extensionParser.GetExtensionPrivilegeList();
-    for (int i = 0 ; i < list.size() ; i++) {
-      if (current_privileges.find(list[i]) == current_privileges.end()) {
-        privileges.insert(list[i]);
+    for (std::string priv : list) {
+      if (current_privileges.find(priv) == current_privileges.end()) {
+        privileges.emplace(priv);
       }
     }
   }
