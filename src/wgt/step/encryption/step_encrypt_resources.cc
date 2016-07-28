@@ -12,6 +12,7 @@
 #include <common/utils/file_util.h>
 
 #include <manifest_parser/utils/logging.h>
+#include <sys/stat.h>
 
 #include <algorithm>
 #include <cstdio>
@@ -21,7 +22,53 @@
 
 namespace {
 
+const std::size_t ENCRYPTION_CHUNK_MAX_SIZE = 8192; // bytes
 const std::set<std::string> encryptSet { ".html", ".htm", ".css", ".js"};
+
+FILE* openFile(const std::string& path, const std::string& mode)
+{
+  FILE* result = NULL;
+
+  do {
+    result = fopen(path.c_str(), mode.c_str());
+  } while ((NULL == result));
+
+  return result;
+}
+
+std::size_t readBytes(unsigned char* buffer, std::size_t count, FILE* stream)
+{
+  std::size_t result = std::fread(buffer,
+                                  sizeof(unsigned char),
+                                  count,
+                                  stream);
+  if (result != count) {
+    if (0 != std::ferror(stream)) {
+      LOG(ERROR) << "Error while reading data";
+    }
+  }
+
+  return result;
+}
+
+void writeBytes(unsigned char* buffer, std::size_t count, FILE* stream)
+{
+  // original file is treated as destination!
+  std::size_t bytesWritten = 0;
+  std::size_t bytesToWrite = 0;
+  do {
+    bytesToWrite = count - bytesWritten;
+    bytesWritten = std::fwrite(buffer + bytesWritten,
+                               sizeof(unsigned char),
+                               count - bytesWritten,
+                               stream);
+    if ((bytesWritten != bytesToWrite)) {
+      LOG(ERROR) << "Error while writing data";
+      free(buffer);
+      fclose(stream);
+    }
+  } while ((bytesWritten != bytesToWrite));
+}
 
 }  // namespace
 
@@ -105,97 +152,125 @@ bool StepEncryptResources::Encrypt(const bf::path &src) {
 }
 
 bool StepEncryptResources::EncryptFile(const bf::path &src) {
-  FILE *input = fopen(src.string().c_str(), "rb");
-  if (!input) {
-    LOG(ERROR) << "Cannot open file for encryption: " << src;
+  std::string encFile = src.string() + ".enc";
+
+  struct stat info;
+  memset(&info, 0, sizeof(info));
+  if (stat(src.string().c_str(), &info) != 0) {
+    LOG(ERROR) << "Could not access file " << src.string();
     return false;
   }
-
-  // read size
-  fseek(input , 0 , SEEK_END);
-  size_t length = ftell(input);
-
-  // don't encrypt empty files because libwebappenc doesn't support it
-  if (length == 0) {
-    fclose(input);
+  const std::size_t fileSize = info.st_size;
+  if (0 == fileSize) {
+    LOG(ERROR) << src.string().c_str() << " size is 0, so encryption is skiped";
     return true;
   }
 
-  rewind(input);
-
-  char *input_buffer = new char[length];
-  if (length != fread(input_buffer, sizeof(char), length, input)) {
-    LOG(ERROR) << "Read error, file: " << src;
-    fclose(input);
-    delete []input_buffer;
+  FILE *input = openFile(src.string().c_str(), "rb");
+  if (input == NULL) {
+    LOG(ERROR) << "Cannot open file for encryption: " << src.string();
     return false;
   }
-  fclose(input);
 
-  unsigned char* encrypted_data = nullptr;
-  size_t enc_data_len = 0;
-  // TODO(p.sikorski) check if it is Preloaded
-  wae_app_type_e enc_type =
-      context_->request_mode.get() == common_installer::RequestMode::GLOBAL ?
-          WAE_DOWNLOADED_GLOBAL_APP : WAE_DOWNLOADED_NORMAL_APP;
+  FILE *output = openFile(encFile, "wb");
+  if (output == NULL) {
+    LOG(ERROR) << "Cannot create encrypted file: " << encFile;
+    return false;
+  }
 
+  std::size_t chunkSize = (fileSize > ENCRYPTION_CHUNK_MAX_SIZE
+                                 ? ENCRYPTION_CHUNK_MAX_SIZE : fileSize);
 
-  int ret = wae_encrypt_web_application(
-              context_->pkgid.get().c_str(),
-              enc_type,
-              reinterpret_cast<const unsigned char*>(input_buffer),
-              length,
-              &encrypted_data,
-              &enc_data_len);
-  delete []input_buffer;
-  if (WAE_ERROR_NONE != ret) {
-    switch (ret) {
-    case WAE_ERROR_INVALID_PARAMETER:
-      LOG(ERROR) << "Error during encrypting: WAE_ERROR_INVALID_PARAMETER";
-      break;
-    case WAE_ERROR_PERMISSION_DENIED:
-      LOG(ERROR) << "Error during encrypting: WAE_ERROR_PERMISSION_DENIED";
-      break;
-    case WAE_ERROR_NO_KEY:
-      LOG(ERROR) << "Error during encrypting: WAE_ERROR_NO_KEY";
-      break;
-    case WAE_ERROR_KEY_MANAGER:
-      LOG(ERROR) << "Error during encrypting: WAE_ERROR_KEY_MANAGER";
-      break;
-    case WAE_ERROR_CRYPTO:
-      LOG(ERROR) << "Error during encrypting: WAE_ERROR_CRYPTO";
-      break;
-    case WAE_ERROR_UNKNOWN:
-      LOG(ERROR) << "Error during encrypting: WAE_ERROR_UNKNOWN";
-      break;
-    default:
-      LOG(ERROR) << "Error during encrypting: UNKNOWN";
-      break;
+  std::unique_ptr<unsigned char[]> inChunk(new unsigned char[chunkSize]);
+  std::size_t bytesRead = 0;
+
+  do {
+    bytesRead = readBytes(inChunk.get(), chunkSize, input);
+    if (0 != bytesRead) {
+      unsigned char* encrypted_data = nullptr;
+      size_t encrypted_size = 0;
+      // TODO(p.sikorski) check if it is Preloaded
+      int ret;
+      if (context_->request_mode.get() == common_installer::RequestMode::GLOBAL) {
+        ret = wae_encrypt_global_web_application(
+                context_->pkgid.get().c_str(),
+                context_->is_preload_request.get() ?
+                true : false,
+                inChunk.get(),
+                (size_t)bytesRead,
+                &encrypted_data,
+                &encrypted_size);
+      } else {
+          ret = wae_encrypt_web_application(
+                  context_->uid.get(),
+                  context_->pkgid.get().c_str(),
+                  inChunk.get(),
+                  (size_t)bytesRead,
+                  &encrypted_data,
+                  &encrypted_size);
+      }
+
+      if (WAE_ERROR_NONE != ret) {
+        LOG(ERROR) << "Error during encrypting:";
+        switch (ret) {
+          case WAE_ERROR_INVALID_PARAMETER:
+            LOG(ERROR) << "WAE_ERROR_INVALID_PARAMETER";
+            break;
+          case WAE_ERROR_PERMISSION_DENIED:
+            LOG(ERROR) << "WAE_ERROR_PERMISSION_DENIED";
+            break;
+          case WAE_ERROR_NO_KEY:
+            LOG(ERROR) << "WAE_ERROR_NO_KEY";
+            break;
+          case WAE_ERROR_KEY_MANAGER:
+            LOG(ERROR) << "WAE_ERROR_KEY_MANAGER";
+            break;
+          case WAE_ERROR_CRYPTO:
+            LOG(ERROR) << "WAE_ERROR_CRYPTO";
+            break;
+          case WAE_ERROR_UNKNOWN:
+            LOG(ERROR) << "WAE_ERROR_UNKNOWN";
+            break;
+          default:
+            LOG(ERROR) << "UNKNOWN";
+            break;
+        }
+        fclose(output);
+        fclose(input);
+        return false;
+      }
+
+      if (encrypted_size <= 0) {
+        LOG(ERROR) << "Encryption Failed using TrustZone";
+        fclose(output);
+        fclose(input);
+        return false;
+      }
+
+      std::stringstream toString;
+      toString << encrypted_size;
+
+      writeBytes((unsigned char*)toString.str().c_str(), sizeof(int), output);
+      writeBytes((unsigned char*)encrypted_data, encrypted_size, output);
+      free(encrypted_data);
     }
-    return false;
-  }
+    inChunk.reset(new unsigned char[chunkSize]);
 
-  // original file is treated as destination!
-  FILE *output = fopen(src.string().c_str(), "wb");
-  if (!output) {
-    LOG(ERROR) << "Cannot create encrypted file: " << src;
-    free(encrypted_data);
-    return false;
-  }
-
-  if (enc_data_len != fwrite(reinterpret_cast<const char*>(encrypted_data),
-                             sizeof(char),
-                             enc_data_len,
-                             output)) {
-    LOG(ERROR) << "Write error, file: " << src;
-    free(encrypted_data);
-    fclose(output);
-    return false;
-  }
-
+  } while (0 == std::feof(input));
 
   fclose(output);
-  free(encrypted_data);
+  fclose(input);
+
+  LOG(DEBUG) << "File encrypted successfully";
+  if (0 != unlink(src.string().c_str())) {
+    return false;
+  }
+
+  LOG(DEBUG) << "Rename encrypted file";
+  if (0 != std::rename(encFile.c_str(), src.string().c_str())) {
+    return false;
+  }
+
   return true;
 }
 
