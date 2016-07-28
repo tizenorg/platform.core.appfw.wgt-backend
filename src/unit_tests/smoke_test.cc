@@ -260,22 +260,29 @@ ci::AppInstaller::Result RunInstallerWithPkgrmgr(ci::PkgMgrPtr pkgmgr,
   }
   return installer->Run();
 }
-
-ci::AppInstaller::Result Install(const bf::path& path,
-                                 PackageType type,
-                                 RequestResult mode = RequestResult::NORMAL) {
-  const char* argv[] = {"", "-i", path.c_str()};
+ci::AppInstaller::Result CallBackend(int argc,
+                                     const char* argv[],
+                                     PackageType type,
+                                     RequestResult mode = RequestResult::NORMAL
+                                     ) {
   TestPkgmgrInstaller pkgmgr_installer;
   std::unique_ptr<ci::AppQueryInterface> query_interface =
       CreateQueryInterface();
   auto pkgmgr =
-      ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
+      ci::PkgMgrInterface::Create(argc, const_cast<char**>(argv),
                                   &pkgmgr_installer, query_interface.get());
   if (!pkgmgr) {
     LOG(ERROR) << "Failed to initialize pkgmgr interface";
     return ci::AppInstaller::Result::UNKNOWN;
   }
   return RunInstallerWithPkgrmgr(pkgmgr, type, mode);
+}
+
+ci::AppInstaller::Result Install(const bf::path& path,
+                                 PackageType type,
+                                 RequestResult mode = RequestResult::NORMAL) {
+  const char* argv[] = {"", "-i", path.c_str()};
+  return CallBackend(SIZEOFARRAY(argv), argv, type, mode);
 }
 
 ci::AppInstaller::Result Update(const bf::path& path_old,
@@ -292,17 +299,7 @@ ci::AppInstaller::Result Update(const bf::path& path_old,
 ci::AppInstaller::Result MountInstall(const bf::path& path,
     PackageType type, RequestResult mode = RequestResult::NORMAL) {
   const char* argv[] = {"", "-w", path.c_str()};
-  TestPkgmgrInstaller pkgmgr_installer;
-  std::unique_ptr<ci::AppQueryInterface> query_interface =
-      CreateQueryInterface();
-  auto pkgmgr =
-      ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
-                                  &pkgmgr_installer, query_interface.get());
-  if (!pkgmgr) {
-    LOG(ERROR) << "Failed to initialize pkgmgr interface";
-    return ci::AppInstaller::Result::UNKNOWN;
-  }
-  return RunInstallerWithPkgrmgr(pkgmgr, type, mode);
+  return CallBackend(SIZEOFARRAY(argv), argv, type, mode);
 }
 
 ci::AppInstaller::Result MountUpdate(const bf::path& path_old,
@@ -319,17 +316,7 @@ ci::AppInstaller::Result Uninstall(const std::string& pkgid,
                                    PackageType type,
                                    RequestResult mode = RequestResult::NORMAL) {
   const char* argv[] = {"", "-d", pkgid.c_str()};
-  TestPkgmgrInstaller pkgmgr_installer;
-  std::unique_ptr<ci::AppQueryInterface> query_interface =
-      CreateQueryInterface();
-  auto pkgmgr =
-      ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
-                                  &pkgmgr_installer, query_interface.get());
-  if (!pkgmgr) {
-    LOG(ERROR) << "Failed to initialize pkgmgr interface";
-    return ci::AppInstaller::Result::UNKNOWN;
-  }
-  return RunInstallerWithPkgrmgr(pkgmgr, type, mode);
+  return CallBackend(SIZEOFARRAY(argv), argv, type, mode);
 }
 
 ci::AppInstaller::Result Reinstall(const bf::path& path,
@@ -341,17 +328,7 @@ ci::AppInstaller::Result Reinstall(const bf::path& path,
     return ci::AppInstaller::Result::UNKNOWN;
   }
   const char* argv[] = {"", "-r", delta_dir.c_str()};
-  TestPkgmgrInstaller pkgmgr_installer;
-  std::unique_ptr<ci::AppQueryInterface> query_interface =
-      CreateQueryInterface();
-  auto pkgmgr =
-      ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
-                                  &pkgmgr_installer, query_interface.get());
-  if (!pkgmgr) {
-    LOG(ERROR) << "Failed to initialize pkgmgr interface";
-    return ci::AppInstaller::Result::UNKNOWN;
-  }
-  return RunInstallerWithPkgrmgr(pkgmgr, type, mode);
+  return CallBackend(SIZEOFARRAY(argv), argv, type, mode);
 }
 
 ci::AppInstaller::Result DeltaInstall(const bf::path& path,
@@ -367,17 +344,21 @@ ci::AppInstaller::Result Clear(const std::string& pkgid,
                                    PackageType type,
                                    RequestResult mode = RequestResult::NORMAL) {
   const char* argv[] = {"", "-c", pkgid.c_str()};
-  TestPkgmgrInstaller pkgmgr_installer;
-  std::unique_ptr<ci::AppQueryInterface> query_interface =
-      CreateQueryInterface();
-  auto pkgmgr =
-      ci::PkgMgrInterface::Create(SIZEOFARRAY(argv), const_cast<char**>(argv),
-                                  &pkgmgr_installer, query_interface.get());
-  if (!pkgmgr) {
-    LOG(ERROR) << "Failed to initialize pkgmgr interface";
-    return ci::AppInstaller::Result::UNKNOWN;
-  }
-  return RunInstallerWithPkgrmgr(pkgmgr, type, mode);
+  return CallBackend(SIZEOFARRAY(argv), argv, type, mode);
+}
+
+ci::AppInstaller::Result EnablePackage(const std::string& pkgid,
+                                  PackageType type,
+                                  RequestResult mode = RequestResult::NORMAL) {
+  const char* argv[] = {"", "-A", pkgid.c_str()};
+  return CallBackend(SIZEOFARRAY(argv), argv, type, mode);
+}
+
+ci::AppInstaller::Result DisablePackage(const std::string& pkgid,
+                                  PackageType type,
+                                  RequestResult mode = RequestResult::NORMAL) {
+  const char* argv[] = {"", "-D", pkgid.c_str()};
+  return CallBackend(SIZEOFARRAY(argv), argv, type, mode);
 }
 
 ci::AppInstaller::Result Recover(const bf::path& recovery_file,
@@ -487,6 +468,31 @@ TEST_F(SmokeTest, RDSMode) {
   ASSERT_FALSE(bf::exists(root_path / pkgid / "res" / "wgt" / "DELETED"));
   ASSERT_TRUE(bf::exists(root_path / pkgid / "res" / "wgt" / "ADDED"));
   ValidateFileContentInPackage(pkgid, "res/wgt/MODIFIED", "2\n");
+}
+
+TEST_F(SmokeTest, EnablePkg) {
+  bf::path path = kSmokePackagesDirectory / "EnablePkg.wgt";
+  std::string pkgid = "smokeapp22";
+  ASSERT_EQ(Install(path, PackageType::WGT),
+            ci::AppInstaller::Result::OK);
+  ASSERT_EQ(DisablePackage(pkgid, PackageType::WGT),
+            ci::AppInstaller::Result::OK);
+  ASSERT_EQ(EnablePackage(pkgid, PackageType::WGT),
+            ci::AppInstaller::Result::OK);
+
+  ASSERT_TRUE(ci::QueryIsPackageInstalled(pkgid, ci::GetRequestMode()));
+}
+
+TEST_F(SmokeTest, DisablePkg) {
+  bf::path path = kSmokePackagesDirectory / "DisablePkg.wgt";
+  std::string pkgid = "smokeapp21";
+  std::string appid = "smokeapp21.DisablePkg";
+  ASSERT_EQ(Install(path, PackageType::WGT),
+            ci::AppInstaller::Result::OK);
+  ASSERT_EQ(DisablePackage(pkgid, PackageType::WGT),
+            ci::AppInstaller::Result::OK);
+  ASSERT_FALSE(ci::QueryIsPackageInstalled(pkgid, ci::GetRequestMode()));
+  ValidatePackageFS(pkgid, {appid});
 }
 
 TEST_F(SmokeTest, ClearMode) {
