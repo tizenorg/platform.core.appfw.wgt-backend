@@ -129,8 +129,8 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::pkgmgr::StepRegisterApplication>();
       AddStep<ci::pkgmgr::StepRunParserPlugin>(
           ci::Plugin::ActionType::Install);
-      AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
       AddStep<ci::security::StepRegisterSecurity>();
+      AddStep<ci::filesystem::StepCreatePerUserStorageDirectories>();
       AddStep<ci::filesystem::StepCreateLegacyDirectories>();
       break;
     }
