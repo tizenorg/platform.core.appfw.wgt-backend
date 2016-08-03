@@ -14,6 +14,7 @@
 #include <common/step/configuration/step_configure.h>
 #include <common/step/configuration/step_fail.h>
 #include <common/step/configuration/step_parse_manifest.h>
+#include <common/step/configuration/step_parse_preload.h>
 #include <common/step/filesystem/step_acquire_external_storage.h>
 #include <common/step/filesystem/step_clear_data.h>
 #include <common/step/filesystem/step_copy.h>
@@ -104,6 +105,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepUnzip>();
       AddStep<wgt::configuration::StepParse>(
         wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::configuration::StepParsePreload>();
       AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
@@ -139,6 +141,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::filesystem::StepUnzip>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::configuration::StepParsePreload>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -290,6 +293,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::mount::StepMountUnpacked>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::configuration::StepParsePreload>();
       AddStep<ci::pkgmgr::StepCheckRestriction>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
@@ -324,6 +328,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::mount::StepMountUnpacked>();
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::PACKAGE, true);
+      AddStep<ci::configuration::StepParsePreload>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<ci::security::StepCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -359,6 +364,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
+      AddStep<ci::configuration::StepParsePreload>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<wgt::security::StepDirectManifestCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
@@ -377,6 +383,7 @@ WgtInstaller::WgtInstaller(ci::PkgMgrPtr pkgrmgr)
       AddStep<ci::configuration::StepConfigure>(pkgmgr_);
       AddStep<wgt::configuration::StepParse>(
           wgt::configuration::StepParse::ConfigLocation::INSTALLED, true);
+      AddStep<ci::configuration::StepParsePreload>();
       AddStep<ci::configuration::StepCheckTizenVersion>();
       AddStep<wgt::security::StepDirectManifestCheckSignature>();
       AddStep<ci::security::StepPrivilegeCompatibility>();
